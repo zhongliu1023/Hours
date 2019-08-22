@@ -32,7 +32,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".Activity.Auth.LoginActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorPortrait">
