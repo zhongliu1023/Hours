@@ -3,4 +3,11 @@
     <color name="colorPrimary">#ffffff</color>
     <color name="colorPrimaryDark">#7E1887</color>
     <color name="colorAccent">#7e1887</color>
+
+    <color name="white">#ffffff</color>
+    <color name="yellow">#FFC107</color>
+    <color name="history_color1">#3398FE</color>
+    <color name="history_color2">#7D1886</color>
+    <color name="history_color3">#FDCBFE</color>
+    <color name="history_stroke">#797979</color>
 </resources>
