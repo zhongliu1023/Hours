@@ -57,6 +57,7 @@ public class MainActivity  extends FragmentActivity {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
 
+
             sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
 
             init();
