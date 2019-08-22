@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="navigation_height">50dp</dimen>
+    <dimen name="navi_title_font_size">14sp</dimen>
+    <dimen name="editView_default_font_size">14sp</dimen>
+    <dimen name="margin_top_bottom_default_1">3dp</dimen>
+    <dimen name="margin_top_bottom_default_5">15dp</dimen>
+
+    <dimen name="back_btn_height">30dp</dimen>
+    <!-- Tab Main Activity-->
+    <dimen name="tab_height">40dp</dimen>
+    <dimen name="tab_image_size">25dp</dimen>
+</resources>
