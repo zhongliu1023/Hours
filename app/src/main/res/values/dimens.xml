@@ -17,4 +17,16 @@
     <dimen name="history_tab_body_first_part_height">100dp</dimen>
     <dimen name="history_tab_body_rect_width">15dp</dimen>
 
+    <dimen name="home_tab_search_height">55dp</dimen>
+    <dimen name="home_tab_body_title_height">50dp</dimen>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <dimen name="book_item_width">120dp</dimen>
+    <dimen name="book_item_height">180dp</dimen>
+    <dimen name="temp_spaec">20dp</dimen>
+
+    <dimen name="searchbar_height">55dp</dimen>
+    <dimen name="myshelf_book_item_height">160dp</dimen>
+
 </resources>

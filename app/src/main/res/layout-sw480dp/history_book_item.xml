@@ -11,13 +11,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/book_image"
+            android:padding="2dp"
+            android:layout_above="@id/bookName"
             android:layout_centerInParent="true"/>
         <TextView
             android:id="@+id/bookName"
-            android:layout_below="@id/book_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
             android:text="百年孤独"/>
     </RelativeLayout>
     <LinearLayout

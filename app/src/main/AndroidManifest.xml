@@ -41,6 +41,15 @@
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan">
         </activity>
+        <activity android:name=".Activity.ProfileActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.ProfileModificationActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.SearchActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.BookDetailActivity"
+            android:screenOrientation="portrait"/>
+
     </application>
 
 </manifest>

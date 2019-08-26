@@ -122,7 +122,7 @@
                         android:layout_height="wrap_content"
                         android:text="本"
                         android:layout_marginStart="3dp"
-                        android:paddingBottom="20dp"
+                        android:paddingBottom="45dp"
                         android:layout_alignParentBottom="true"
                         android:layout_toRightOf="@id/number_in_circle"/>
                 </RelativeLayout>

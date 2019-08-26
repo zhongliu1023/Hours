@@ -1,12 +1,5 @@
 package ours.china.hours.Activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,15 +10,23 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+import android.widget.Toolbar;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import java.util.List;
+import java.util.Objects;
 
 import ours.china.hours.Common.ActivityResults.ActivityResultBus;
 import ours.china.hours.Common.ActivityResults.ActivityResultEvent;
 import ours.china.hours.Common.FragmentsBus.FragmentsBus;
 import ours.china.hours.Common.FragmentsBus.FragmentsEvents;
 import ours.china.hours.Common.FragmentsBus.FragmentsEventsKeys;
-import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Common.Utils.ActivityCodes;
 import ours.china.hours.Common.Utils.FragmentmanagerUtils;
@@ -36,8 +37,7 @@ import ours.china.hours.Fragment.HistoryTab.HistoryFragment;
 import ours.china.hours.Fragment.HistoryTab.HistoryFragmentRoot;
 import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
-import ours.china.hours.Fragment.ProfileTab.ProfileFragment;
-import ours.china.hours.Fragment.ProfileTab.ProfileFragmentRoot;
+import ours.china.hours.Model.Profile;
 import ours.china.hours.R;
 
 public class MainActivity  extends FragmentActivity {
@@ -61,6 +61,15 @@ public class MainActivity  extends FragmentActivity {
 
             init();
             setListener();
+
+            // for the event of firstItem press in ProfileActivity
+            Intent intent = getIntent();
+            String tempMessage = intent.getStringExtra("from");
+
+            if (tempMessage != null && tempMessage.equals("ProfileActivity")) {
+                Toast.makeText(MainActivity.this, "From ProfileActivitpy", Toast.LENGTH_LONG).show();
+            }
+
         }
         private void init(){
             imgHomeTab = (ImageView) findViewById(R.id.tab_home);
@@ -74,14 +83,11 @@ public class MainActivity  extends FragmentActivity {
             // Set up the ViewPager with the sections adapter.
             mViewPager = (NonSwipeableViewPager) findViewById(R.id.frame_content);
             mViewPager.setAdapter(mSectionsPagerAdapter);
-            mViewPager.setOffscreenPageLimit(4);
+            mViewPager.setOffscreenPageLimit(3);
 
 
             mViewPager.setCurrentItem(0);
             changedTabIcons(0);
-        }
-        private void initFontAndText(){
-
         }
 
         private void setListener() {
@@ -111,8 +117,8 @@ public class MainActivity  extends FragmentActivity {
             imgProfileTab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mViewPager.setCurrentItem(3);
-                    changedTabIcons(3);
+                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                    startActivity(intent);
                 }
             });
             mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -165,9 +171,6 @@ public class MainActivity  extends FragmentActivity {
                         break;
                     case 2:
                         if(f instanceof HistoryFragment) return true;
-                        break;
-                    case 3:
-                        if(f instanceof ProfileFragment) return true;
                         break;
                 }
             }
@@ -227,9 +230,9 @@ public class MainActivity  extends FragmentActivity {
         }
         private void changedTabIcons(int position){
             if (position == 0 && isHomePage()) {
-                changeDarkTheme();
+//                changeDarkTheme();
             } else {
-                changeLightTheme();
+//                changeLightTheme();
             }
             selectedTabIndex = position;
             switch (position) {
@@ -289,10 +292,6 @@ public class MainActivity  extends FragmentActivity {
                     fragment = new HistoryFragmentRoot();
                     args.putInt(HistoryFragmentRoot.ARG_OBJECT, position + 1);
                     break;
-                case 3:
-                    fragment = new ProfileFragmentRoot();
-                    args.putInt(ProfileFragmentRoot.ARG_OBJECT, position + 1);
-                    break;
 
                 default:
                     fragment = new HomeFragment();
@@ -304,7 +303,7 @@ public class MainActivity  extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 3;
         }
         @Override
         public CharSequence getPageTitle(int position) {
