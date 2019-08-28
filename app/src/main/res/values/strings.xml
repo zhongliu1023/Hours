@@ -16,4 +16,6 @@
     <string name="already_activated">already activated</string>
     <string name="active_failed">active failed,code is %d</string>
 
+    <!-- for face image upload -->
+    <string name="read_file">This app needs access to your file storage so that it can read photos.</string>
 </resources>

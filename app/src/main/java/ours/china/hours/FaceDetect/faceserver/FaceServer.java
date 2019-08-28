@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.Activity.Global;
 import ours.china.hours.FaceDetect.model.FaceRegisterInfo;
 
 /**
@@ -242,7 +243,12 @@ public class FaceServer {
                     if (cropRect == null) {
                         return false;
                     }
+
                     File file = new File(imgDir + File.separator + userName + IMG_SUFFIX);
+                    Global.registeredFacePath = imgDir + File.separator + userName + IMG_SUFFIX;
+                    Log.v("Detected face imageUrl", imgDir + File.separator + userName + IMG_SUFFIX);
+                    // image file url == > "data/data/ours.china.hours/files/register/imgs/registered %d.jpg
+
                     FileOutputStream fosImage = new FileOutputStream(file);
                     yuvImage.compressToJpeg(cropRect, 100, fosImage);
                     fosImage.close();

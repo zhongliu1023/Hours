@@ -68,5 +68,12 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
+    // for image upload
+    implementation 'com.squareup.retrofit2:retrofit:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
+    implementation 'com.squareup.okio:okio:1.17.4'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'pub.devrel:easypermissions:0.2.0'
 
 }
