@@ -38,6 +38,7 @@ import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,11 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import ours.china.hours.Activity.Global;
+import ours.china.hours.FaceDetect.UploadFaceInterface;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
@@ -67,7 +73,13 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
+import ours.china.hours.Model.UploadObject;
 import ours.china.hours.R;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
     private static final String TAG = "RegisterAndRecognize";
@@ -135,8 +147,8 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
      */
     private static final String[] NEEDED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
-            Manifest.permission.READ_PHONE_STATE
-
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
     @Override
@@ -404,14 +416,14 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
-
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Intent intent = new Intent(FaceRegisterActivity.this, UserInformationRegisterActivity.class);
-                                        startActivity(intent);
-                                    }
-                                }, 2000);
+                                faceUploadWork();
+//                                new Handler().postDelayed(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        Intent intent = new Intent(FaceRegisterActivity.this, UserInformationRegisterActivity.class);
+//                                        startActivity(intent);
+//                                    }
+//                                }, 2000);
                             }
 
                         }
@@ -604,87 +616,36 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         }
     }
 
-    AlertDialog.Builder builder;
-    public void alerDialogWork(String tempStr) {
-        builder = new AlertDialog.Builder(this);
-        builder.setMessage(tempStr)
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        finish();
-                        Toast.makeText(getApplicationContext(),"you choose yes action for alertbox",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        //  Action for 'NO' Button
-                        dialog.cancel();
-                        Toast.makeText(getApplicationContext(),"you choose no action for alertbox",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-        //Creating dialog box
-        AlertDialog alert = builder.create();
-        //Setting the title manually
-        alert.setTitle("AlertDialogExample");
-        alert.show();
-    }
+    private static final String SERVER_PATH = "http://192.168.6.208/htdocs_tunai/";
+    public void faceUploadWork() {
+        File file = new File(Global.registeredFacePath);
+        Log.d(TAG, "Filename " + file.getName());
+        //RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
 
-    public void activeEngine() {
-        Observable.create(new ObservableOnSubscribe<Integer>() {
+        RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
+        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(SERVER_PATH)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        UploadFaceInterface uploadImage = retrofit.create(UploadFaceInterface.class);
+        Call<UploadObject> fileUpload = uploadImage.uploadFile(fileToUpload, filename);
+        fileUpload.enqueue(new Callback<UploadObject>() {
             @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-                int activeCode = faceEngine.activeOnline(FaceRegisterActivity.this, Constants.APP_ID, Constants.SDK_KEY);
-                emitter.onNext(activeCode);
+            public void onResponse(Call<UploadObject> call, Response<UploadObject> response) {
+                Toast.makeText(FaceRegisterActivity.this, "Response " + response.raw().message(), Toast.LENGTH_LONG).show();
+                Toast.makeText(FaceRegisterActivity.this, "Success " + response.body().getSuccess(), Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(FaceRegisterActivity.this, UserInformationRegisterActivity.class);
+                startActivity(intent);
             }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Integer>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
+            @Override
+            public void onFailure(Call<UploadObject> call, Throwable t) {
+                Log.d(TAG, "Error " + t.getMessage());
+            }
+        });
 
-                    }
-
-                    @Override
-                    public void onNext(Integer activeCode) {
-                        if (activeCode == ErrorInfo.MOK) {
-                            showToast(getString(R.string.active_success));
-                        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
-                            showToast(getString(R.string.already_activated));
-                        } else {
-                            showToast(getString(R.string.active_failed, activeCode));
-                        }
-
-                        ActiveFileInfo activeFileInfo = new ActiveFileInfo();
-                        int res = faceEngine.getActiveFileInfo(FaceRegisterActivity.this,activeFileInfo);
-                        if (res == ErrorInfo.MOK) {
-                            Log.i(TAG, activeFileInfo.toString());
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
-
-    private Toast toast = null;
-    private void showToast(String s) {
-        if (toast == null) {
-            toast = Toast.makeText(this, s, Toast.LENGTH_SHORT);
-            toast.show();
-        } else {
-            toast.setText(s);
-            toast.show();
-        }
     }
 
 }
