@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FastScrollRecyclerView">
+        <attr name="hideScrollbar" format="boolean" />
+        <attr name="showTrack" format="boolean" />
+        <attr name="trackColor" format="color" />
+        <attr name="handleColor" format="color" />
+        <attr name="bubbleColor" format="color" />
+        <attr name="bubbleTextColor" format="color" />
+    </declare-styleable>
+
+
+    <declare-styleable name="DragLinearLayout">
+        <attr name="scrollSensitiveHeight" format="dimension" />
+        <attr name="placeholderView" format="reference" />
+    </declare-styleable>
+</resources>

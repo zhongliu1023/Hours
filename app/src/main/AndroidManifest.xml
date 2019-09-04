@@ -26,6 +26,7 @@
         </activity>
 
         <activity android:name=".Activity.Auth.LoginOptionActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.LoginActivity"
             android:theme="@style/AppTheme"

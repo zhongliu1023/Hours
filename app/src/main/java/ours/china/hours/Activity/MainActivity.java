@@ -237,35 +237,35 @@ public class MainActivity  extends FragmentActivity {
             selectedTabIndex = position;
             switch (position) {
                 case 0:
-                    imgHomeTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
                     break;
                 case 1:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
                     break;
                 case 2:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
                     break;
                 case 3:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me_icon));
                     break;
 
                 default:
-                    imgHomeTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
                     break;
             }
         }

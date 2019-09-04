@@ -12,6 +12,7 @@
         android:id="@+id/statusBarLayout"
         android:layout_width="match_parent"
         android:layout_height="25dp"
+        android:background="@color/statusbar_black"
         android:orientation="vertical"/>
 
     <ours.china.hours.CustomView.NonSwipeableViewPager

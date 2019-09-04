@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
-import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.R;
 
 /**
@@ -20,13 +18,11 @@ import ours.china.hours.R;
 public class Splash extends AppCompatActivity {
 
     private final int SPLASH_DISPLAY_LENGTH = 3000;
-    SharedPreferencesManager sharedM;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-        sharedM = SharedPreferencesManager.getInstance(Splash.this);
 
 
         /* New Handler to start the Menu-Activity

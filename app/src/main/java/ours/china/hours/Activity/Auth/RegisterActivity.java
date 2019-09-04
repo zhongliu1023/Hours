@@ -19,16 +19,10 @@ import ours.china.hours.R;
 
 public class RegisterActivity  extends AppCompatActivity {
 
-    private KProgressHUD hud;
-    private SharedPreferencesManager sharedPreferencesManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
-        sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
-        SoftKeyboardHandle.setupUI(findViewById(R.id.parentRegister), this);
 
         initActionBar();
         init();
