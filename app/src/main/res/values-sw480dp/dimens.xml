@@ -9,7 +9,10 @@
     <dimen name="back_btn_height">50dp</dimen>
     <!-- Tab Main Activity-->
     <dimen name="tab_height">60dp</dimen>
-    <dimen name="tab_image_size">40dp</dimen>
+    <dimen name="tab_image_size">30dp</dimen>
+
+    <dimen name="main_text_font">12sp</dimen>
+    <dimen name="main_text_margin_top">3dp</dimen>
 
     <dimen name="history_tab_head_height">50dp</dimen>
     <dimen name="history_tab_body_padding">8dp</dimen>

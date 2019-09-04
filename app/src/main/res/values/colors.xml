@@ -11,9 +11,9 @@
     <color name="history_color1">#3398FE</color>
     <color name="history_color2">#7D1886</color>
     <color name="history_color3">#FDCBFE</color>
-    <color name="history_stroke">#797979</color>
+    <color name="history_stroke">#DAD9D9</color>
 
-    <color name="seperator">#2E2D2D</color>
+    <color name="seperator">#DAD9D9</color>
     <color name="flex_back_color">#F1F1F1</color>
     <color name="bookdetail_toolbar_back_color">#F1F1F1</color>
 
@@ -51,4 +51,8 @@
 
     <!--  statusbar color  -->
     <color name="statusbar_black">#000000</color>
+
+    <color name="maskLayer_color">#55000000</color>
+    <color name="home_background_color">#dddddd</color>
+
 </resources>

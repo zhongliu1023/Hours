@@ -9,7 +9,9 @@
     <dimen name="back_btn_height">60dp</dimen>
     <!-- Tab Main Activity-->
     <dimen name="tab_height">80dp</dimen>
-    <dimen name="tab_image_size">50dp</dimen>
+    <dimen name="tab_image_size">40dp</dimen>
 
+    <dimen name="main_text_font">16sp</dimen>
+    <dimen name="main_text_margin_top">5dp</dimen>
 
 </resources>

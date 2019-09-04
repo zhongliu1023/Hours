@@ -601,4 +601,7 @@
     <string name="animate_sync_progress">Animate sync progress</string>
     <string name="pull_to_start_sync">Manual sync (à la pull-to-refresh)</string>
     <string name="show_book_title">Always display book title on top</string>
+
+    <!--  popupWindow  -->
+    <string name="popupAll">全都(%s)</string>
 </resources>

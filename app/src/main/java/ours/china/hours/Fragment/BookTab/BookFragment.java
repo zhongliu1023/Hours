@@ -66,8 +66,6 @@ public class BookFragment extends Fragment {
         adapter = new HomeBookAdapter(mBookList, getActivity());
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerBooksView.setLayoutManager(gridLayoutManager);
-        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
-        recyclerBooksView.addItemDecoration(itemOffsetDecoration);
         recyclerBooksView.setAdapter(adapter);
 
         // popupWindowWork.

@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".Activity.Auth.Splash"
+        <activity android:name=".Activity.MainActivity"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +40,7 @@
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.UserInformationRegisterActivity"
             android:screenOrientation="sensorPortrait"/>
-        <activity android:name=".Activity.MainActivity"
+        <activity android:name=".Activity.Auth.Splash"
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan">
         </activity>
