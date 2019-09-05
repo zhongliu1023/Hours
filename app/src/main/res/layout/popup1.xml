@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtAllBooks"
             android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtRecommended"
             android:layout_width="wrap_content"
@@ -44,7 +44,7 @@
         android:id="@+id/linNatural"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtNatural"
             android:layout_width="wrap_content"
@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtHuman"
             android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtLiterature"
             android:layout_width="wrap_content"
@@ -98,7 +98,7 @@
         android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:padding="10dp">
         <TextView
             android:id="@+id/txtFollow"
             android:layout_width="wrap_content"

@@ -5,24 +5,6 @@
     android:background="@drawable/popup_back">
 
     <LinearLayout
-        android:id="@+id/linDefault"
-        android:layout_width="match_parent"
-        android:gravity="center"
-        android:layout_height="wrap_content"
-        android:padding="10dp">
-        <TextView
-            android:id="@+id/txtDefault"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="默认"/>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_gravity="center"
-        android:background="@color/seperator"/>
-    <LinearLayout
         android:id="@+id/linRecent"
         android:layout_width="match_parent"
         android:gravity="center"

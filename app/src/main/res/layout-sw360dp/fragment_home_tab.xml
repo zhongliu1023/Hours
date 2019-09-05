@@ -12,7 +12,7 @@
             android:layout_toStartOf="@id/home_message"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
+            android:layout_margin="12dp"
             android:background="@drawable/search_back">
             <ImageView
                 android:id="@+id/search_image"
@@ -27,12 +27,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="16sp"
-                android:layout_marginTop="2dp"
                 android:layout_marginEnd="5dp"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:background="@color/history_stroke"
-                android:hint="搜索书名、作者、出版社"/>
+                android:hint="搜索书名、作者、出版社"
+                android:textColor="@color/home_background_color"/>
         </RelativeLayout>
         <ImageView
             android:id="@+id/home_message"
@@ -60,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="全都(9)"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="10dp"
                 android:layout_centerVertical="true"/>
@@ -70,6 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingTop="3dp"
+                android:layout_marginStart="3dp"
                 android:layout_toEndOf="@id/txtTypeBook"
                 android:src="@drawable/pulldown_icon"/>
         </RelativeLayout>
@@ -128,13 +129,20 @@
                     android:textSize="16sp"
                     android:text="小时"/>
             </LinearLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_books"
-                android:layout_centerHorizontal="true"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
 
-            </androidx.recyclerview.widget.RecyclerView>
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_refresh_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_books"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </androidx.recyclerview.widget.RecyclerView>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
         </LinearLayout>
 
         <RelativeLayout

@@ -29,6 +29,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.Common.Utils.ItemOffsetDecoration;
@@ -54,6 +55,8 @@ public class HomeFragment extends Fragment {
     ImageView imgSearch;
     ImageView imgArrow;
     TextView txtTypeBook;
+
+    ImageView newsImage;
 
     @Nullable
     @Override
@@ -352,6 +355,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void event(View rootView) {
+
         imgSearch = rootView.findViewById(R.id.search_image);
         imgSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -371,6 +375,15 @@ public class HomeFragment extends Fragment {
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 }, 3000);
+            }
+        });
+
+        newsImage = rootView.findViewById(R.id.imageNews);
+        newsImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NewsActivity.class);
+                startActivity(intent);
             }
         });
     }
