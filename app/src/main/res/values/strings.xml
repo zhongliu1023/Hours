@@ -603,5 +603,19 @@
     <string name="show_book_title">Always display book title on top</string>
 
     <!--  popupWindow  -->
-    <string name="popupAll">全都(%s)</string>
+    <string name="popup1_all">全都(%s)</string>
+    <string name="popup1_recommned">推荐(%s)</string>
+    <string name="popup1_natural">自然科学(%s)</string>
+    <string name="popup1_human">人文社科(%s)</string>
+    <string name="popup1_literature">文学艺术(%s)</string>
+    <string name="popup1_follow">"关注(%s)</string>
+    
+    <string name="popup3_all">全都(%s)</string>
+    <string name="popup3_downloaded">已下载(%s)</string>
+    <string name="popup3_read">已读(%s)</string>
+    <string name="popup3_unread">未读(%s)</string>
+    <string name="popup3_favorites">收藏夹(%s)</string>
+
+    <!--  state fragment  -->
+    <string name="txt_ranking">排名: %s/%s</string>
 </resources>

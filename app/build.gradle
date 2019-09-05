@@ -79,4 +79,7 @@ dependencies {
     // for newsActivity
     implementation 'com.baoyz.swipemenulistview:library:1.3.0'
 
+    // for state fragment
+    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
+
 }

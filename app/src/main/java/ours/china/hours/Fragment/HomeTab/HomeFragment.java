@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment {
         txtTypeBook = view.findViewById(R.id.txtTypeBook);
         maskLayer = view.findViewById(R.id.maskLayer);
 
-        txtTypeBook.setText(getString(R.string.popupAll, "90"));
+        txtTypeBook.setText(getString(R.string.popup1_all, "90"));
         imgArrow = view.findViewById(R.id.imgArrow);
 
     }

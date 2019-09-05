@@ -32,6 +32,7 @@
                     android:layout_height="wrap_content"
                     android:text="消息"
                     android:textSize="24sp"
+                    android:textStyle="bold"
                     android:layout_centerInParent="true"
                     android:id="@+id/toolbar_title" />
                 <TextView

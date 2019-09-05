@@ -1,21 +1,17 @@
 package ours.china.hours.Model;
 
-public class ReadingStatusBook {
+public class ReadingCompleteStatusBook {
 
     String bookImageUrl;
     String bookName;
-    String readPercent;
     String readTime;
     String specifiedTime;
-    String lastDate;
 
-    public ReadingStatusBook(String bookImageUrl, String bookName, String readPercent, String readTime, String specifiedTime, String lastDate) {
+    public ReadingCompleteStatusBook(String bookImageUrl, String bookName, String readTime, String specifiedTime) {
         this.bookImageUrl = bookImageUrl;
         this.bookName = bookName;
-        this.readPercent = readPercent;
         this.readTime = readTime;
         this.specifiedTime = specifiedTime;
-        this.lastDate = lastDate;
     }
 
     public String getBookImageUrl() {
@@ -34,14 +30,6 @@ public class ReadingStatusBook {
         this.bookName = bookName;
     }
 
-    public String getReadPercent() {
-        return readPercent;
-    }
-
-    public void setReadPercent(String readPercent) {
-        this.readPercent = readPercent;
-    }
-
     public String getReadTime() {
         return readTime;
     }
@@ -56,14 +44,6 @@ public class ReadingStatusBook {
 
     public void setSpecifiedTime(String specifiedTime) {
         this.specifiedTime = specifiedTime;
-    }
-
-    public String getLastDate() {
-        return lastDate;
-    }
-
-    public void setLastDate(String lastDate) {
-        this.lastDate = lastDate;
     }
 
 }
