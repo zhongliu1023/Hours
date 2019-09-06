@@ -16,4 +16,7 @@
     <color name="seperator">#2E2D2D</color>
     <color name="flex_back_color">#F1F1F1</color>
     <color name="bookdetail_toolbar_back_color">#F1F1F1</color>
+
+    <color name="textcolor_light">#271F1F</color>
+    <color name="identify_background">#F4F4F4</color>
 </resources>

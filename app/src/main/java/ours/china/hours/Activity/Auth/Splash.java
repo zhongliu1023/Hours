@@ -19,7 +19,7 @@ import ours.china.hours.R;
 
 public class Splash extends AppCompatActivity {
 
-    private final int SPLASH_DISPLAY_LENGTH = 3000;
+    private final int SPLASH_DISPLAY_LENGTH = 1000;
     SharedPreferencesManager sharedM;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

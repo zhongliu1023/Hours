@@ -77,10 +77,10 @@ public class HomeFragment extends Fragment {
 
         adapter = new HomeBookAdapter(mBookList, getActivity());
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
-        recyclerBooksView.setLayoutManager(gridLayoutManager);
+//        recyclerBooksView.setLayoutManager(gridLayoutManager);
         ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
-        recyclerBooksView.addItemDecoration(itemOffsetDecoration);
-        recyclerBooksView.setAdapter(adapter);
+//        recyclerBooksView.addItemDecoration(itemOffsetDecoration);
+//        recyclerBooksView.setAdapter(adapter);
 
         // popupWindowWork.
         relTypeBook = view.findViewById(R.id.relTypeBook);
@@ -101,12 +101,12 @@ public class HomeFragment extends Fragment {
         TextView allBooks = view1.findViewById(R.id.txtAllBooks);
         allBooks.setText("全都（" + 1000 + ")");
         final PopupWindow popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-        relTypeBook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                popupWindow1.showAsDropDown(view);
-            }
-        });
+//        relTypeBook.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popupWindow1.showAsDropDown(view);
+//            }
+//        });
 
         View view2 = inflater.inflate(R.layout.popup2, null);
         final PopupWindow popupWindow2 = new PopupWindow(view2, 180, LinearLayout.LayoutParams.WRAP_CONTENT, true);
