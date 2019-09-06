@@ -24,7 +24,6 @@
                     android:layout_height="wrap_content"
                     android:text="状态"
                     android:textSize="@dimen/sw360_standard_fontsize_24"
-                    android:textStyle="bold"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
 

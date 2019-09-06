@@ -23,6 +23,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
@@ -180,6 +181,9 @@ public class BookFragment extends Fragment {
                 txtTypeBook.setText("收藏夹");
                 maskLayer.setVisibility(View.GONE);
                 dismissPopupWindow1();
+
+                Intent intent = new Intent(getActivity(), FavoritesActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -190,6 +194,7 @@ public class BookFragment extends Fragment {
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 popupWindow2.dismiss();
+
             }
         });
 

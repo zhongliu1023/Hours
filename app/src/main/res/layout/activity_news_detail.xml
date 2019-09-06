@@ -30,57 +30,43 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="消息"
+                    android:text="系统消息"
                     android:textSize="24sp"
                     android:layout_centerInParent="true"
                     android:id="@+id/toolbar_title" />
-                <TextView
-                    android:id="@+id/txtEmpty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="清空"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="10dp"
-                    android:textSize="18sp"/>
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:background="@color/seperator"/>
-
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.baoyz.swipemenulistview.SwipeMenuListView
-            android:id="@+id/lstNewsContent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
+            android:text="Hello, what are youd doing?Hello, what are youd do
+            ing?Hello, what are youd doing?Hello, what are youd doing?Hello,
+            what are youd doing?Hello, what are youd doing?Hello, what are youd
+            doing?Hello, what are youd doing?Hello, what are youd doing?Hello,
+            what are youd doing?"/>
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <LinearLayout
-            android:id="@+id/noNews"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/news_no_icon"/>
-
+            android:layout_height="wrap_content">
             <TextView
+                android:id="@+id/newsTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:textSize="@dimen/sw360_standard_fontsize_20"
-                android:text="您没有任何消息哦"/>
-        </LinearLayout>
+                android:layout_alignParentEnd="true"
+                android:text="2018-07-06 15:30"
+                android:layout_marginTop="16dp"
+                android:textSize="@dimen/sw360_standard_fontsize_16"/>
+        </RelativeLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

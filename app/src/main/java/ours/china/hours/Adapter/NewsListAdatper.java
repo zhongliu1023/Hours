@@ -1,6 +1,7 @@
 package ours.china.hours.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.NewsDetailActivity;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.R;
 
@@ -40,7 +42,7 @@ public class NewsListAdatper extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup viewGroup) {
+    public View getView(final int position, View view, ViewGroup viewGroup) {
         ViewHolder holder;
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.news_item, null);
@@ -56,6 +58,15 @@ public class NewsListAdatper extends BaseAdapter {
         holder.newsType.setText(listData.get(position).getNewsType());
         holder.newsTime.setText(listData.get(position).getNewsTime());
         holder.newsContent.setText(listData.get(position).getNewsContent());
+
+        holder.newsType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, NewsDetailActivity.class);
+                intent.putExtra("time", listData.get(position).getNewsTime());
+                context.startActivity(intent);
+            }
+        });
 
         return view;
     }

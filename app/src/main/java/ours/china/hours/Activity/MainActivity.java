@@ -41,7 +41,7 @@ import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
 import ours.china.hours.R;
 
 public class MainActivity  extends FragmentActivity {
-    private ImageView imgHomeTab, imgBookTab, imgHistoryTab, imgProfileTab;
+    public ImageView imgHomeTab, imgBookTab, imgHistoryTab, imgProfileTab;
     private LinearLayout linHome, linBook, linHistory, linProfile;
     private TextView txtHome, txtBook, txtHistory, txtProfile;
         private SectionsPagerAdapter mSectionsPagerAdapter;

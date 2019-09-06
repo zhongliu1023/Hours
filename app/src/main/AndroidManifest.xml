@@ -45,7 +45,16 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
 
+        <activity android:name=".Activity.FavoritesActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.FavoritesDetailActivity"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity android:name=".Activity.NewsActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".Activity.NewsDetailActivity"
             android:screenOrientation="sensorPortrait"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".Activity.ReadingNowBookActivity"

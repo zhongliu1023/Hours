@@ -11,7 +11,9 @@
             android:id="@+id/item_book_image"
             android:layout_width="100dp"
             android:layout_height="match_parent"
+            android:padding="3dp"
             android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"
             android:src="@drawable/book_image"/>
         <RelativeLayout
             android:layout_width="100dp"

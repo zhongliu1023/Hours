@@ -1,6 +1,5 @@
 package ours.china.hours.Activity;
 
-import android.app.ActionBar;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -8,8 +7,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.BounceInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,17 +25,18 @@ import java.util.ArrayList;
 import ours.china.hours.Adapter.NewsListAdatper;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.R;
-import ours.china.hours.Utility.AlertNewsDelete;
+import ours.china.hours.Utility.AlertDelete;
 
-public class NewsActivity extends AppCompatActivity implements AlertNewsDelete.deleteButtonListener {
+public class NewsActivity extends AppCompatActivity implements AlertDelete.deleteButtonListener {
 
     SwipeMenuListView mListView;
     TextView txtEmptyNews;
     ImageView imgBack;
+    LinearLayout noNews;
     private ArrayList<NewsItem> mNewsData = new ArrayList<>();
     private NewsListAdatper adatper;
 
-    AlertNewsDelete alert;
+    AlertDelete alert;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,6 +48,7 @@ public class NewsActivity extends AppCompatActivity implements AlertNewsDelete.d
     }
 
     private void initControls() {
+        // for listView
         mListView = findViewById(R.id.lstNewsContent);
         mListView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
 
@@ -104,8 +105,17 @@ public class NewsActivity extends AppCompatActivity implements AlertNewsDelete.d
         mListView.setCloseInterpolator(new BounceInterpolator());
         mListView.setOpenInterpolator(new AccelerateDecelerateInterpolator());
 
-        alert = new AlertNewsDelete(NewsActivity.this, R.style.AppTheme_Alert);
+        // for alert
+        alert = new AlertDelete(NewsActivity.this, R.style.AppTheme_Alert, "确定要清空所有消息吗？");
         alert.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // for no News
+        noNews = findViewById(R.id.noNews);
+        if (mNewsData == null || mNewsData.size() == 0) {
+            noNews.setVisibility(View.VISIBLE);
+        } else {
+            noNews.setVisibility(View.GONE);
+        }
     }
 
     public void event() {
@@ -139,5 +149,7 @@ public class NewsActivity extends AppCompatActivity implements AlertNewsDelete.d
     public void onDelete() {
         mNewsData.clear();
         adatper.notifyDataSetChanged();
+
+        noNews.setVisibility(View.VISIBLE);
     }
 }

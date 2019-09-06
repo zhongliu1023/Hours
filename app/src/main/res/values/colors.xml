@@ -61,4 +61,6 @@
     <color name="human_color">#AB3EBE</color>
     <color name="literature_color">#D16F6F</color>
 
+    <!--  for alert  -->
+    <color name="alert_background_color">#d4f7de</color>
 </resources>

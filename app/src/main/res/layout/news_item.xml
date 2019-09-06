@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="130dp"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -13,12 +13,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="系统知道"
-            android:textSize="18sp"/>
+            android:textSize="20sp"/>
         <TextView
             android:id="@+id/newsTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2019-09-05"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
     <TextView
@@ -26,5 +27,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:textSize="@dimen/sw360_standard_fontsize_16"
         android:text="HelloWhat aretoisdufoiwjefiowjfeowif owijefoiwj owjijwoei"/>
 </LinearLayout>
