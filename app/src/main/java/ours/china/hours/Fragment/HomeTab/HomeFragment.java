@@ -23,6 +23,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
@@ -108,32 +109,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        popupWindow2.dismiss();
-        popupWindow1.dismiss();
-
-        super.onPause();
-
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        popupWindow2.dismiss();
-        popupWindow1.dismiss();
-
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onStop() {
-        popupWindow2.dismiss();
-        popupWindow1.dismiss();
-
-        super.onStop();
     }
 
     PopupWindow popupWindow1;
@@ -428,6 +403,5 @@ public class HomeFragment extends Fragment {
                 PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
         return changedDrawable;
     }
-
 
 }

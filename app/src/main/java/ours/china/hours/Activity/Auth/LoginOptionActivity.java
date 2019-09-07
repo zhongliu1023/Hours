@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -54,13 +55,11 @@ import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
 import ours.china.hours.R;
 
-public class LoginOptionActivity extends FragmentActivity {
+public class LoginOptionActivity extends AppCompatActivity {
 
-    private LoginOptionActivity.SectionsPagerAdapter mSectionsPagerAdapter;
-    private NonSwipeableViewPager mViewPager;
-    private TextView login_pass, login_face, login_pass_bottom, login_face_bottom;
-    private RelativeLayout relLoginPass, relLoginFace;
-
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private LoginOptionAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,138 +69,81 @@ public class LoginOptionActivity extends FragmentActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         initUI();
-
-        setListener();
+        addFragment();
+        setTextSize();
     }
 
 
     private void initUI(){
 
-        login_pass = (TextView)findViewById(R.id.login_pass);
-        login_pass_bottom = (TextView)findViewById(R.id.login_pass_bottom);
-        login_face = (TextView)findViewById(R.id.login_face);
-        login_face_bottom = (TextView)findViewById(R.id.login_face_bottom);
-        relLoginFace = (RelativeLayout)findViewById(R.id.relLoginFace);
-        relLoginPass = (RelativeLayout)findViewById(R.id.relLoginPass);
-
-        mSectionsPagerAdapter = new LoginOptionActivity.SectionsPagerAdapter(getSupportFragmentManager());
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (NonSwipeableViewPager) findViewById(R.id.frame_content);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOffscreenPageLimit(2);
-
-        mViewPager.setCurrentItem(0);
-
-        changedTab(0);
+        tabLayout = (TabLayout) findViewById(R.id.tablayout_id);
+        viewPager = (ViewPager)findViewById(R.id.viewpager_id);
+        adapter = new LoginOptionAdapter(getSupportFragmentManager());
     }
 
 
-    private void setListener() {
+    private void addFragment(){
+        adapter.addFragment(new PasswordLoginFragment(),getResources().getString(R.string.login_passwords));
+        adapter.addFragment(new FaceLoginFragment(), getResources().getString(R.string.login_face));
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
+    }
 
-        relLoginPass.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                mViewPager.setCurrentItem(0);
-                changedTab(0);
+
+    private void setTextSize(){
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            if (tab != null) {
+
+                TextView tabTextView = new TextView(this);
+                tab.setCustomView(tabTextView);
+
+                tabTextView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                tabTextView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+
+                tabTextView.setText(tab.getText());
+
+                if (i == 0) {
+                    tabTextView.setTextSize(14);
+                }
+            }
+
+        }
+
+        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                ViewGroup viewGroup = (ViewGroup)tabLayout.getChildAt(0);
+                ViewGroup vgTab = (ViewGroup)viewGroup.getChildAt(tab.getPosition());
+                int count = vgTab.getChildCount();
+                for (int i = 0; i < count; i++){
+                    View tabViewChild = vgTab.getChildAt(i);
+                    if (tabViewChild instanceof  TextView){
+                        ((TextView)tabViewChild).setTextSize(16);
+                        ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.black));
+                    }
+                }
+
+            }
+
+            @Override public void onTabUnselected(TabLayout.Tab tab) {
+                ViewGroup viewGroup = (ViewGroup)tabLayout.getChildAt(0);
+                ViewGroup vgTab = (ViewGroup)viewGroup.getChildAt(tab.getPosition());
+                int count = vgTab.getChildCount();
+                for (int i = 0; i < count; i++){
+                    View tabViewChild = vgTab.getChildAt(i);
+                    if (tabViewChild instanceof  TextView){
+                        ((TextView)tabViewChild).setTextSize(14);
+                        ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.default_shadow_color));
+                    }
+                }
+            }
+
+            @Override public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
-
-        relLoginFace.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                mViewPager.setCurrentItem(1);
-                changedTab(1);
-            }
-        });
-
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-            // This method will be invoked when a new page becomes selected.
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            // This method will be invoked when the current page is scrolled
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                changedTab(position);
-            }
-
-            // Called when the scroll state changes:
-            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // Code goes here
-            }
-        });
+//     https://stackoverflow.com/questions/44244469/how-to-change-selected-tab-title-textsize-in-android
     }
-
-
-    private void changedTab(int position){
-
-        switch (position) {
-            case 0:
-                login_pass.setTextColor(getResources().getColor(android.R.color.black));
-                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_10));
-                login_face.setTextColor(getResources().getColor(R.color.textcolor_light));
-                login_face.setTextSize(getResources().getDimension(R.dimen.font_size_8));
-                login_pass_bottom.setVisibility(View.VISIBLE);
-                login_face_bottom.setVisibility(View.INVISIBLE);
-                break;
-
-            case 1:
-                login_face.setTextColor(getResources().getColor(android.R.color.black));
-                login_face.setTextSize(getResources().getDimension(R.dimen.font_size_10));
-                login_pass.setTextColor(getResources().getColor(R.color.textcolor_light));
-                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_8));
-                login_pass_bottom.setVisibility(View.INVISIBLE);
-                login_face_bottom.setVisibility(View.VISIBLE);
-                break;
-
-            default:
-                login_pass.setTextColor(getResources().getColor(android.R.color.black));
-                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_10));
-                login_pass.setTextColor(getResources().getColor(R.color.textcolor_light));
-                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_8));
-                login_pass_bottom.setVisibility(View.VISIBLE);
-                login_face_bottom.setVisibility(View.INVISIBLE);
-                break;
-        }
-    }
-
-
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Fragment fragment;
-            Bundle args = new Bundle();
-            switch (position) {
-                case 0:
-                    fragment = new PasswordLoginFragment();
-                    break;
-                case 1:
-                    fragment = new FaceLoginFragment();
-                    break;
-
-                default:
-                    fragment = new PasswordLoginFragment();
-                    break;
-            }
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "OBJECT " + (position + 1);
-        }
-    }
-
 }

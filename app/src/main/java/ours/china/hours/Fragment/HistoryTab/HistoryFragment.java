@@ -18,6 +18,7 @@ import java.util.List;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.ReadingCompleteBookActivity;
 import ours.china.hours.Activity.ReadingNowBookActivity;
 import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;

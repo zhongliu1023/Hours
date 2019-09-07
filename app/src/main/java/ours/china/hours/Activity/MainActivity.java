@@ -1,6 +1,7 @@
 package ours.china.hours.Activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -52,7 +53,6 @@ public class MainActivity  extends FragmentActivity {
         private SharedPreferencesManager sharedPreferencesManager;
 
         int selectedTabIndex = 0;
-
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -156,7 +156,7 @@ public class MainActivity  extends FragmentActivity {
             });
         }
 
-        @Override
+    @Override
         protected void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
             if (resultCode == Activity.RESULT_OK) {
@@ -347,4 +347,5 @@ public class MainActivity  extends FragmentActivity {
             return "OBJECT " + (position + 1);
         }
     }
+
 }

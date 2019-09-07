@@ -24,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 
 import ours.china.hours.Activity.FavoritesActivity;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;

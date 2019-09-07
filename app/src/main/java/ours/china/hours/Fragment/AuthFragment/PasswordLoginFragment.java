@@ -3,10 +3,6 @@ package ours.china.hours.Fragment.AuthFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,15 +12,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Auth.RegisterActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
-import ours.china.hours.Activity.Personality.FeedbackActivity;
-import ours.china.hours.Activity.Personality.ProblemActivity;
-import ours.china.hours.Activity.Personality.UpdatePasswordActivity;
-import ours.china.hours.Activity.Personality.UpdateinforActivity;
-import ours.china.hours.Activity.Personality.UpdatemobileActivity;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
 import ours.china.hours.Model.Login;
@@ -145,11 +139,11 @@ public class PasswordLoginFragment extends Fragment {
                             }else if (response.code() == 200){
                                 String res = response.body().access_token;
 //                                if (response.body().error.equals("invalid_grant")){
-                                    Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
 //                                }else {
 //                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getContext(), MainActivity.class);
-                                    startActivity(intent);
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                startActivity(intent);
 //                                }
                             }
                         }
