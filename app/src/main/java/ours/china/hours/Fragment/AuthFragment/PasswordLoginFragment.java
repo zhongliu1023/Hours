@@ -17,7 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
+import ours.china.hours.Activity.Auth.RegisterActivity;
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.Personality.FeedbackActivity;
 import ours.china.hours.Activity.Personality.ProblemActivity;
 import ours.china.hours.Activity.Personality.UpdatePasswordActivity;
@@ -95,8 +97,8 @@ public class PasswordLoginFragment extends Fragment {
     private  void gotoRegitsterActivity(){
         tvFrRegister.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-//                Intent intent = new Intent(getActivity(), RegisterActivity.class);
-                Intent intent = new Intent(getActivity(), UpdateinforActivity.class);
+                Intent intent = new Intent(getActivity(), RegisterActivity.class);
+//                Intent intent = new Intent(getActivity(), UpdateinforActivity.class);
                 startActivity(intent);
             }
         });
@@ -145,9 +147,9 @@ public class PasswordLoginFragment extends Fragment {
 //                                if (response.body().error.equals("invalid_grant")){
                                     Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
 //                                }else {
-                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
-//                                    Intent intent = new Intent(getContext(), MainActivity.class);
-//                                    startActivity(intent);
+//                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(getContext(), MainActivity.class);
+                                    startActivity(intent);
 //                                }
                             }
                         }

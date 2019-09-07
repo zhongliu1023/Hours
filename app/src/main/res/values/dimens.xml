@@ -10,24 +10,45 @@
 
     <!-- Tab Main Activity-->
     <dimen name="tab_height">40dp</dimen>
-    <dimen name="tab_image_size">25dp</dimen>
+    <dimen name="tab_image_size">20dp</dimen>
+
+    <dimen name="main_text_font">10sp</dimen>
+    <dimen name="main_text_margin_top">1dp</dimen>
 
     <dimen name="history_tab_head_height">50dp</dimen>
-    <dimen name="history_tab_body_padding">8dp</dimen>
+    <dimen name="history_tab_body_padding">12dp</dimen>
     <dimen name="history_tab_body_first_part_height">100dp</dimen>
     <dimen name="history_tab_body_rect_width">15dp</dimen>
 
-    <dimen name="home_tab_search_height">55dp</dimen>
-    <dimen name="home_tab_body_title_height">50dp</dimen>
+    <dimen name="home_tab_search_height">50dp</dimen>
+    <dimen name="home_tab_body_title_height">45dp</dimen>
 
     <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
     <dimen name="book_item_width">120dp</dimen>
     <dimen name="book_item_height">180dp</dimen>
-    <dimen name="temp_spaec">20dp</dimen>
 
     <dimen name="searchbar_height">55dp</dimen>
     <dimen name="myshelf_book_item_height">160dp</dimen>
+
+    <!--  for state fragment  -->
+    <dimen name="chart_height">150dp</dimen>
+
+    <dimen name="sw360_standard_fontsize_40">40sp</dimen>
+    <dimen name="sw360_standard_fontsize_30">30sp</dimen>
+    <dimen name="sw360_standard_fontsize_24">24sp</dimen>
+    <dimen name="sw360_standard_fontsize_22">22sp</dimen>
+    <dimen name="sw360_standard_fontsize_20">20sp</dimen>
+    <dimen name="sw360_standard_fontsize_18">18sp</dimen>
+    <dimen name="sw360_standard_fontsize_16">16sp</dimen>
+    <dimen name="sw360_standard_fontsize_14">14sp</dimen>
+    <dimen name="sw360_standard_fontsize_12">12sp</dimen>
+
+    <dimen name="color_rect">10dp</dimen>
+
+    <!--  for general padding  -->
+    <dimen name="getneral_padding_8">8dp</dimen>
+    <dimen name="getneral_padding_16">16dp</dimen>
 
     <!--Tab LoginActivity-->
     <dimen name="activity_horizontal_margin">16dp</dimen>

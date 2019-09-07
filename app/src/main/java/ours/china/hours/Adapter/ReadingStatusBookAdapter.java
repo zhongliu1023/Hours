@@ -34,7 +34,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
     @Override
     public ReadingStatusBookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.history_book_item, parent, false);
+                .inflate(R.layout.history_book_reading_now_item, parent, false);
         return new ReadingStatusBookViewHolder(itemView);
     }
 
@@ -43,14 +43,15 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         ReadingStatusBook one = bookList.get(position);
 
         holder.bookName.setText(one.getBookName());
-        holder.scheduleNumber.setText(one.getScheduleNumber());
-        holder.duration.setText(one.getDuration());
-        holder.averageHours.setText(one.getAverageHours());
+        holder.txtReadPercent.setText(one.getReadPercent());
+        holder.txtReadTime.setText(one.getReadTime());
+        holder.txtSpecifiedTime.setText(one.getSpecifiedTime());
+        holder.txtLastDate.setText(one.getLastDate());
 
         Glide.with(context)
-                .load(one.getImageUrl())
+                .load(one.getBookImageUrl())
                 .placeholder(R.drawable.book_image)
-                .into(holder.imageView);
+                .into(holder.bookImage);
     }
 
     @Override
@@ -59,20 +60,24 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
     }
 
     public class ReadingStatusBookViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
+
+        ImageView bookImage;
         TextView bookName;
-        TextView scheduleNumber;
-        TextView duration;
-        TextView averageHours;
+        TextView txtReadPercent;
+        TextView txtReadTime;
+        TextView txtSpecifiedTime;
+        TextView txtLastDate;
 
         public ReadingStatusBookViewHolder(View view) {
             super(view);
 
-            imageView = view.findViewById(R.id.book_image);
+            bookImage = view.findViewById(R.id.bookImage);
             bookName = view.findViewById(R.id.bookName);
-            scheduleNumber = view.findViewById(R.id.schedule_number);
-            duration = view.findViewById(R.id.duration);
-            averageHours = view.findViewById(R.id.averageHours);
+            txtReadPercent = view.findViewById(R.id.txtReadPercent);
+            txtReadTime = view.findViewById(R.id.txtReadingTime);
+            txtSpecifiedTime = view.findViewById(R.id.txtSpecifiedTime);
+            txtLastDate = view.findViewById(R.id.txtLastDate);
+
         }
     }
 }

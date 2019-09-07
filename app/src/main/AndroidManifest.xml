@@ -19,6 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
+
         <activity android:name=".Activity.Personality.UpdateinforActivity"></activity>
         <activity android:name=".Activity.Personality.UpdatemobileActivity" />
         <activity android:name=".Activity.Personality.UpdatePasswordActivity" />
@@ -50,40 +51,54 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Activity.Auth.LoginOptionActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity android:name=".Activity.Auth.RegisterActivity" />
-        <activity
-            android:name=".Activity.Auth.LoginActivity"
-            android:screenOrientation="sensorPortrait"
-            android:theme="@style/AppTheme" />
-        <activity
-            android:name=".Activity.Auth.PhoneVerifyActivity"
-            android:screenOrientation="sensorPortrait" />
+
+        <activity android:name=".Activity.Auth.LoginOptionActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.Auth.LoginActivity"
+            android:theme="@style/AppTheme"
+            android:screenOrientation="sensorPortrait">
+        </activity>
+        <activity android:name=".Activity.Auth.PhoneVerifyActivity"
+            android:screenOrientation="sensorPortrait"/>
         <activity
             android:name=".Activity.Auth.FaceRegisterActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="sensorPortrait" />
-        <activity
-            android:name=".Activity.Auth.UserInformationRegisterActivity"
-            android:screenOrientation="sensorPortrait" />
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.Auth.UserInformationRegisterActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.FavoritesActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.FavoritesDetailActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.NewsActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".Activity.NewsDetailActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".Activity.ReadingNowBookActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.ReadingCompleteBookActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.ProfileActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.ProfileModificationActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.SearchActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.BookDetailActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.Auth.RegisterActivity" />
         <activity
             android:name=".Activity.MainActivity"
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".Activity.ProfileActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity
-            android:name=".Activity.ProfileModificationActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity
-            android:name=".Activity.SearchActivity"
-            android:screenOrientation="sensorPortrait" />
-        <activity
-            android:name=".Activity.BookDetailActivity"
-            android:screenOrientation="portrait" />
+            
 
         <provider
             android:name="androidx.core.content.FileProvider"

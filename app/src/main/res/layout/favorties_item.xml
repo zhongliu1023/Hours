@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+    <LinearLayout
+        android:id="@+id/linBound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:background="@drawable/rect_favorites_noclicked"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/image1"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:scaleType="fitXY"/>
+            <ImageView
+                android:id="@+id/image2"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitXY"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/image3"
+                android:layout_width="80dp"
+                android:layout_marginTop="8dp"
+                android:layout_height="120dp"
+                android:scaleType="fitXY"/>
+            <ImageView
+                android:id="@+id/image4"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="8dp"
+                android:scaleType="fitXY"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/txtFavoritesType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sw360_standard_fontsize_18"
+        android:padding="8dp"
+        android:text="人文 (7)"/>
+</LinearLayout>

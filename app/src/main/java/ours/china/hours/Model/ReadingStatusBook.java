@@ -2,26 +2,28 @@ package ours.china.hours.Model;
 
 public class ReadingStatusBook {
 
-    String imageUrl;
+    String bookImageUrl;
     String bookName;
-    String scheduleNumber;
-    String duration;
-    String averageHours;
+    String readPercent;
+    String readTime;
+    String specifiedTime;
+    String lastDate;
 
-    public ReadingStatusBook(String imageUrl, String bookName, String scheduleNumber, String duration, String averageHours) {
-        this.imageUrl = imageUrl;
+    public ReadingStatusBook(String bookImageUrl, String bookName, String readPercent, String readTime, String specifiedTime, String lastDate) {
+        this.bookImageUrl = bookImageUrl;
         this.bookName = bookName;
-        this.scheduleNumber = scheduleNumber;
-        this.duration = duration;
-        this.averageHours = averageHours;
+        this.readPercent = readPercent;
+        this.readTime = readTime;
+        this.specifiedTime = specifiedTime;
+        this.lastDate = lastDate;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getBookImageUrl() {
+        return bookImageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setBookImageUrl(String bookImageUrl) {
+        this.bookImageUrl = bookImageUrl;
     }
 
     public String getBookName() {
@@ -32,27 +34,36 @@ public class ReadingStatusBook {
         this.bookName = bookName;
     }
 
-    public String getScheduleNumber() {
-        return scheduleNumber;
+    public String getReadPercent() {
+        return readPercent;
     }
 
-    public void setScheduleNumber(String scheduleNumber) {
-        this.scheduleNumber = scheduleNumber;
+    public void setReadPercent(String readPercent) {
+        this.readPercent = readPercent;
     }
 
-    public String getDuration() {
-        return duration;
+    public String getReadTime() {
+        return readTime;
     }
 
-    public void setDuration(String duration) {
-        this.duration = duration;
+    public void setReadTime(String readTime) {
+        this.readTime = readTime;
     }
 
-    public String getAverageHours() {
-        return averageHours;
+    public String getSpecifiedTime() {
+        return specifiedTime;
     }
 
-    public void setAverageHours(String averageHours) {
-        this.averageHours = averageHours;
+    public void setSpecifiedTime(String specifiedTime) {
+        this.specifiedTime = specifiedTime;
     }
+
+    public String getLastDate() {
+        return lastDate;
+    }
+
+    public void setLastDate(String lastDate) {
+        this.lastDate = lastDate;
+    }
+
 }

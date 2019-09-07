@@ -11,6 +11,10 @@ import ours.china.hours.R;
 public class Global {
 
     public static String registeredFacePath = "";
+
+    public static String editStateOfFavorite = "no";
+    public static String editStateOfFavoritesDetails = "no";
+
     public static String mobile = "";
     public static String identify = "";
 

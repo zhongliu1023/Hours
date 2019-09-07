@@ -151,7 +151,7 @@ public class RegisterActivity  extends AppCompatActivity {
                             Toast.makeText(RegisterActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
                         }else if (res.equals("fail")){
                             if (response.body().err.equals("mobile"))
-                            Toast.makeText(RegisterActivity.this, getResources().getString(R.string.same_mobile), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this, getResources().getString(R.string.same_mobile), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

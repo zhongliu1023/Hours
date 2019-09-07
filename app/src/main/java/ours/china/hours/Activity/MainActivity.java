@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
@@ -37,11 +38,12 @@ import ours.china.hours.Fragment.HistoryTab.HistoryFragment;
 import ours.china.hours.Fragment.HistoryTab.HistoryFragmentRoot;
 import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
-import ours.china.hours.Model.Profile;
 import ours.china.hours.R;
 
 public class MainActivity  extends FragmentActivity {
-    private ImageView imgHomeTab, imgBookTab, imgHistoryTab, imgProfileTab;
+    public ImageView imgHomeTab, imgBookTab, imgHistoryTab, imgProfileTab;
+    private LinearLayout linHome, linBook, linHistory, linProfile;
+    private TextView txtHome, txtBook, txtHistory, txtProfile;
         private SectionsPagerAdapter mSectionsPagerAdapter;
         private NonSwipeableViewPager mViewPager;
 
@@ -77,6 +79,16 @@ public class MainActivity  extends FragmentActivity {
             imgHistoryTab = (ImageView) findViewById(R.id.tab_history);
             imgProfileTab = (ImageView) findViewById(R.id.tab_profile);
 
+            linHome = findViewById(R.id.linHome);
+            linBook = findViewById(R.id.linBook);
+            linHistory = findViewById(R.id.linHistory);
+            linProfile = findViewById(R.id.linProfile);
+
+            txtHome = findViewById(R.id.txtHome);
+            txtBook =findViewById(R.id.txtBook);
+            txtHistory = findViewById(R.id.txtHistory);
+            txtProfile = findViewById(R.id.txtProfile);
+
             statusBarLayout = (LinearLayout) findViewById(R.id.statusBarLayout);
 
             mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -93,28 +105,28 @@ public class MainActivity  extends FragmentActivity {
         private void setListener() {
 
             //Set su kien click
-            imgHomeTab.setOnClickListener(new View.OnClickListener() {
+            linHome.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mViewPager.setCurrentItem(0);
                     changedTabIcons(0);
                 }
             });
-            imgBookTab.setOnClickListener(new View.OnClickListener() {
+            linBook.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mViewPager.setCurrentItem(1);
                     changedTabIcons(1);
                 }
             });
-            imgHistoryTab.setOnClickListener(new View.OnClickListener() {
+            linHistory.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mViewPager.setCurrentItem(2);
                     changedTabIcons(2);
                 }
             });
-            imgProfileTab.setOnClickListener(new View.OnClickListener() {
+            linProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
@@ -237,35 +249,60 @@ public class MainActivity  extends FragmentActivity {
             selectedTabIndex = position;
             switch (position) {
                 case 0:
-                    imgHomeTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
+
+                    txtHome.setTextColor(getResources().getColor(R.color.pink));
+                    txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
                     break;
                 case 1:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
+
+                    txtHome.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtBook.setTextColor(getResources().getColor(R.color.pink));
+                    txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
                     break;
                 case 2:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
+
+                    txtHome.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtHistory.setTextColor(getResources().getColor(R.color.pink));
+                    txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
                     break;
                 case 3:
-                    imgHomeTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me_icon));
+
+                    txtHome.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtProfile.setTextColor(getResources().getColor(R.color.pink));
                     break;
 
                 default:
-                    imgHomeTab.setImageDrawable(changeImageColor(getResources().getColor(R.color.colorPrimaryDark), getResources().getDrawable(R.drawable.tab_home)));
-                    imgBookTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_book)));
-                    imgHistoryTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_history)));
-                    imgProfileTab.setImageDrawable(changeImageColor(Color.BLACK, getResources().getDrawable(R.drawable.tab_profile)));
+                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library_icon));
+                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
+                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
+                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
+
+                    txtHome.setTextColor(getResources().getColor(R.color.pink));
+                    txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
+                    txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
                     break;
             }
         }
