@@ -93,8 +93,13 @@ public class HomeFragment extends Fragment {
 
         adapter = new HomeBookAdapter(mBookList, getActivity());
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
+
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
+
+//        recyclerBooksView.setLayoutManager(gridLayoutManager);
+        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
+
 
         // popupWindowWork.
         relTypeBook = view.findViewById(R.id.relTypeBook);
@@ -137,6 +142,17 @@ public class HomeFragment extends Fragment {
                 popupWindow2.dismiss();
             }
         });
+        // for popupWindow to float
+        View view1 = inflater.inflate(R.layout.popup1, null);
+        TextView allBooks = view1.findViewById(R.id.txtAllBooks);
+        allBooks.setText("全都（" + 1000 + ")");
+        final PopupWindow popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+//        relTypeBook.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popupWindow1.showAsDropDown(view);
+//            }
+//        });
 
         imgSort.setOnClickListener(new View.OnClickListener() {
             @Override

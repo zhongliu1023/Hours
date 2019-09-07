@@ -63,4 +63,7 @@
 
     <!--  for alert  -->
     <color name="alert_background_color">#d4f7de</color>
+
+    <color name="textcolor_light">#271F1F</color>
+    <color name="identify_background">#F4F4F4</color>
 </resources>

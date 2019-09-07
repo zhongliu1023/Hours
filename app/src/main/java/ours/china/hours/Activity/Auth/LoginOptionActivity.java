@@ -3,21 +3,35 @@ package ours.china.hours.Activity.Auth;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+import com.google.android.material.tabs.TabLayout;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -26,21 +40,26 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.Activity.ProfileActivity;
+import ours.china.hours.Adapter.LoginOptionAdapter;
+import ours.china.hours.CustomView.NonSwipeableViewPager;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.util.ConfigUtil;
+import ours.china.hours.Fragment.AuthFragment.FaceLoginFragment;
+import ours.china.hours.Fragment.AuthFragment.PasswordLoginFragment;
+import ours.china.hours.Fragment.BookTab.BookFragmentRoot;
+import ours.china.hours.Fragment.HistoryTab.HistoryFragmentRoot;
+import ours.china.hours.Fragment.HomeTab.HomeFragment;
+import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
 import ours.china.hours.R;
 
-public class LoginOptionActivity extends AppCompatActivity {
+public class LoginOptionActivity extends FragmentActivity {
 
-    Button btnSignin, btnSignup;
-
-    private static final String TAG = "LoginOptionActivity";
-    private Toast toast = null;
-    private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
-    private static final String[] NEEDED_PERMISSIONS = new String[]{
-            Manifest.permission.READ_PHONE_STATE
-    };
-    private FaceEngine faceEngine = new FaceEngine();
+    private LoginOptionActivity.SectionsPagerAdapter mSectionsPagerAdapter;
+    private NonSwipeableViewPager mViewPager;
+    private TextView login_pass, login_face, login_pass_bottom, login_face_bottom;
+    private RelativeLayout relLoginPass, relLoginFace;
 
 
     @Override
@@ -48,123 +67,140 @@ public class LoginOptionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_option);
 
-        ConfigUtil.setFtOrient(LoginOptionActivity.this, FaceEngine.ASF_OP_270_ONLY);
-        event();
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        initUI();
+
+        setListener();
     }
 
-    public void event() {
-        btnSignin = findViewById(R.id.btnSignin);
-        btnSignin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LoginOptionActivity.this, LoginActivity.class);
-                startActivity(intent);
+
+    private void initUI(){
+
+        login_pass = (TextView)findViewById(R.id.login_pass);
+        login_pass_bottom = (TextView)findViewById(R.id.login_pass_bottom);
+        login_face = (TextView)findViewById(R.id.login_face);
+        login_face_bottom = (TextView)findViewById(R.id.login_face_bottom);
+        relLoginFace = (RelativeLayout)findViewById(R.id.relLoginFace);
+        relLoginPass = (RelativeLayout)findViewById(R.id.relLoginPass);
+
+        mSectionsPagerAdapter = new LoginOptionActivity.SectionsPagerAdapter(getSupportFragmentManager());
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (NonSwipeableViewPager) findViewById(R.id.frame_content);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(2);
+
+        mViewPager.setCurrentItem(0);
+
+        changedTab(0);
+    }
+
+
+    private void setListener() {
+
+        relLoginPass.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                mViewPager.setCurrentItem(0);
+                changedTab(0);
             }
         });
 
-        btnSignup = findViewById(R.id.btnSignup);
-        btnSignup.setOnClickListener(new View.OnClickListener() {
+        relLoginFace.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                mViewPager.setCurrentItem(1);
+                changedTab(1);
+            }
+        });
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            // This method will be invoked when a new page becomes selected.
             @Override
-            public void onClick(View view) {
-                activeEngine(view);
+            public void onPageSelected(int position) {
+
+            }
+
+            // This method will be invoked when the current page is scrolled
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                changedTab(position);
+            }
+
+            // Called when the scroll state changes:
+            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Code goes here
             }
         });
     }
 
-    public void activeEngine(final View view) {
-        if (!checkPermissions(NEEDED_PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
-            return;
-        }
-        if (view != null) {
-            view.setClickable(false);
-        }
-        Observable.create(new ObservableOnSubscribe<Integer>() {
-            @Override
-            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
-                int activeCode = faceEngine.activeOnline(LoginOptionActivity.this, Constants.APP_ID, Constants.SDK_KEY);
-                emitter.onNext(activeCode);
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Integer>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
 
-                    }
+    private void changedTab(int position){
 
-                    @Override
-                    public void onNext(Integer activeCode) {
-                        if (activeCode == ErrorInfo.MOK) {
-                            showToast(getString(R.string.active_success));
-                            Intent intent = new Intent(LoginOptionActivity.this, PhoneVerifyActivity.class);
-                            startActivity(intent);
-                        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
-                            showToast(getString(R.string.already_activated));
-                            Intent intent = new Intent(LoginOptionActivity.this, PhoneVerifyActivity.class);
-                            startActivity(intent);
-                        } else {
-                            showToast(getString(R.string.active_failed, activeCode));
-                        }
+        switch (position) {
+            case 0:
+                login_pass.setTextColor(getResources().getColor(android.R.color.black));
+                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_10));
+                login_face.setTextColor(getResources().getColor(R.color.textcolor_light));
+                login_face.setTextSize(getResources().getDimension(R.dimen.font_size_8));
+                login_pass_bottom.setVisibility(View.VISIBLE);
+                login_face_bottom.setVisibility(View.INVISIBLE);
+                break;
 
-                        if (view != null) {
-                            view.setClickable(true);
-                        }
-                        ActiveFileInfo activeFileInfo = new ActiveFileInfo();
-                        int res = faceEngine.getActiveFileInfo(LoginOptionActivity.this,activeFileInfo);
-                        if (res == ErrorInfo.MOK) {
-                            Log.i(TAG, activeFileInfo.toString());
-                        }
-                    }
+            case 1:
+                login_face.setTextColor(getResources().getColor(android.R.color.black));
+                login_face.setTextSize(getResources().getDimension(R.dimen.font_size_10));
+                login_pass.setTextColor(getResources().getColor(R.color.textcolor_light));
+                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_8));
+                login_pass_bottom.setVisibility(View.INVISIBLE);
+                login_face_bottom.setVisibility(View.VISIBLE);
+                break;
 
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-
-    }
-
-    private boolean checkPermissions(String[] neededPermissions) {
-        if (neededPermissions == null || neededPermissions.length == 0) {
-            return true;
-        }
-        boolean allGranted = true;
-        for (String neededPermission : neededPermissions) {
-            allGranted &= ContextCompat.checkSelfPermission(this, neededPermission) == PackageManager.PERMISSION_GRANTED;
-        }
-        return allGranted;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == ACTION_REQUEST_PERMISSIONS) {
-            boolean isAllGranted = true;
-            for (int grantResult : grantResults) {
-                isAllGranted &= (grantResult == PackageManager.PERMISSION_GRANTED);
-            }
-            if (isAllGranted) {
-                activeEngine(null);
-            } else {
-                showToast(getString(R.string.permission_denied));
-            }
+            default:
+                login_pass.setTextColor(getResources().getColor(android.R.color.black));
+                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_10));
+                login_pass.setTextColor(getResources().getColor(R.color.textcolor_light));
+                login_pass.setTextSize(getResources().getDimension(R.dimen.font_size_8));
+                login_pass_bottom.setVisibility(View.VISIBLE);
+                login_face_bottom.setVisibility(View.INVISIBLE);
+                break;
         }
     }
 
-    private void showToast(String s) {
-        if (toast == null) {
-            toast = Toast.makeText(this, s, Toast.LENGTH_SHORT);
-            toast.show();
-        } else {
-            toast.setText(s);
-            toast.show();
+
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Fragment fragment;
+            Bundle args = new Bundle();
+            switch (position) {
+                case 0:
+                    fragment = new PasswordLoginFragment();
+                    break;
+                case 1:
+                    fragment = new FaceLoginFragment();
+                    break;
+
+                default:
+                    fragment = new PasswordLoginFragment();
+                    break;
+            }
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "OBJECT " + (position + 1);
         }
     }
 
