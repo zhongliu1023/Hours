@@ -1,6 +1,5 @@
 package ours.china.hours.Fragment.HomeTab;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -15,24 +14,18 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
-import ours.china.hours.Common.Utils.ItemOffsetDecoration;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -110,6 +103,32 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        popupWindow2.dismiss();
+        popupWindow1.dismiss();
+
+        super.onPause();
+
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        popupWindow2.dismiss();
+        popupWindow1.dismiss();
+
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onStop() {
+        popupWindow2.dismiss();
+        popupWindow1.dismiss();
+
+        super.onStop();
     }
 
     PopupWindow popupWindow1;

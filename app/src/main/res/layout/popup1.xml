@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="120dp"
+    android:orientation="vertical" android:layout_width="180dp"
     android:layout_height="wrap_content"
     android:background="@drawable/popup_back">
 
@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="全都"/>
     </LinearLayout>
     <View
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/getneral_padding_16"
             android:text="推荐(5)"/>
     </LinearLayout>
     <View
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="自然科学(9)"/>
     </LinearLayout>
     <View
@@ -68,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/getneral_padding_16"
             android:text="人文社科(2)"/>
     </LinearLayout>
     <View
@@ -86,7 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="文学艺术 (7)"/>
     </LinearLayout>
     <View
@@ -104,7 +104,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:textSize="16sp"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="关注 (5)"/>
     </RelativeLayout>
 
