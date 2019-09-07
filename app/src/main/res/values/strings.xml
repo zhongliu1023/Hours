@@ -1,4 +1,5 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
     <string name="app_name">Hours</string>
     <string name="datePicker_setButton">OK</string>
     <string name="datePicker_clearButton">CLEAR</string>
@@ -18,7 +19,6 @@
 
     <!-- for face image upload -->
     <string name="read_file">This app needs access to your file storage so that it can read photos.</string>
-
     <!--  for book reading  -->
     <string name="___LIBRARY___SETTINGS___SECTION___"></string>
     <string name="library_settings">Library Settings</string>
@@ -238,7 +238,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="apply">Apply</string>
-    <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="restore_defaults_full">Restore default settings?</string>
     <string name="send_file_to">Send file to</string>
@@ -618,4 +617,74 @@
 
     <!--  state fragment  -->
     <string name="txt_ranking">排名: %s/%s</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--  login & register-->
+    <string name="login_mobile">请输入手机号</string>
+    <string name="login_password">请输入密码</string>
+    <string name="login_verify_code">获取验证码</string>
+    <string name="register_identy">请输入验证吗</string>
+    <string name="login_forgot_password">忘记密码</string>
+    <string name="login_register">用户注册</string>
+    <string name="register_login">用户登录</string>
+    <string name="register">注册</string>
+    <string name="login">登录</string>
+    <string name="login_passwords">密码登陆</string>
+    <string name="login_face">刷脸登录</string>baselineAligned
+    <string name="login_user">用户登陆</string>
+    <string name="forgot_complete">完成</string>
+    <string name="send">发送</string>
+    <string name="information_name">用户名</string>
+    <string name="information_veri">身份认证</string>
+    <string name="information_face_veri">面部认证</string>
+    <string name="school">学校</string>
+    <string name="school_hint">辽宁科技大学</string>
+    <string name="information_class">班级</string>
+    <string name="studId">学号</string>
+    <string name="information_name_hint">请填写用户名</string>
+    <string name="information_veri_hint">请认证身份</string>
+    <string name="information_face_veri_hint">请认证面部</string>
+    <string name="information_class_hint">请选择班级</string>
+    <string name="studId_hint">请填写学号</string>
+    <string name="submit">提交</string>
+    <string name="identify_face">身份证人像面</string>
+    <string name="identify_back">身份证国徽面</string>
+    <string name="perfect_info">完善信息</string>
+    <string name="confirm">确认</string>
+    <string name="determine">确定</string>
+    <string name="take_photo">拍照</string>
+    <string name="select_photo">选择图片</string>
+    <string name="album">相册</string>
+    <string name="cancel">取消</string>
+    <string name="same_mobile">存在相同的手机号码</string>
+    <string name="error">错误</string>
+    <string name="succes">成功</string>
+    <string name="insert_photo">请插入身份证</string>
+    <string name="identify_success">认证成功</string>
+
+    <!--  personal information -->
+    <string name="alwasy_problem">常见问题</string>
+    <string name="always_problem_cotent">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</string>
+    <string name="about">关于我们</string>
+    <string name="about_contetn">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</string>
+    <string name="statement">软件声明</string>
+    <string name="confirm_out">确定退出么</string>
+    <string name="feedback">意见反馈</string>
+    <string name="feedback_edit_hint">请输入您的意见和建议</string>
+    <string name="feedback_dialog">感谢您的反馈\n我们会做的更好</string>
+    <string name="update_password">修改密码</string>
+    <string name="update_password_old">旧密码</string>
+    <string name="update_password_new">新密码</string>
+    <string name="update_password_confirm">确认新密码</string>
+    <string name="update_password_old_hint">请输入旧密码</string>
+    <string name="update_password_new_hint">请输入新密码</string>
+    <string name="update_password_confirm_hint">请确认新密码</string>
+    <string name="update_mobile">修改手机号</string>
+    <string name="update_mobile_statement1">更换手机号后，下次登陆将使用新手机号</string>
+    <string name="update_mobile_statement2">当前手机号 13912341234</string>
+    <string name="update_mobile_new">新手机号码</string>
+    <string name="update_mobile_verify">验证码</string>
+    <string name="update_information">个人信息修改</string>
+
 </resources>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activity.Auth.PerfectInforActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/imgPerfectBack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"
+                    android:src="@drawable/return_icon"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/perfect_info"
+                    android:textSize="@dimen/font_size_24"
+                    android:textColor="@android:color/black"
+                    android:layout_centerInParent="true"/>
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:height="1px"
+            android:background="@color/default_shadow_color"
+            android:text="" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:baselineAligned="false"
+            android:padding="@dimen/padding_20"
+            android:layout_marginTop="@dimen/margin_10"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/information_name"/>
+
+                    <EditText
+                        android:id="@+id/edPerfectName"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:background="@android:color/transparent"
+                        android:gravity="end|center_vertical"
+                        android:textSize="@dimen/font_size_20"
+                        android:hint="@string/information_name_hint" />
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/information_veri"/>
+                    <TextView
+                        android:id="@+id/tvPerfectidentify"
+                        android:layout_width="0dp"
+                        android:layout_weight="7"
+                        android:layout_height="match_parent"
+                        android:gravity="right|center_vertical"
+                        android:drawableRight="@drawable/ic_right"
+                        android:background="@android:color/transparent"
+                        android:textSize="@dimen/font_size_20"
+                        android:hint="@string/information_veri_hint"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/information_face_veri"/>
+                    <TextView
+                        android:id="@+id/tvPerfectface"
+                        android:layout_width="0dp"
+                        android:layout_weight="7"
+                        android:layout_height="match_parent"
+                        android:gravity="right|center_vertical"
+                        android:drawableRight="@drawable/ic_right"
+                        android:background="@android:color/transparent"
+                        android:textSize="@dimen/font_size_20"
+                        android:hint="@string/information_face_veri_hint"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/school"/>
+                    <EditText
+                        android:id="@+id/edPerfectSchool"
+                        android:layout_width="0dp"
+                        android:layout_weight="7"
+                        android:layout_height="match_parent"
+                        android:gravity="right|center_vertical"
+                        android:textSize="@dimen/font_size_20"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/school_hint"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/information_class"/>
+                    <TextView
+                        android:id="@+id/tvPerfectClass"
+                        android:layout_width="0dp"
+                        android:layout_weight="7"
+                        android:layout_height="match_parent"
+                        android:gravity="right|center_vertical"
+                        android:drawableRight="@drawable/ic_right"
+                        android:textSize="@dimen/font_size_20"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/information_class_hint"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_10"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/font_size_20"
+                        android:text="@string/studId"/>
+                    <EditText
+                        android:id="@+id/edPerfectStudId"
+                        android:layout_width="0dp"
+                        android:layout_weight="7"
+                        android:layout_height="match_parent"
+                        android:gravity="right|center_vertical"
+                        android:textSize="@dimen/font_size_20"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/information_name_hint"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnPerfectSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="@dimen/margin_30"
+        android:layout_marginBottom="@dimen/margin_30"
+        android:background="@color/pink"
+        android:text="@string/submit"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/white" />
+
+    <include layout="@layout/bottom_sheet_copy" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

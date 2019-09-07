@@ -4,9 +4,13 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
         android:allowBackup="true"
@@ -16,7 +20,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".Activity.MainActivity"
+        <activity android:name=".Activity.Personality.UpdateinforActivity"></activity>
+        <activity android:name=".Activity.Personality.UpdatemobileActivity" />
+        <activity android:name=".Activity.Personality.UpdatePasswordActivity" />
+        <activity android:name=".Activity.Personality.FeedbackActivity" />
+        <activity android:name=".Activity.Personality.StatementActivity" />
+        <activity android:name=".Activity.Personality.AboutActivity" />
+        <activity android:name=".Activity.Personality.ProblemActivity" />
+        <activity
+            android:name=".Activity.Auth.Bottom"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.Auth.IdentifyActivity"
+            android:label="@string/information_veri"
+            android:parentActivityName=".Activity.Auth.PerfectInforActivity" />
+        <activity
+            android:name=".Activity.Auth.PerfectInforActivity"
+            android:label="@string/perfect_info"
+            android:parentActivityName=".Activity.Auth.RegisterActivity" />
+        <activity
+            android:name=".Activity.Auth.ForgotPassActivity"
+            android:label="@string/login_forgot_password"
+            android:parentActivityName=".Activity.Auth.LoginOptionActivity" />
+        <activity
+            android:name=".Activity.Auth.Splash"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,10 +67,6 @@
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.UserInformationRegisterActivity"
             android:screenOrientation="sensorPortrait"/>
-        <activity android:name=".Activity.Auth.Splash"
-            android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
 
         <activity android:name=".Activity.FavoritesActivity"
             android:screenOrientation="sensorPortrait"/>
@@ -70,7 +93,22 @@
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.BookDetailActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.Auth.RegisterActivity" />
+        <activity
+            android:name=".Activity.MainActivity"
+            android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustPan" />
+            
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
     </application>
 
 </manifest>
