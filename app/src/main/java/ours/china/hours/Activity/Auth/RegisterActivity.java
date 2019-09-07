@@ -43,26 +43,6 @@ public class RegisterActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        initActionBar();
-        init();
-        setListener();
-    }
-    private void initActionBar(){
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.actionbar_default);
-        getSupportActionBar().setElevation(0);
-        TextView titleText = (TextView) findViewById(R.id.title_text);
-        titleText.setTypeface(FontUtility.getOfficinaSansCBold(getApplicationContext()));
-        titleText.setText("");
-        ImageView backImage = (ImageView) findViewById(R.id.backImageView);
-        backImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-
-            }
-        });
-
         apiInterface = APIClient.getClient().create(APIInterface.class);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -171,7 +151,7 @@ public class RegisterActivity  extends AppCompatActivity {
                             Toast.makeText(RegisterActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
                         }else if (res.equals("fail")){
                             if (response.body().err.equals("mobile"))
-                            Toast.makeText(RegisterActivity.this, getResources().getString(R.string.same_mobile), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this, getResources().getString(R.string.same_mobile), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

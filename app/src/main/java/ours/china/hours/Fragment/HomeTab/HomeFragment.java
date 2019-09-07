@@ -98,7 +98,7 @@ public class HomeFragment extends Fragment {
         recyclerBooksView.setAdapter(adapter);
 
 //        recyclerBooksView.setLayoutManager(gridLayoutManager);
-        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
+//        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
 
 
         // popupWindowWork.
