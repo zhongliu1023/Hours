@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.aigestudio.wheelpicker.WheelPicker;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import ours.china.hours.R;
@@ -23,6 +24,9 @@ public class UpdateinforActivity extends AppCompatActivity {
     private BottomSheetDialog bottomSheetDialog;
     public ImageButton btnUpdateInfoUp, btnUpdateInfoDown;
     public Button btnDone;
+    private WheelPicker wheelCenter;
+    private Integer gotoBtnItemIndex;
+    private String data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +71,43 @@ public class UpdateinforActivity extends AppCompatActivity {
         btnUpdateInfoUp = (ImageButton)view.findViewById(R.id.btnUpdateInfoUp);
         btnUpdateInfoDown = (ImageButton)view.findViewById(R.id.btnUpdateInfoDown);
         btnDone = (Button)view.findViewById(R.id.btnUpdateDone);
+        wheelCenter = (WheelPicker)view.findViewById(R.id.wheelUpdateInfo);
+
+        setClassName();
 
         bottomSheetDialog.show();
     }
+
+
+    private void closeDlg(){
+
+        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()){
+            bottomSheetDialog.dismiss();
+            bottomSheetDialog = null;
+        }
+    }
+
+
+    private void setClassName(){
+
+        btnDone.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                data = wheelCenter.getData().get(wheelCenter.getCurrentItemPosition()).toString();
+                tvUpdateInfoClass.setText(data.toString());
+
+                closeDlg();
+            }
+        });
+    }
+
+
+    private void upAnddownPicker(){
+
+        btnUpdateInfoUp.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+//                btnUpdateInfoUp.setImageDrawable(getResources().getDrawable(R.drawable.im));
+            }
+        });
+    }
+
 }
