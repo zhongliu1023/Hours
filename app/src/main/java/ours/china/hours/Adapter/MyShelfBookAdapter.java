@@ -40,12 +40,19 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         MyShelfBook one = myShelfBooks.get(position);
 
-        if (one.getDownState().equals("downloaded")) {
-            holder.downStateMark.setImageResource(R.drawable.download);
+        if (one.getDownState().equals("已下载")) {
+            holder.imgDownState.setImageResource(R.drawable.label2_icon);
         } else {
-            holder.downStateMark.setVisibility(View.INVISIBLE);
+            holder.imgDownState.setVisibility(View.INVISIBLE);
+        }
+
+        if (one.getReadState().equals("已阅")) {
+            holder.imgReadState.setImageResource(R.drawable.label1_icon);
+        } else {
+            holder.imgReadState.setVisibility(View.INVISIBLE);
         }
 
         Glide.with(context)
@@ -54,8 +61,9 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
                 .into(holder.bookImage);
 
         holder.bookName.setText(one.getBookName());
-        holder.downState.setText(one.getDownState());
         holder.bookAuthor.setText(one.getBookAuthor());
+        holder.txtDownState.setText(one.getBookAuthor());
+
     }
 
     @Override
@@ -66,20 +74,23 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView bookImage;
-        public ImageView downStateMark;
-        public TextView bookName;
-        public TextView downState;
-        public TextView bookAuthor;
+        ImageView bookImage;
+        ImageView imgDownState;
+        ImageView imgReadState;
+        TextView bookName;
+        TextView bookAuthor;
+        TextView txtDownState;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             bookImage = itemView.findViewById(R.id.item_book_image);
-            bookName = itemView.findViewById(R.id.bookName);
-            downState = itemView.findViewById(R.id.downState);
-            downStateMark = itemView.findViewById(R.id.downStateMark);
+            imgDownState = itemView.findViewById(R.id.imgDownState);
+            imgReadState = itemView.findViewById(R.id.imgReadState);
+            bookName = itemView.findViewById(R.id.item_bookName);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            txtDownState = itemView.findViewById(R.id.txtDownState);
+
         }
     }
 }

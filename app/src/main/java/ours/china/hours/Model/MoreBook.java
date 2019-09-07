@@ -3,11 +3,15 @@ package ours.china.hours.Model;
 public class MoreBook {
 
     String bookImageUrl;
+    String downState;
+    String readState;
     String bookName;
     String bookAuthor;
 
-    public MoreBook(String bookImageUrl, String bookName, String bookAuthor) {
+    public MoreBook(String bookImageUrl, String downState, String readState, String bookName, String bookAuthor) {
         this.bookImageUrl = bookImageUrl;
+        this.downState = downState;
+        this.readState = readState;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
     }
@@ -18,6 +22,22 @@ public class MoreBook {
 
     public void setBookImageUrl(String bookImageUrl) {
         this.bookImageUrl = bookImageUrl;
+    }
+
+    public String getDownState() {
+        return downState;
+    }
+
+    public void setDownState(String downState) {
+        this.downState = downState;
+    }
+
+    public String getReadState() {
+        return readState;
+    }
+
+    public void setReadState(String readState) {
+        this.readState = readState;
     }
 
     public String getBookName() {
@@ -35,4 +55,5 @@ public class MoreBook {
     public void setBookAuthor(String bookAuthor) {
         this.bookAuthor = bookAuthor;
     }
+
 }
