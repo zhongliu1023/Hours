@@ -19,7 +19,7 @@ public class Global {
     public static String identify = "";
 
     /** when login , return key-> value*/
-    public static String access_token = "";
+    public static String token = "";
     public static String refresh_token = "";
     public static String expires_in = "";
     public static String token_type = "";

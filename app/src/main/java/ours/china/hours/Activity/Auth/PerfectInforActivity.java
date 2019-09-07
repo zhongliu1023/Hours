@@ -17,11 +17,18 @@ import android.widget.Toast;
 
 import com.aigestudio.wheelpicker.WheelPicker;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Confirm;
 import ours.china.hours.Model.Register;
 import ours.china.hours.R;
@@ -41,6 +48,8 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
     private WheelPicker wheelCenter;
     private Integer gotoBtnItemIndex;
     private String data;
+
+    private TextView txtFaceRegister;
 
     public APIInterface apiInterface;
 
@@ -65,6 +74,8 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
         showClassName();
         upAnddownPicker();
         setClassName();
+
+        goFaceRegister();
 
     }
 
@@ -120,6 +131,16 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
         });
     }
 
+    public void goFaceRegister() {
+        txtFaceRegister = findViewById(R.id.tvPerfectface);
+        txtFaceRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
 
     public void register(){
         String name = edPerfectName.getText().toString();
@@ -151,41 +172,43 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
             return;
         }
 
-        try {
-            Global.showLoading(PerfectInforActivity.this,"generate_report");
-            Call<Register> call = apiInterface.register(name, mobile, identyStatus, faceState,
-                                    school, classs,studId);
-            call.enqueue(new Callback<Register>() {
-                @Override public void onResponse(Call<Register> call, Response<Register> response) {
-                    Global.hideLoading();
+        Global.showLoading(PerfectInforActivity.this,"generate_report");
+        Ion.with(PerfectInforActivity.this)
+                .load(Url.register)
+                .setTimeout(10000)
+                .setBodyParameter("name", name)
+                .setBodyParameter("mobile", mobile)
+                .setBodyParameter("identyStatus", identyStatus)
+                .setBodyParameter("faceState", faceState)
+                .setBodyParameter("school", school)
+                .setBodyParameter("classs", classs)
+                .setBodyParameter("studId", studId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
 
-                    if (response.code() == 404){
-                        Toast.makeText(PerfectInforActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(PerfectInforActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(PerfectInforActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Toast.makeText(PerfectInforActivity.this, res, Toast.LENGTH_SHORT).show();
-                        if (res.equals("success")){
-                              Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
-                              startActivity(intent);
-                        }else if (res.equals("fail")){
-                            Toast.makeText(PerfectInforActivity.this, "fail1", Toast.LENGTH_SHORT).show();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+                                    Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(PerfectInforActivity.this, "Extra error", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(PerfectInforActivity.this, "Api error", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<Register> call, Throwable t) {
-                    Log.i("PerfectActivity", t.getMessage());
-                }
-            });
-
-        }
-        catch (Exception e) {
-            Log.i("PerfectActivity", e.getMessage());
-        }
+                });
     }
 
 

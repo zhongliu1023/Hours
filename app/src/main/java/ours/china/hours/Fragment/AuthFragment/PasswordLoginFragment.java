@@ -15,12 +15,20 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Auth.RegisterActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Login;
 import ours.china.hours.R;
 import retrofit2.Call;
@@ -122,43 +130,44 @@ public class PasswordLoginFragment extends Fragment {
                     return;
                 }
 
-                try {
-                    Global.showLoading(getContext(),"generate_report");
+                Global.showLoading(getContext(),"generate_report");
+                Ion.with(getActivity())
+                        .load(Url.loginUrl)
+                        .setTimeout(10000)
+                        .setBodyParameter("grant_type", "password")
+                        .setBodyParameter("client_id", "testclient")
+                        .setBodyParameter("client_secret", "testpass")
+                        .setBodyParameter("scope", "userinfo cloud file node")
+                        .setBodyParameter("username", mobile)
+                        .setBodyParameter("password", password)
+                        .asJsonObject()
+                        .setCallback(new FutureCallback<JsonObject>() {
+                            @Override
+                            public void onCompleted(Exception e, JsonObject result) {
+                                Global.hideLoading();
+                                if (e == null) {
+                                    JSONObject resObj = null;
+                                    try {
+                                        resObj = new JSONObject(result.toString());
+                                        Global.token = resObj.getString("access_token");
 
-                    Call<Login> call = apiInterface.login(grant_type, mobile, password, client_id, client_secret, scope);
-                    call.enqueue(new Callback<Login>() {
-                        @Override public void onResponse(Call<Login> call, Response<Login> response) {
-                            Global.hideLoading();
+                                        Toast.makeText(getContext(), Global.token, Toast.LENGTH_SHORT).show();
 
-                            if (response.code() == 404){
-                                Toast.makeText(getContext(), "404", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 422){
-                                Toast.makeText(getContext(), "422", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 500){
-                                Toast.makeText(getContext(), "500", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 200){
-                                String res = response.body().access_token;
-//                                if (response.body().error.equals("invalid_grant")){
-                                Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-//                                }else {
-//                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(getContext(), MainActivity.class);
-                                startActivity(intent);
-//                                }
+                                        if (Global.token != null && !Global.token.equals("")) {
+                                            Intent intent = new Intent(getContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    } catch (JSONException ex) {
+                                        ex.printStackTrace();
+                                    }
+
+                                } else {
+                                    Toast.makeText(getContext(), "This is error", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
+                        });
 
-                        @Override public void onFailure(Call<Login> call, Throwable t) {
-                            Global.hideLoading();
-                            Toast.makeText(getContext(), getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                        }
-                    });
 
-                }
-                catch (Exception e) {
-                    Log.i("register" ,e.getMessage());
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
             }
         });
 

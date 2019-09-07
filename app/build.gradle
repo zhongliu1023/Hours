@@ -96,6 +96,9 @@ dependencies {
 
     //for picker in PerfectInforActivity
     implementation project(':WheelPicker')
+
+
+    implementation 'com.koushikdutta.ion:ion:2.2.1'
     
 
 }

@@ -13,10 +13,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Confirm;
 import ours.china.hours.Model.User;
 import ours.china.hours.Model.VerifyCode;
@@ -128,44 +136,39 @@ public class RegisterActivity  extends AppCompatActivity {
             return;
         }
 
-        try {
-            Global.showLoading(RegisterActivity.this,"generate_report");
-            Call<VerifyCode> call = apiInterface.verifyprocess(mobile, password);
-            call.enqueue(new Callback<VerifyCode>() {
-                @Override
-                public void onResponse(Call<VerifyCode> call, Response<VerifyCode> response) {
-                    Global.hideLoading();
+        Global.showLoading(RegisterActivity.this,"generate_report");
+        Ion.with(RegisterActivity.this)
+                .load(Url.verifyCode)
+                .setTimeout(10000)
+                .setBodyParameter("mobile", mobile)
+                .setBodyParameter("password", password)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
 
-                    if (response.code() == 404){
-                        Toast.makeText(RegisterActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(RegisterActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(RegisterActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Log.i("Register", res);
-                        if (res.equals("success")){
-                            btnRegister.setVisibility(View.INVISIBLE);
-                            btnRegConfirm.setVisibility(View.VISIBLE);
-                            Toast.makeText(RegisterActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
-                        }else if (res.equals("fail")){
-                            if (response.body().err.equals("mobile"))
-                                Toast.makeText(RegisterActivity.this, getResources().getString(R.string.same_mobile), Toast.LENGTH_SHORT).show();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+                                    Toast.makeText(RegisterActivity.this, "verify success", Toast.LENGTH_SHORT).show();
+                                    btnRegister.setVisibility(View.INVISIBLE);
+                                    btnRegConfirm.setVisibility(View.VISIBLE);
+                                } else {
+                                    Toast.makeText(RegisterActivity.this, "verify error", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<VerifyCode> call, Throwable t) {
-                    Global.hideLoading();
-                    Toast.makeText(RegisterActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-        catch (Exception e) {
-            Log.i("register" ,e.getMessage());
-            Toast.makeText(RegisterActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                });
 
     }
 
@@ -187,42 +190,39 @@ public class RegisterActivity  extends AppCompatActivity {
             return;
         }
 
-        try {
-            Global.showLoading(RegisterActivity.this,"generate_report");
-            Call<Confirm> call = apiInterface.confirmVerify(mobile, otp);
-            call.enqueue(new Callback<Confirm>() {
-                @Override public void onResponse(Call<Confirm> call, Response<Confirm> response) {
-                    Global.hideLoading();
+        Global.showLoading(RegisterActivity.this,"generate_report");
+        Ion.with(RegisterActivity.this)
+                .load(Url.confirmVerify)
+                .setTimeout(10000)
+                .setBodyParameter("mobile", mobile)
+                .setBodyParameter("otp", otp)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
 
-                    if (response.code() == 404){
-                        Toast.makeText(RegisterActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(RegisterActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(RegisterActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Toast.makeText(RegisterActivity.this, getResources().getString(R.string.succes), Toast.LENGTH_SHORT).show();
-                        if (res.equals("success")){
-                            Global.mobile = mobile;
-                            Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
-                            startActivity(intent);
-                        }else if (res.equals("fail")){
-                            Toast.makeText(RegisterActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
 
+                                if (resObj.getString("res").equals("success")) {
+                                    Global.mobile = mobile;
+                                    Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(RegisterActivity.this, "confirm error", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<Confirm> call, Throwable t) {
-                    Global.hideLoading();
-                    Toast.makeText(RegisterActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-        catch (Exception e) {
-            Log.i("RegisterActivity", e.getMessage());
-        }
+                });
     }
 
 }
