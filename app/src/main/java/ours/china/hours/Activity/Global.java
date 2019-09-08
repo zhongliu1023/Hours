@@ -11,6 +11,9 @@ import ours.china.hours.R;
 public class Global {
 
     public static String registeredFacePath = "";
+    public static String canGetFaceFeature = "no";
+    public static String faceFeatureData = "";
+    public static String faceImageLocalUrl = "";
 
     public static String editStateOfFavorite = "no";
     public static String editStateOfFavoritesDetails = "no";

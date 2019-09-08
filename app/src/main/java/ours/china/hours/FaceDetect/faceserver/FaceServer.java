@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.util.Base64;
 import android.util.Log;
 
 import com.arcsoft.face.ErrorInfo;
@@ -291,6 +292,12 @@ public class FaceServer {
                         faceRegisterInfoList = new ArrayList<>();
                     }
                     faceRegisterInfoList.add(new FaceRegisterInfo(faceFeature.getFeatureData(), userName));
+
+                    // my added code
+                    Log.v("============", "++++++++++++");
+                    if (Global.canGetFaceFeature.equals("yes")) {
+                        Global.faceFeatureData = Base64.encodeToString(faceFeature.getFeatureData(), Base64.DEFAULT);
+                    }
                     return true;
                 }
             } catch (IOException e) {

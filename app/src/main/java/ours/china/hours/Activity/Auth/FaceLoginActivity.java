@@ -1,15 +1,12 @@
 package ours.china.hours.Activity.Auth;
 
 import android.Manifest;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -29,7 +25,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -37,12 +32,6 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,13 +49,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
-import ours.china.hours.FaceDetect.UploadFaceInterface;
-import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
 import ours.china.hours.FaceDetect.model.DrawInfo;
@@ -80,16 +64,9 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
-import ours.china.hours.Management.Url;
-import ours.china.hours.Model.UploadObject;
 import ours.china.hours.R;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
-public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+public class FaceLoginActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
 
     private static final String TAG = "RegisterAndRecognize";
     private static final int MAX_DETECT_NUM = 10;
@@ -157,13 +134,14 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     private static final String[] NEEDED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
             Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_face_register);
+        setContentView(R.layout.activity_face_login);
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -332,7 +310,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                         .frThreadNum(MAX_DETECT_NUM)
                         .previewSize(previewSize)
                         .faceListener(faceListener)
-                        .currentTrackId(ConfigUtil.getTrackId(FaceRegisterActivity.this.getApplicationContext()))
+                        .currentTrackId(ConfigUtil.getTrackId(FaceLoginActivity.this.getApplicationContext()))
                         .build();
             }
 
@@ -406,7 +384,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
                 public void subscribe(ObservableEmitter<Boolean> emitter) {
-                    boolean success = FaceServer.getInstance().registerNv21(FaceRegisterActivity.this, nv21.clone(), previewSize.width, previewSize.height,
+                    boolean success = FaceServer.getInstance().registerNv21(FaceLoginActivity.this, nv21.clone(), previewSize.width, previewSize.height,
                             facePreviewInfoList.get(0).getFaceInfo(), "registered " + faceHelper.getCurrentTrackId());
                     emitter.onNext(success);
                 }
@@ -422,19 +400,10 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(FaceRegisterActivity.this, result, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FaceLoginActivity.this, result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
-                                featureDataUpload();
-//                                faceUploadWork();
-//                                new Handler().postDelayed(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        Intent intent = new Intent(FaceRegisterActivity.this, UserInformationRegisterActivity.class);
-//                                        startActivity(intent);
-//                                    }
-//                                }, 2000);
 
                             }
 
@@ -442,7 +411,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(FaceRegisterActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FaceLoginActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
                         }
 
@@ -546,7 +515,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                     }
 
                     @Override
-                    public void onNext(CompareResult compareResult) {
+                    public void onNext(final CompareResult compareResult) {
                         if (compareResult == null || compareResult.getUserName() == null) {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             faceHelper.addName(requestId, "VISITOR " + requestId);
@@ -564,6 +533,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                             for (CompareResult compareResult1 : compareResultList) {
                                 if (compareResult1.getTrackId() == requestId) {
                                     isAdded = true;
+
                                     break;
                                 }
                             }
@@ -577,6 +547,14 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                                 compareResult.setTrackId(requestId);
                                 compareResultList.add(compareResult);
                                 adapter.notifyItemInserted(compareResultList.size() - 1);
+
+                                runOnUiThread(new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        mainOperation(compareResult.getUserName());
+                                    }
+                                }));
 
 //                                String tempByteStr = new String(frFace.getFeatureData());
 //                                alerDialogWork(tempByteStr);
@@ -631,78 +609,17 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         }
     }
 
-//    private static final String SERVER_PATH = "http://192.168.6.208/htdocs_tunai/";
-    public void faceUploadWork() {
-        File file = new File(Global.registeredFacePath);
-        Log.d(TAG, "Filename " + file.getName());
-        //RequestBody mFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+    public void mainOperation(String faceImageLocalName) {
 
-        RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
-        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Url.imageUpload)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        UploadFaceInterface uploadImage = retrofit.create(UploadFaceInterface.class);
-        Call<UploadObject> fileUpload = uploadImage.uploadFile(fileToUpload, filename);
-        fileUpload.enqueue(new Callback<UploadObject>() {
-            @Override
-            public void onResponse(Call<UploadObject> call, Response<UploadObject> response) {
-//                Toast.makeText(FaceRegisterActivity.this, "Response " + response.raw().message(), Toast.LENGTH_LONG).show();
-//                Toast.makeText(FaceRegisterActivity.this, "Success " + response.body().getSuccess(), Toast.LENGTH_LONG).show();
-
-                Toast.makeText(FaceRegisterActivity.this, "upload success", Toast.LENGTH_SHORT).show();
-
-//                featureDataUpload();
-            }
-            @Override
-            public void onFailure(Call<UploadObject> call, Throwable t) {
-                Log.d(TAG, "Error " + t.getMessage());
-            }
-        });
+        Global.faceImageLocalUrl = "data/data/ours.china.hours/files/register/imgs/" + faceImageLocalName + ".jpg";
+        Toast.makeText(FaceLoginActivity.this, Global.faceImageLocalUrl, Toast.LENGTH_LONG).show();
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            FaceLoginActivity.this.finish();
+        } else {
+            FaceLoginActivity.super.onBackPressed();
+        }
 
     }
 
-    public void featureDataUpload() {
-//        Global.showLoading(FaceRegisterActivity.this,"generate_report");
-        Toast.makeText(FaceRegisterActivity.this, Global.faceFeatureData, Toast.LENGTH_SHORT).show();
-        Ion.with(FaceRegisterActivity.this)
-                .load(Url.featuredata)
-                .setTimeout(10000)
-                .setBodyParameter("mobile", Global.mobile)
-                .setBodyParameter("faceStateInfo", Global.faceFeatureData)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-//                        Global.hideLoading();
-
-                        if (e == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
-
-                                if (resObj.getString("res").equals("success")) {
-                                    Toast.makeText(FaceRegisterActivity.this, "feature data upload Success", Toast.LENGTH_SHORT).show();
-
-                                    Intent intent = new Intent(FaceRegisterActivity.this, MainActivity.class);
-                                    startActivity(intent);
-
-                                    finish();
-                                } else {
-                                    Toast.makeText(FaceRegisterActivity.this, "Extra error", Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-
-                        } else {
-                            Toast.makeText(FaceRegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
 }

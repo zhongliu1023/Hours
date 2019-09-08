@@ -32,18 +32,22 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.Auth.IdentifyActivity"
+            android:launchMode="singleTop"
             android:label="@string/information_veri"
             android:parentActivityName=".Activity.Auth.PerfectInforActivity" />
         <activity
             android:name=".Activity.Auth.PerfectInforActivity"
+            android:launchMode="singleTop"
             android:label="@string/perfect_info"
             android:parentActivityName=".Activity.Auth.RegisterActivity" />
         <activity
             android:name=".Activity.Auth.ForgotPassActivity"
+            android:launchMode="singleTop"
             android:label="@string/login_forgot_password"
             android:parentActivityName=".Activity.Auth.LoginOptionActivity" />
         <activity
             android:name=".Activity.Auth.Splash"
+            android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,6 +67,10 @@
             android:screenOrientation="sensorPortrait"/>
         <activity
             android:name=".Activity.Auth.FaceRegisterActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+        <activity
+            android:name=".Activity.Auth.FaceLoginActivity"
             android:launchMode="singleTop"
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.UserInformationRegisterActivity"
