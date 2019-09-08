@@ -180,7 +180,6 @@ public class PasswordLoginFragment extends Fragment {
                             }
                         });
 
-
             }
         });
 

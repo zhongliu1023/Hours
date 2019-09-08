@@ -33,7 +33,7 @@ public class LoginOptionActivity extends AppCompatActivity {
         initUI();
         addFragment();
         setTextSize();
-    }
+   }
 
 
     private void initUI(){
@@ -71,7 +71,6 @@ public class LoginOptionActivity extends AppCompatActivity {
                     tabTextView.setTextSize(14);
                 }
             }
-
         }
 
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -82,7 +81,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++){
                     View tabViewChild = vgTab.getChildAt(i);
                     if (tabViewChild instanceof  TextView){
-                        ((TextView)tabViewChild).setTextSize(16);
+                        ((TextView)tabViewChild).setTextSize(18);
                         ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.black));
                     }
                 }
@@ -96,7 +95,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++){
                     View tabViewChild = vgTab.getChildAt(i);
                     if (tabViewChild instanceof  TextView){
-                        ((TextView)tabViewChild).setTextSize(14);
+                        ((TextView)tabViewChild).setTextSize(16);
                         ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.default_shadow_color));
                     }
                 }

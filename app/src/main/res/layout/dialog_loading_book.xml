@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:padding="5dip" >
 
-    <ours.china.hours.BookReading.com.foobnix.pdf.info.view.MyProgressBar
+    <ours.china.hours.BookLib.foobnix.pdf.info.view.MyProgressBar
         android:id="@+id/MyProgressBarLoading"
         android:saveEnabled="false"
         android:layout_weight="0"
