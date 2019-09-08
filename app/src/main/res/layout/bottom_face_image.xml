@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:aigestudio="http://schemas.android.com/tools"
+    android:id="@+id/bottom_photo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="90dp"
+    android:visibility="visible"
+    android:background="@color/white"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+    <TextView
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/margin_50"
+    android:text="@string/select_photo"
+        android:gravity="center"
+    android:textSize="@dimen/font_size_18"/>
+
+    <TextView
+        android:id="@+id/tvIdentyPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/margin_50"
+        android:text="@string/take_photo"
+        android:gravity="center"
+        android:textSize="@dimen/font_size_20"/>
+
+    <TextView
+        android:id="@+id/tvIdentyAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/margin_50"
+        android:text="@string/album"
+        android:gravity="center"
+        android:textSize="@dimen/font_size_20"/>
+
+    <TextView
+        android:id="@+id/tvIdentyCancel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/margin_50"
+        android:text="@string/cancel"
+        android:gravity="center"
+        android:textSize="@dimen/font_size_20"/>
+</LinearLayout>

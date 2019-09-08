@@ -1,56 +1,481 @@
 package ours.china.hours.Fragment.HomeTab;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import org.w3c.dom.Text;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import ours.china.hours.Activity.NewsActivity;
+import ours.china.hours.Activity.SearchActivity;
+import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.DownloadInterface;
+import ours.china.hours.Common.Utils.ItemOffsetDecoration;
+import ours.china.hours.Management.DownloadFile;
+import ours.china.hours.Model.Book;
 import ours.china.hours.R;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by liujie on 1/12/18.
  */
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, DownloadInterface {
+
+    String tempPopupWindow2String = "默认";
+
+    ArrayList<Book> mBookList;
+    HomeBookAdapter adapter;
+    RelativeLayout maskLayer;
+
+    SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerBooksView;
+    private RelativeLayout relTypeBook;
+    ImageView imgSort;
+    ImageView imgSearch;
+    ImageView imgArrow;
+    TextView txtTypeBook;
+
+    ImageView newsImage;
 
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-        initController(rootView);
-        setListener(rootView);
-
+        init(rootView);
+        popupWindowWork(inflater);
+        event(rootView);
 
         return rootView;
+    }
+
+    public void init(View view) {
+
+        // recyclerViewWork.
+        recyclerBooksView = view.findViewById(R.id.recycler_books);
+
+        mBookList = new ArrayList<>();
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+
+        adapter = new HomeBookAdapter(mBookList, getActivity(), this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
+
+        recyclerBooksView.setLayoutManager(gridLayoutManager);
+        recyclerBooksView.setAdapter(adapter);
+
+
+//        recyclerBooksView.setLayoutManager(gridLayoutManager);
+//        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
+
+        // popupWindowWork.
+        relTypeBook = view.findViewById(R.id.relTypeBook);
+        imgSort = view.findViewById(R.id.imgSort);
+        txtTypeBook = view.findViewById(R.id.txtTypeBook);
+        maskLayer = view.findViewById(R.id.maskLayer);
+
+        txtTypeBook.setText(getString(R.string.popup1_all, "90"));
+        imgArrow = view.findViewById(R.id.imgArrow);
+
+    }
+
+    @Override
+    public Pair<Integer, Integer> getNameAndIconRes() {
+        return null;
+    }
+
+    @Override
+    public void notifyFragment() {
+
+    }
+
+    @Override
+    public void resetFragment() {
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        onReloadInfomation();
-    }
-    public void onReloadInfomation(){
-
-        initUpdateValue();
-    }
-    private void initController(View rootView){
-
     }
 
-    private void setListener(final View rootView){
+    PopupWindow popupWindow1;
+    PopupWindow popupWindow2;
+    TextView txtAllBook, txtRecommended, txtNatural, txtHuman, txtLiterature, txtFollow;
+    LinearLayout linAllBooks, linRecommended, linNatural, linHuman, linLiterature;
+    RelativeLayout relFollow;
+    LinearLayout linDefault, linRecent;
+    RelativeLayout relTitle, relAuthor;
+    TextView txtDefault, txtRecent, txtTitle, txtAuthor;
+    ImageView imgTitle, imgAuthor;
+
+    public void popupWindowWork(LayoutInflater inflater) {
+
+        popupWindowInit(inflater);
+
+        relTypeBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                maskLayer.setVisibility(View.VISIBLE);
+                allTextPopupWindow1();
+                judgePopupWindow1();
+                popupWindow1.showAsDropDown(view);
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.retract_icon));
+                popupWindow2.dismiss();
+            }
+        });
+        // for popupWindow to float
+        View view1 = inflater.inflate(R.layout.popup1, null);
+        TextView allBooks = view1.findViewById(R.id.txtAllBooks);
+        allBooks.setText("全都（" + 1000 + ")");
+        final PopupWindow popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+//        relTypeBook.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popupWindow1.showAsDropDown(view);
+//            }
+//        });
+
+        imgSort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                allTextImagePopupWindow2();
+                judgePopupWindow2();
+                popupWindow2.showAsDropDown(view);
+                maskLayer.setVisibility(View.VISIBLE);
+                popupWindow1.dismiss();
+            }
+        });
+
+        // for event when we pressed item in popupWindow.
+        linAllBooks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("全都(1000)");
+                dismissPopupWindow1();
+            }
+        });
+
+        linRecommended.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("推荐(5)");
+                dismissPopupWindow1();
+            }
+        });
+
+        linNatural.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("自然科学(9)");
+                dismissPopupWindow1();
+            }
+        });
+
+        linHuman.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("人文社科(2)");
+                dismissPopupWindow1();
+            }
+        });
+
+        linLiterature.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("文学艺术(7)");
+                dismissPopupWindow1();
+            }
+        });
+
+        relFollow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                txtTypeBook.setText("关注(5)");
+                maskLayer.setVisibility(View.GONE);
+                dismissPopupWindow1();
+            }
+        });
+
+        linDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tempPopupWindow2String = "默认";
+                maskLayer.setVisibility(View.GONE);
+                popupWindow2.dismiss();
+            }
+        });
+
+        linRecent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tempPopupWindow2String = "最近";
+                maskLayer.setVisibility(View.GONE);
+                popupWindow2.dismiss();
+            }
+        });
+
+        relTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tempPopupWindow2String = "标题";
+                maskLayer.setVisibility(View.GONE);
+                popupWindow2.dismiss();
+            }
+        });
+
+        relAuthor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tempPopupWindow2String = "作者";
+                maskLayer.setVisibility(View.GONE);
+                popupWindow2.dismiss();
+            }
+        });
+
+        maskLayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismissPopupWindow1();
+                popupWindow2.dismiss();
+            }
+        });
 
     }
-    private void initUpdateValue(){
 
+    public void dismissPopupWindow1() {
+        popupWindow1.dismiss();
+        maskLayer.setVisibility(View.GONE);
+        imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));
     }
 
+    public void allTextPopupWindow1() {
+        txtAllBook.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtRecommended.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtNatural.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtHuman.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtLiterature.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtFollow.setTextColor(getResources().getColor(R.color.alpa_90));
+    }
+
+    public void allTextImagePopupWindow2() {
+        txtDefault.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtRecent.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtTitle.setTextColor(getResources().getColor(R.color.alpa_90));
+        txtAuthor.setTextColor(getResources().getColor(R.color.alpa_90));
+
+        imgTitle.setImageDrawable(changeImageColor(getResources().getColor(R.color.alpa_90), getResources().getDrawable(R.drawable.positive_sequence_icon)));
+        imgAuthor.setImageDrawable(changeImageColor(getResources().getColor(R.color.alpa_90), getResources().getDrawable(R.drawable.reverse_order_icon)));
+    }
+
+    public void popupWindowInit(LayoutInflater inflater) {
+
+        // for popupWindow 1
+        View view1 = inflater.inflate(R.layout.popup1, null);
+
+        txtAllBook = view1.findViewById(R.id.txtAllBooks);
+        txtRecommended = view1.findViewById(R.id.txtRecommended);
+        txtNatural = view1.findViewById(R.id.txtNatural);
+        txtHuman = view1.findViewById(R.id.txtHuman);
+        txtLiterature = view1.findViewById(R.id.txtLiterature);
+        txtFollow = view1.findViewById(R.id.txtFollow);
+
+        linAllBooks = view1.findViewById(R.id.linAllBooks);
+        linRecommended = view1.findViewById(R.id.linRecommended);
+        linNatural = view1.findViewById(R.id.linNatural);
+        linHuman = view1.findViewById(R.id.linHuman);
+        linLiterature = view1.findViewById(R.id.linLiterature);
+        relFollow = view1.findViewById(R.id.relFollow);
+
+        popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow1.setAnimationStyle(R.style.popupwindowAnimation);
+
+        // for popupWindow 2
+        View view2 = inflater.inflate(R.layout.popup2, null);
+
+        linDefault = view2.findViewById(R.id.linDefault);
+        linRecent = view2.findViewById(R.id.linRecent);
+        relTitle = view2.findViewById(R.id.relTitle);
+        relAuthor = view2.findViewById(R.id.relAuthor);
+
+        txtDefault = view2.findViewById(R.id.txtDefault);
+        txtRecent = view2.findViewById(R.id.txtRecent);
+        txtTitle = view2.findViewById(R.id.txtTitle);
+        txtAuthor = view2.findViewById(R.id.txtAuthor);
+
+        imgTitle = view2.findViewById(R.id.imgTitle);
+        imgAuthor = view2.findViewById(R.id.imgAuthor);
+
+        popupWindow2 = new PopupWindow(view2, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow2.setAnimationStyle(R.style.popupwindowAnimation);
+    }
+
+    public void judgePopupWindow1() {
+
+        String tempStr = txtTypeBook.getText().toString();
+        if (tempStr.contains("全都")) {
+            allTextPopupWindow1();
+            txtAllBook.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempStr.contains("推荐")) {
+            allTextPopupWindow1();
+            txtRecommended.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempStr.contains("自然科学")) {
+            allTextPopupWindow1();
+            txtNatural.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempStr.contains("人文社科")) {
+            allTextPopupWindow1();
+            txtHuman.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempStr.contains("文学艺术")) {
+            allTextPopupWindow1();
+            txtLiterature.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempStr.contains("关注")) {
+            allTextPopupWindow1();
+            txtFollow.setTextColor(getResources().getColor(R.color.pink));
+        }
+    }
+
+    public void judgePopupWindow2() {
+        if (tempPopupWindow2String.equals("默认")) {
+            allTextImagePopupWindow2();
+            txtDefault.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempPopupWindow2String.equals("最近")) {
+            allTextImagePopupWindow2();
+            txtRecent.setTextColor(getResources().getColor(R.color.pink));
+        } else if (tempPopupWindow2String.equals("标题")) {
+            allTextImagePopupWindow2();
+            txtTitle.setTextColor(getResources().getColor(R.color.pink));
+            imgTitle.setImageDrawable(changeImageColor(getResources().getColor(R.color.pink), getResources().getDrawable(R.drawable.positive_sequence_icon)));
+        } else if (tempPopupWindow2String.equals("作者")) {
+            allTextImagePopupWindow2();
+            txtAuthor.setTextColor(getResources().getColor(R.color.pink));
+            imgAuthor.setImageDrawable(changeImageColor(getResources().getColor(R.color.pink), getResources().getDrawable(R.drawable.reverse_order_icon)));
+        }
+    }
+
+    public void event(View rootView) {
+
+        imgSearch = rootView.findViewById(R.id.search_image);
+        imgSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), SearchActivity.class);
+                getActivity().startActivity(intent);
+            }
+        });
+
+        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 3000);
+            }
+        });
+
+        newsImage = rootView.findViewById(R.id.imageNews);
+        newsImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NewsActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+    private Drawable changeImageColor(int color, Drawable mDrawable){
+        Drawable changedDrawable = mDrawable;
+        changedDrawable.setColorFilter(new
+                PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
+        return changedDrawable;
+    }
+
+    @Override
+    public void onClickBookItem(String uri) {
+        if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            new DownloadFile(getActivity(), this).execute(uri);
+        }else{
+            EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onDownloadToPath(String path, boolean isFinished) {
+        if (!path.isEmpty()){
+            FileMeta fileMeta = new FileMeta();
+            fileMeta.setAuthor("zhong liu");
+            fileMeta.setChild("epub");
+            fileMeta.setDateTxt("9/7/19");
+            fileMeta.setExt("epub");
+            fileMeta.setGenre("test...");
+            fileMeta.setIsRecent(true);
+            fileMeta.setIsRecentProgress((float) 0.253);
+            fileMeta.setIsRecentTime(System.currentTimeMillis());
+            fileMeta.setIsSearchBook(true);
+            fileMeta.setIsStar(false);
+            fileMeta.setIsStarTime(System.currentTimeMillis());
+            fileMeta.setIsbn("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
+            fileMeta.setLang("en");
+            fileMeta.setPages(20);
+            fileMeta.setParentPath(Environment.getExternalStorageDirectory() + File.separator + "androiddeft/");
+            fileMeta.setPath(path);
+            fileMeta.setPathTxt("test");
+            fileMeta.setPublisher("");
+            fileMeta.setSequence("");
+            fileMeta.setSizeTxt("1770KB");
+            fileMeta.setSize((long) (1770 * 1000));
+            fileMeta.setState(2);
+            fileMeta.setTitle("");
+            fileMeta.setYear(2016);
+            ExtUtils.openFile(getActivity(), fileMeta);
+        }else{
+            Toast.makeText(getActivity(), "Failed downloading", Toast.LENGTH_LONG).show();
+        }
+    }
 }

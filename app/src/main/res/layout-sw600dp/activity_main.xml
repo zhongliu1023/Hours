@@ -11,6 +11,7 @@
     <LinearLayout
         android:id="@+id/statusBarLayout"
         android:layout_width="match_parent"
+        android:background="@color/statusbar_black"
         android:layout_height="25dp"
         android:orientation="vertical"/>
 
@@ -41,78 +42,97 @@
             android:layout_height="@dimen/tab_height"
             android:background="@android:color/white" android:baselineAligned="false">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
+                android:id="@+id/linHome"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_weight="1">
 
                 <ImageView
                     android:id="@+id/tab_home"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    android:contentDescription="@string/todo"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/tab_home" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/txtHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="图书馆"
+                    android:layout_marginTop="@dimen/main_text_margin_top"
+                    android:textSize="@dimen/main_text_font" />
+            </LinearLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
+                android:id="@+id/linBook"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_weight="1">
                 <ImageView
                     android:id="@+id/tab_book"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    android:contentDescription="@string/todo"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/tab_book" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/txtBook"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="书架"
+                    android:layout_marginTop="@dimen/main_text_margin_top"
+                    android:textSize="@dimen/main_text_font" />
+
+            </LinearLayout>
 
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
+                android:id="@+id/linHistory"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_weight="1">
 
                 <ImageView
                     android:id="@+id/tab_history"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    android:contentDescription="@string/todo"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/tab_history" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+                <TextView
+                    android:id="@+id/txtHistory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="状态"
+                    android:layout_marginTop="@dimen/main_text_margin_top"
+                    android:textSize="@dimen/main_text_font" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linProfile"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_weight="1">
 
                 <ImageView
                     android:id="@+id/tab_profile"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    android:contentDescription="@string/todo"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/tab_profile" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/txtProfile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="个人"
+                    android:layout_marginTop="@dimen/main_text_margin_top"
+                    android:textSize="@dimen/main_text_font" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -1,30 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ours.china.hours">
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.hardware.Camera"/>
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-feature android:name="android.hardware.camera" android:required="true"/>
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera.flash" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:hardwareAccelerated="false"
-        android:largeHeap="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".Activity.Auth.Splash"
+
+        <activity android:name=".Activity.Personality.UpdateinforActivity"></activity>
+        <activity android:name=".Activity.Personality.UpdatemobileActivity" />
+        <activity android:name=".Activity.Personality.UpdatePasswordActivity" />
+        <activity android:name=".Activity.Personality.FeedbackActivity" />
+        <activity android:name=".Activity.Personality.StatementActivity" />
+        <activity android:name=".Activity.Personality.AboutActivity" />
+        <activity android:name=".Activity.Personality.ProblemActivity" />
+        <activity
+            android:name=".Activity.Auth.Bottom"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Activity.Auth.IdentifyActivity"
+            android:label="@string/information_veri"
+            android:parentActivityName=".Activity.Auth.PerfectInforActivity" />
+        <activity
+            android:name=".Activity.Auth.PerfectInforActivity"
+            android:label="@string/perfect_info"
+            android:parentActivityName=".Activity.Auth.RegisterActivity" />
+        <activity
+            android:name=".Activity.Auth.ForgotPassActivity"
+            android:label="@string/login_forgot_password"
+            android:parentActivityName=".Activity.Auth.LoginOptionActivity" />
+        <activity
+            android:name=".Activity.Auth.Splash"
             android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,14 +55,96 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Activity.Auth.LoginOptionActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.LoginActivity"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorPortrait">
         </activity>
-        <activity android:name=".Activity.MainActivity"
+        <activity android:name=".Activity.Auth.PhoneVerifyActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity
+            android:name=".Activity.Auth.FaceRegisterActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.Auth.UserInformationRegisterActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.FavoritesActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.FavoritesDetailActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.NewsActivity"
             android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".Activity.NewsDetailActivity"
+            android:screenOrientation="sensorPortrait"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".Activity.ReadingNowBookActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.ReadingCompleteBookActivity"
+            android:screenOrientation="sensorPortrait"/>
+
+        <activity android:name=".Activity.ProfileActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.ProfileModificationActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.SearchActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".Activity.BookDetailActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.Auth.RegisterActivity" />
+        <activity
+            android:name=".Activity.MainActivity"
+            android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".BookLib.foobnix.pdf.search.activity.HorizontalViewActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name="org.ebookdroid.ui.viewer.VerticalViewActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustPan"/>
+        <service
+            android:name=".BookLib.foobnix.ui2.BooksService"
+            android:exported="false" />
+        <service
+            android:name=".BookLib.foobnix.tts.TTSService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
     </application>
 
 </manifest>
