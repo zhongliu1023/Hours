@@ -10,8 +10,8 @@ import java.util.List;
 
 public class LoginOptionAdapter extends FragmentPagerAdapter {
 
-    private final List<Fragment> mFragmentList = new ArrayList<>();
-    private final List<String> mFragmentTitleList = new ArrayList<>();
+    private final List<Fragment> listFragment = new ArrayList<>();
+    private final List<String> listTitle = new ArrayList<>();
 
 
     public LoginOptionAdapter(@NonNull FragmentManager fm) {
@@ -20,22 +20,23 @@ public class LoginOptionAdapter extends FragmentPagerAdapter {
 
 
     @NonNull @Override public Fragment getItem(int position) {
-        return mFragmentList.get(position);
+        return listFragment.get(position);
     }
 
 
     @Override public int getCount() {
-        return mFragmentList.size();
+        return listFragment.size();
     }
 
 
     public void addFragment(Fragment fragment, String title) {
-        mFragmentList.add(fragment);
-        mFragmentTitleList.add(title);
+        listFragment.add(fragment);
+        listTitle.add(title);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mFragmentTitleList.get(position);
+        return listTitle.get(position);
     }
+
 }

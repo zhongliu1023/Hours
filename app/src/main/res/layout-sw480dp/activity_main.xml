@@ -122,7 +122,7 @@
                 <ImageView
                     android:id="@+id/tab_profile"
                     android:layout_width="@dimen/tab_image_size"
-                    android:layout_height="@dimen/tab_image_size"
+                    android:layout_height="24dp"
                     app:srcCompat="@drawable/tab_profile" />
 
                 <TextView

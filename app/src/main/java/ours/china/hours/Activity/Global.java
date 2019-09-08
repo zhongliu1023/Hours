@@ -43,7 +43,7 @@ public class Global {
     public static ProgressDialog mProgressDialog;
     public static void showLoading(Context context, String title)
     {
-        String strPleaseWaitAwhile = "Please Wait...";
+        String strPleaseWaitAwhile = "请秒后";
         mProgressDialog = new ProgressDialog(context, R.style.DialogTheme);
         mProgressDialog.setMessage(strPleaseWaitAwhile);
         mProgressDialog.setCancelable(false);

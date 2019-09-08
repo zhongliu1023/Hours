@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F4F4">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/personal"
+                android:textSize="@dimen/font_size_24"
+                android:textColor="@android:color/black"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:height="1px"
+        android:background="@color/default_shadow_color"
+        android:text="" />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="vertical">
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/margin_10"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/myfavourite"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalFav"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right"/>
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/personal_info"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalInfo"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1.5px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/feedback"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalFeedback"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/margin_10"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/alwasy_problem"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalProblem"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/statement"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalStatement"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/about"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalAbout"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right"/>
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/margin_10"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/mobile_number"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalMobile"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right"
+                  android:hint="195111111" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/update_password"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalPass"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="@dimen/margin_10"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/check_update"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalCheck"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right"/>
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:orientation="vertical">
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingBottom="@dimen/padding_10"
+              android:layout_marginLeft="@dimen/margin_20"
+              android:layout_marginRight="@dimen/margin_20"
+              android:layout_marginTop="@dimen/margin_10"
+              android:orientation="horizontal">
+
+              <TextView
+                  android:layout_width="0dp"
+                  android:layout_weight="3"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:textColor="@android:color/black"
+                  android:textSize="@dimen/font_size_20"
+                  android:text="@string/account_change"/>
+
+              <TextView
+                  android:id="@+id/tvfrPersonalAccount"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="7"
+                  android:background="@android:color/transparent"
+                  android:gravity="end|center_vertical"
+                  android:textSize="@dimen/font_size_20"
+                  android:drawableRight="@drawable/ic_right" />
+          </LinearLayout>
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:height="1px"
+              android:background="@color/default_shadow_color"
+              android:layout_alignParentBottom="true"
+              android:text="" />
+
+
+      </LinearLayout>
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/white"
+          android:layout_marginTop="@dimen/margin_10"
+          android:padding="@dimen/margin_10"
+          android:orientation="vertical">
+
+           <Button
+               android:id="@+id/btnfrPersonalOut"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:textColor="@color/colorAccent"
+               android:textAppearance="?android:attr/textAppearanceLarge"
+               android:gravity="center"
+               android:background="@color/white"
+               android:text="@string/out" />
+      </LinearLayout>
+
+  </LinearLayout>
+</LinearLayout>
