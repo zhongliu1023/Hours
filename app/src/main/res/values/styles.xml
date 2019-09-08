@@ -148,9 +148,20 @@
         <item name="tabTextAppearance">@style/MyTabTextAppearance</item>
     </style>
 
+    <style name="MyTabLayout2" parent="Base.Widget.Design.TabLayout">
+        <item name="tabTextAppearance">@style/MyTabTextAppearance2</item>
+    </style>
+
     <style name="MyTabTextAppearance" parent="TextAppearance.AppCompat.Button">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">@color/seperator</item>
+        <item name="android:textColor">@color/default_shadow_color</item>
+        <item name="textAllCaps">true</item>
+        <item name="tabSelectedTextColor">@color/black</item>
+    </style>
+
+    <style name="MyTabTextAppearance2" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/default_shadow_color</item>
         <item name="textAllCaps">true</item>
     </style>
     <style name="AppTheme.Alert" parent="Base.Theme.AppCompat">

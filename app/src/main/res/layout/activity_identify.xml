@@ -145,8 +145,10 @@
             android:gravity="center"
             android:layout_gravity="bottom"
             android:layout_marginBottom="@dimen/margin_30"
+            android:layout_marginRight="@dimen/margin_20"
+            android:layout_marginLeft="@dimen/margin_20"
             android:layout_alignParentBottom="true"
-            android:background="@color/pink"/>
+            android:background="@drawable/button_back"/>
     </LinearLayout>
 
     <include layout="@layout/bottom_face_image"

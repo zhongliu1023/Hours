@@ -56,8 +56,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
-                android:paddingBottom="@dimen/margin_20"
-                android:textSize="@dimen/font_size_20"
+                android:paddingBottom="@dimen/padding_10"
+                android:textSize="@dimen/font_size_18"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="@string/login_mobile"/>
@@ -69,8 +69,8 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:layout_marginTop="@dimen/margin_10"
-                android:textSize="@dimen/font_size_20"
-                android:paddingBottom="@dimen/font_size_20"
+                android:textSize="@dimen/font_size_18"
+                android:paddingBottom="@dimen/padding_10"
                 android:hint="@string/register_identy"/>
 
 
@@ -80,8 +80,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
-                android:paddingBottom="@dimen/padding_20"
-                android:textSize="@dimen/font_size_20"
+                android:paddingBottom="@dimen/padding_10"
+                android:textSize="@dimen/font_size_18"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="@string/login_password"/>

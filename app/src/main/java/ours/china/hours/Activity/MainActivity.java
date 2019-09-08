@@ -38,6 +38,8 @@ import ours.china.hours.Fragment.HistoryTab.HistoryFragment;
 import ours.china.hours.Fragment.HistoryTab.HistoryFragmentRoot;
 import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
+import ours.china.hours.Fragment.PersonalTab.PersonalFragment;
+import ours.china.hours.Fragment.PersonalTab.PersonalFragmentRoot;
 import ours.china.hours.R;
 
 public class MainActivity  extends FragmentActivity {
@@ -129,8 +131,10 @@ public class MainActivity  extends FragmentActivity {
             linProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                    startActivity(intent);
+//                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+//                    startActivity(intent);
+                    mViewPager.setCurrentItem(3);
+                    changedTabIcons(3);
                 }
             });
             mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -183,6 +187,9 @@ public class MainActivity  extends FragmentActivity {
                         break;
                     case 2:
                         if(f instanceof HistoryFragment) return true;
+                        break;
+                    case 3:
+                        if (f instanceof PersonalFragment) return true;
                         break;
                 }
             }
@@ -329,6 +336,10 @@ public class MainActivity  extends FragmentActivity {
                     fragment = new HistoryFragmentRoot();
                     args.putInt(HistoryFragmentRoot.ARG_OBJECT, position + 1);
                     break;
+                case 3:
+                    fragment = new PersonalFragment();
+                    args.putInt(PersonalFragmentRoot.ARG_OBJECT, position + 1);
+                    break;
 
                 default:
                     fragment = new HomeFragment();
@@ -340,7 +351,7 @@ public class MainActivity  extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
         @Override
         public CharSequence getPageTitle(int position) {
