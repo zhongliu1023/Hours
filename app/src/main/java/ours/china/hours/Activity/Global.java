@@ -6,9 +6,12 @@ import android.content.DialogInterface;
 import android.widget.TextView;
 
 import ours.china.hours.Dialog.AlertDlg;
+import ours.china.hours.MainApplication;
 import ours.china.hours.R;
 
 public class Global {
+
+    public static MainApplication mainApplication = MainApplication.getInstance();
 
     public static String registeredFacePath = "";
     public static String canGetFaceFeature = "no";

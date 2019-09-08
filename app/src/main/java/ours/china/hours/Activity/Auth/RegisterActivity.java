@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -21,17 +20,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
-import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
 import ours.china.hours.Management.Url;
-import ours.china.hours.Model.Confirm;
-import ours.china.hours.Model.User;
-import ours.china.hours.Model.VerifyCode;
 import ours.china.hours.R;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by liujie on 1/6/18.
