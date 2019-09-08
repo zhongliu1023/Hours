@@ -25,7 +25,7 @@ import ours.china.hours.R;
 public class SearchResultFragment extends Fragment {
 
     ArrayList<Book> mLibraryBooks;
-    ArrayList<MyShelfBook> myShelfBooks;
+    ArrayList<Book> myShelfBooks;
 
     private RecyclerView libraryRecyclerView, myShelfRecyclerView;
     private LibraryBookAdapter libraryBookAdapter;
@@ -53,22 +53,22 @@ public class SearchResultFragment extends Fragment {
         mLibraryBooks = new ArrayList<>();
         myShelfBooks = new ArrayList<>();
 
-        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
-        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "已下载", "不已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "已阅"));
+//        mLibraryBooks.add(new Book("hello", "百年孤独", "未下载", "不已阅"));
 
-        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
-        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
-        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+//        myShelfBooks.add(new MyShelfBook("hello", "未下载", "不已阅", "马尔克斯", "新龙"));
 
 
         libraryRecyclerView = rootView.findViewById(R.id.library_search_result);

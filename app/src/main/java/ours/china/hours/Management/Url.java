@@ -1,7 +1,7 @@
 package ours.china.hours.Management;
 
 public class Url {
-    public static String baseUrl = "http://192.168.6.222/Hour/";
+    public static String baseUrl = "http://192.168.6.208/Hour/";
 
     public static String loginUrl = baseUrl + "login";
     public static String faceLogin = baseUrl + "";

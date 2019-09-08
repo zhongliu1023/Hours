@@ -62,6 +62,9 @@ public class Splash extends AppCompatActivity {
             Global.mainApplication.setMobileNumber(sessionManager.getMobileNumber());
             Global.mainApplication.setPassword(sessionManager.getPassword());
 
+            Intent intent = new Intent(Splash.this, MainActivity.class);
+            startActivity(intent);
+
             getDataFromServer();
         } else {
             new Handler().postDelayed(new Runnable() {
@@ -95,7 +98,7 @@ public class Splash extends AppCompatActivity {
                             try {
                                 resObj = new JSONObject(result.toString());
 
-                                // get data from server
+                                // save token and refresh token.
                                 Global.token = resObj.getString("access_token");
                                 Global.refresh_token = resObj.getString("refresh_token");
 

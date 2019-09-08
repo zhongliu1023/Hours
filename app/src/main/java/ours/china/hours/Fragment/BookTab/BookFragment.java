@@ -74,16 +74,16 @@ public class BookFragment extends Fragment {
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
         mBookList = new ArrayList<>();
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
 
         adapter = new HomeBookAdapter(mBookList, getActivity());
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);

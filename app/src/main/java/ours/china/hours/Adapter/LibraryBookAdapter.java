@@ -42,22 +42,27 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.getBookName());
-        if (one.getDownloadState().equals("已下载")) {
+        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
+
             holder.downloadStateImage.setImageResource(R.drawable.download);
+            Glide.with(context)
+                    .load(one.getBookImageLocalUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         } else {
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
+            Glide.with(context)
+                    .load(one.getBookImageUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals("已阅")) {
+        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
-        Glide.with(context)
-                .load(one.getBookImage())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
     }
 
     @Override

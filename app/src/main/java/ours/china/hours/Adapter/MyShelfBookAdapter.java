@@ -17,15 +17,16 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
 
 public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.ViewHolder> {
 
     private Context context;
-    private List<MyShelfBook> myShelfBooks;
+    private List<Book> myShelfBooks;
 
-    public MyShelfBookAdapter(Context context, List<MyShelfBook> myShelfBooks) {
+    public MyShelfBookAdapter(Context context, List<Book> myShelfBooks) {
         this.context = context;
         this.myShelfBooks = myShelfBooks;
     }
@@ -41,28 +42,33 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        MyShelfBook one = myShelfBooks.get(position);
+        Book one = myShelfBooks.get(position);
 
-        if (one.getDownState().equals("已下载")) {
-            holder.imgDownState.setImageResource(R.drawable.label2_icon);
+        holder.bookName.setText(one.getBookName());
+        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
+
+            holder.imgDownState.setImageResource(R.drawable.download);
+            holder.txtDownState.setText("已下载");
+            Glide.with(context)
+                    .load(one.getBookImageLocalUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         } else {
             holder.imgDownState.setVisibility(View.INVISIBLE);
+            holder.txtDownState.setText("未下载");
+            Glide.with(context)
+                    .load(one.getBookImageUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals("已阅")) {
-            holder.imgReadState.setImageResource(R.drawable.label1_icon);
+        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+            holder.imgReadState.setImageResource(R.drawable.read);
         } else {
             holder.imgReadState.setVisibility(View.INVISIBLE);
         }
 
-        Glide.with(context)
-                .load(one.getBookImageUrl())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
-
-        holder.bookName.setText(one.getBookName());
         holder.bookAuthor.setText(one.getBookAuthor());
-        holder.txtDownState.setText(one.getBookAuthor());
 
     }
 

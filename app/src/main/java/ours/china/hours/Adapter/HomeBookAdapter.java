@@ -44,22 +44,30 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.getBookName());
-        if (one.getDownloadState().equals("downloaded")) {
+        if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
+
+            // for downloaded book
             holder.downloadStateImage.setImageResource(R.drawable.download);
+            Glide.with(context)
+                    .load(one.getBookImageLocalUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         } else {
+
+            // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
+            Glide.with(context)
+                    .load(one.getBookImageUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals("reading")) {
+        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
-        Glide.with(context)
-                .load(one.getBookImage())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
     }
 
     @Override
@@ -82,4 +90,5 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             bookName = itemView.findViewById(R.id.item_bookName);
         }
     }
+
 }

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ import ours.china.hours.Management.Retrofit.APIInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Login;
 import ours.china.hours.R;
+import ours.china.hours.Utility.SessionManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,7 +43,8 @@ public class PasswordLoginFragment extends Fragment {
     private EditText edFrMobile, edFrPassword;
     private Button btnFrLogin;
     private TextView tvFrForgot, tvFrRegister;
-    APIInterface apiInterface;
+
+    SessionManager sessionManager;
 
 
     public PasswordLoginFragment() {
@@ -50,7 +53,6 @@ public class PasswordLoginFragment extends Fragment {
 
 
     public static PasswordLoginFragment newInstance() {
-
         return new PasswordLoginFragment();
     }
 
@@ -58,7 +60,7 @@ public class PasswordLoginFragment extends Fragment {
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        apiInterface = APIClient.getClient().create(APIInterface.class);
+        sessionManager = new SessionManager(getContext());
     }
 
     @Override
@@ -149,20 +151,31 @@ public class PasswordLoginFragment extends Fragment {
                                     JSONObject resObj = null;
                                     try {
                                         resObj = new JSONObject(result.toString());
-                                        Global.token = resObj.getString("access_token");
 
-                                        Toast.makeText(getContext(), Global.token, Toast.LENGTH_SHORT).show();
+                                        // save token and refresh token.
+                                        Global.token = resObj.getString("access_token");
+                                        Global.refresh_token = resObj.getString("refresh_token");
+
+                                        // save session data.
+                                        sessionManager.setPassword(password);
+                                        sessionManager.setMobileNumber(mobile);
+
+                                        // save user data.
+                                        Global.mainApplication.setPassword(password);
+                                        Global.mainApplication.setMobileNumber(mobile);
 
                                         if (Global.token != null && !Global.token.equals("")) {
                                             Intent intent = new Intent(getContext(), MainActivity.class);
                                             startActivity(intent);
+                                        } else {
+                                            Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
                                         }
                                     } catch (JSONException ex) {
                                         ex.printStackTrace();
                                     }
 
                                 } else {
-                                    Toast.makeText(getContext(), "This is error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });

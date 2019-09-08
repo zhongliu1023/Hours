@@ -687,4 +687,11 @@
     <string name="update_mobile_verify">验证码</string>
     <string name="update_information">个人信息修改</string>
 
+    <!--  for book model  -->
+    <string name="state_downloaded">downloaded</string>
+    <string name="state_undownloaded">undownloaded</string>
+    <string name="state_read_now">readnow</string>
+    <string name="state_read_complete">readcomplete</string>
+
+
 </resources>
