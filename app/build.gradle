@@ -22,6 +22,10 @@ android {
     aaptOptions {
         cruncherEnabled = false
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 allprojects {
     repositories {
@@ -96,6 +100,21 @@ dependencies {
 
     //for picker in PerfectInforActivity
     implementation project(':WheelPicker')
-    
 
+
+    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation('org.greenrobot:greendao:3.2.2') {
+        exclude group: 'org.greenrobot.greendao.rx'
+    }
+    implementation 'org.greenrobot:greendao-api:3.2.2'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+    implementation 'com.burgstaller:okhttp-digest:1.18'
+    implementation 'com.squareup.okio:okio-parent:1.17.4'
+    implementation 'com.github.joniles:rtfparserkit:1.13.0'
+    implementation 'org.zwobble.mammoth:mammoth:1.4.0'
+    implementation 'javax.xml.stream:stax-api:1.0-2'
 }

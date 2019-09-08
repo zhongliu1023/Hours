@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Common.Utils.ItemOffsetDecoration;
 import ours.china.hours.Model.Book;
@@ -35,7 +36,7 @@ import ours.china.hours.R;
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment {
+public class BookFragment extends Fragment implements BookItemInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -84,7 +85,7 @@ public class BookFragment extends Fragment {
         mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
         mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
 
-        adapter = new HomeBookAdapter(mBookList, getActivity());
+        adapter = new HomeBookAdapter(mBookList, getActivity(), this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
@@ -355,4 +356,8 @@ public class BookFragment extends Fragment {
         return changedDrawable;
     }
 
+    @Override
+    public void onClickBookItem(String uri) {
+
+    }
 }

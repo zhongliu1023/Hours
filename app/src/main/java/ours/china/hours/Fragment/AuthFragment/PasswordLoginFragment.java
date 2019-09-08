@@ -109,62 +109,65 @@ public class PasswordLoginFragment extends Fragment {
 
         btnFrLogin.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                final String mobile = edFrMobile.getText().toString();
-                final String password = edFrPassword.getText().toString();
-                final String grant_type = "password";
-                final String client_id = "testclient";
-                final String client_secret = "testpass";
-                final String scope = "userinfo cloud file node";
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                startActivity(intent);
 
-                if (mobile.equals("")){
-                    Global.alert(getContext(), getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
-                    edFrMobile.requestFocus();
-                    return;
-                }
-
-                if (password.equals("")){
-                    Global.alert(getContext(), getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
-                    edFrPassword.requestFocus();
-                    return;
-                }
-
-                try {
-                    Global.showLoading(getContext(),"generate_report");
-
-                    Call<Login> call = apiInterface.login(grant_type, mobile, password, client_id, client_secret, scope);
-                    call.enqueue(new Callback<Login>() {
-                        @Override public void onResponse(Call<Login> call, Response<Login> response) {
-                            Global.hideLoading();
-
-                            if (response.code() == 404){
-                                Toast.makeText(getContext(), "404", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 422){
-                                Toast.makeText(getContext(), "422", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 500){
-                                Toast.makeText(getContext(), "500", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 200){
-                                String res = response.body().access_token;
-//                                if (response.body().error.equals("invalid_grant")){
-                                    Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-//                                }else {
-//                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getContext(), MainActivity.class);
-                                    startActivity(intent);
-//                                }
-                            }
-                        }
-
-                        @Override public void onFailure(Call<Login> call, Throwable t) {
-                            Global.hideLoading();
-                            Toast.makeText(getContext(), getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                }
-                catch (Exception e) {
-                    Log.i("register" ,e.getMessage());
-                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+//                final String mobile = edFrMobile.getText().toString();
+//                final String password = edFrPassword.getText().toString();
+//                final String grant_type = "password";
+//                final String client_id = "testclient";
+//                final String client_secret = "testpass";
+//                final String scope = "userinfo cloud file node";
+//
+//                if (mobile.equals("")){
+//                    Global.alert(getContext(), getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
+//                    edFrMobile.requestFocus();
+//                    return;
+//                }
+//
+//                if (password.equals("")){
+//                    Global.alert(getContext(), getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
+//                    edFrPassword.requestFocus();
+//                    return;
+//                }
+//
+//                try {
+//                    Global.showLoading(getContext(),"generate_report");
+//
+//                    Call<Login> call = apiInterface.login(grant_type, mobile, password, client_id, client_secret, scope);
+//                    call.enqueue(new Callback<Login>() {
+//                        @Override public void onResponse(Call<Login> call, Response<Login> response) {
+//                            Global.hideLoading();
+//
+//                            if (response.code() == 404){
+//                                Toast.makeText(getContext(), "404", Toast.LENGTH_SHORT).show();
+//                            }else if (response.code() == 422){
+//                                Toast.makeText(getContext(), "422", Toast.LENGTH_SHORT).show();
+//                            }else if (response.code() == 500){
+//                                Toast.makeText(getContext(), "500", Toast.LENGTH_SHORT).show();
+//                            }else if (response.code() == 200){
+//                                String res = response.body().access_token;
+////                                if (response.body().error.equals("invalid_grant")){
+//                                    Toast.makeText(getContext(),getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+////                                }else {
+////                                    Toast.makeText(getContext(), res.toString(), Toast.LENGTH_SHORT).show();
+//                                    Intent intent = new Intent(getContext(), MainActivity.class);
+//                                    startActivity(intent);
+////                                }
+//                            }
+//                        }
+//
+//                        @Override public void onFailure(Call<Login> call, Throwable t) {
+//                            Global.hideLoading();
+//                            Toast.makeText(getContext(), getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//
+//                }
+//                catch (Exception e) {
+//                    Log.i("register" ,e.getMessage());
+//                    Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+//                }
             }
         });
 

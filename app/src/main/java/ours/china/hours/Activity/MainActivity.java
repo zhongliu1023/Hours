@@ -1,7 +1,10 @@
 package ours.china.hours.Activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -18,11 +21,29 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 import java.util.Objects;
 
+import ours.china.hours.BookLib.artifex.mupdf.fitz.StructuredText;
+import ours.china.hours.BookLib.foobnix.android.utils.Dips;
+import ours.china.hours.BookLib.foobnix.android.utils.LOG;
+import ours.china.hours.BookLib.foobnix.ext.CacheZipUtils;
+import ours.china.hours.BookLib.foobnix.model.AppProfile;
+import ours.china.hours.BookLib.foobnix.model.AppState;
+import ours.china.hours.BookLib.foobnix.model.AppTemp;
+import ours.china.hours.BookLib.foobnix.pdf.info.AppsConfig;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
+import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.tts.TTSNotification;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.ActivityResults.ActivityResultBus;
 import ours.china.hours.Common.ActivityResults.ActivityResultEvent;
 import ours.china.hours.Common.FragmentsBus.FragmentsBus;
@@ -72,6 +93,25 @@ public class MainActivity  extends FragmentActivity {
                 Toast.makeText(MainActivity.this, "From ProfileActivitpy", Toast.LENGTH_LONG).show();
             }
 
+
+            AppDB.get().open(MainActivity.this, AppDB.DB_NAME);
+            DocumentController.chooseFullScreen(this, AppState.get().fullScreenMainMode);
+            TintUtil.updateAll();
+            AppTemp.get().lastClosedActivity = MainActivity.class.getSimpleName();
+            AppProfile.init(this);
+
+            if (AppsConfig.MUPDF_VERSION == AppsConfig.MUPDF_1_12) {
+                int initNative = StructuredText.initNative();
+                LOG.d("initNative", initNative);
+            }
+
+            TTSNotification.initChannels(this);
+            Dips.init(this);
+            AppDB.get().open(this, AppProfile.getCurrent(this));
+
+            CacheZipUtils.init(this);
+            ExtUtils.init(this);
+            IMG.init(this);
         }
         private void init(){
             imgHomeTab = (ImageView) findViewById(R.id.tab_home);
@@ -101,7 +141,6 @@ public class MainActivity  extends FragmentActivity {
             mViewPager.setCurrentItem(0);
             changedTabIcons(0);
         }
-
         private void setListener() {
 
             //Set su kien click

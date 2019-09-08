@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -18,6 +19,7 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
+import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -25,10 +27,12 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
 
     public List<Book> bookList;
     public Context context;
+    BookItemInterface bookItemInterface;
 
-    public HomeBookAdapter(List<Book> bookList, Context context) {
+    public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface) {
         this.bookList = bookList;
         this.context = context;
+        this.bookItemInterface = bookItemInterface;
     }
 
     @NonNull
@@ -60,6 +64,18 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
                 .load(one.getBookImage())
                 .placeholder(R.drawable.book_image)
                 .into(holder.bookImage);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //example, change later
+//                bookItemInterface.onClickBookItem("https://carlosicaza.com/swiftbooks/SwiftLanguage.pdf");
+//                bookItemInterface.onClickBookItem("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
+                bookItemInterface.onClickBookItem("http://www.jedisaber.com/eBooks/books/sample.epub");
+
+
+            }
+        });
     }
 
     @Override

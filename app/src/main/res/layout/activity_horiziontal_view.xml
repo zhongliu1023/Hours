@@ -7,7 +7,7 @@
     android:focusableInTouchMode="true"
     android:orientation="vertical">
 
-    <ours.china.hours.BookReading.com.foobnix.pdf.search.view.VerticalViewPager
+    <ours.china.hours.BookLib.foobnix.pdf.search.view.VerticalViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -60,6 +60,16 @@
         android:text="718"
         android:textSize="16sp"
         android:textStyle="bold" />
+
+    <FrameLayout
+        android:id="@+id/adFrame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="160dip"
+        android:layout_weight="0"></FrameLayout>
 
 
     <TextView
@@ -145,7 +155,7 @@
                 android:textSize="9sp" />
         </LinearLayout>
 
-        <ours.china.hours.BookReading.com.foobnix.pdf.info.view.ProgressDraw
+        <ours.china.hours.BookLib.foobnix.pdf.info.view.ProgressDraw
             android:id="@+id/progressDraw"
             android:layout_width="match_parent"
             android:layout_height="@dimen/progress" />
@@ -240,7 +250,7 @@
                 android:src="@drawable/glyphicons_187_move"
                 android:visibility="visible" />
 
-            <ImageView
+            <ours.china.hours.BookLib.foobnix.pdf.info.view.UnderlineImageView
                 android:id="@+id/onBC"
                 style="@style/buttonWhite"
                 android:layout_width="@dimen/wh_button"
@@ -250,7 +260,7 @@
                 android:src="@drawable/glyphicons_190_brightness_my"
                 android:visibility="visible" />
 
-            <ImageView
+            <ours.china.hours.BookLib.foobnix.pdf.info.view.UnderlineImageView
                 android:id="@+id/onCrop"
                 style="@style/buttonWhite"
                 android:layout_width="@dimen/wh_button"
@@ -310,7 +320,7 @@
         android:tint="@color/white"
         android:visibility="gone" />
 
-    <com.foobnix.tts.TTSControlsView
+    <ours.china.hours.BookLib.foobnix.tts.TTSControlsView
         android:id="@+id/ttsActive"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

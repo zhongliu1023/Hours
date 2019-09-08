@@ -687,4 +687,6 @@
     <string name="update_mobile_verify">验证码</string>
     <string name="update_information">个人信息修改</string>
 
+    <string name="write_file">This app needs access to your file storeage so that it can write files</string>
+
 </resources>
