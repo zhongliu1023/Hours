@@ -160,9 +160,6 @@ public class PasswordLoginFragment extends Fragment {
                                         sessionManager.setPassword(password);
                                         sessionManager.setMobileNumber(mobile);
 
-                                        // save user data.
-                                        Global.mainApplication.setPassword(password);
-                                        Global.mainApplication.setMobileNumber(mobile);
 
                                         if (Global.token != null && !Global.token.equals("")) {
                                             Intent intent = new Intent(getContext(), MainActivity.class);

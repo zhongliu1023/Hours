@@ -6,6 +6,11 @@ import android.os.Environment;
 
 import androidx.multidex.MultiDexApplication;
 
+import org.ebookdroid.common.bitmaps.BitmapManager;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import ours.china.hours.BookLib.artifex.mupdf.fitz.StructuredText;
 import ours.china.hours.BookLib.foobnix.android.utils.Apps;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
@@ -15,17 +20,12 @@ import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.pdf.info.AppsConfig;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
-import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.tts.TTSNotification;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.R;
 
-import org.ebookdroid.common.bitmaps.BitmapManager;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-public class LibreraApp extends MultiDexApplication {
+public class HoursApp extends MultiDexApplication {
 
     static {
         System.loadLibrary("mypdf");

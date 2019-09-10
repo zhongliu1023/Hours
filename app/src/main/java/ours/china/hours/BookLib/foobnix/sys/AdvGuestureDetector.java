@@ -20,7 +20,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessagePageXY;
 
 import org.ebookdroid.BookType;
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.common.settings.SettingsManager;
 import org.ebookdroid.common.touch.IGestureDetector;
 import org.ebookdroid.common.touch.IMultiTouchListener;
@@ -334,14 +334,14 @@ public class AdvGuestureDetector extends SimpleOnGestureListener implements IMul
         LOG.d("ADV-onLongPress");
         if (!AppState.get().isAllowTextSelection) {
             if (TempHolder.get().isAllowTextSelectionFirstTime) {
-                Toast.makeText(LibreraApp.context, R.string.text_highlight_mode_is_disable, Toast.LENGTH_LONG).show();
+                Toast.makeText(HoursApp.context, R.string.text_highlight_mode_is_disable, Toast.LENGTH_LONG).show();
                 TempHolder.get().isAllowTextSelectionFirstTime = false;
             }
             return;
         }
         Vibro.vibrate();
         if (AppTemp.get().isCut || AppTemp.get().isCrop) {
-            Toast.makeText(LibreraApp.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
+            Toast.makeText(HoursApp.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
             return;
         }
 

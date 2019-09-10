@@ -26,7 +26,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -84,7 +84,7 @@ public class TTSEngine {
         public void onInit(int status) {
             LOG.d(TAG, "onInit", "SUCCESS", status == TextToSpeech.SUCCESS);
             if (status == TextToSpeech.ERROR) {
-                Toast.makeText(LibreraApp.context, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
+                Toast.makeText(HoursApp.context, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
             }
 
         }
@@ -95,7 +95,7 @@ public class TTSEngine {
     }
 
     public synchronized TextToSpeech getTTS(OnInitListener onLisnter) {
-        if (LibreraApp.context == null) {
+        if (HoursApp.context == null) {
             return null;
         }
 
@@ -111,7 +111,7 @@ public class TTSEngine {
             if (onLisnter == null) {
                 onLisnter = listener;
             }
-            ttsEngine = new TextToSpeech(LibreraApp.context, onLisnter);
+            ttsEngine = new TextToSpeech(HoursApp.context, onLisnter);
         }
 
         return ttsEngine;
@@ -155,7 +155,7 @@ public class TTSEngine {
     public synchronized TextToSpeech setTTSWithEngine(String engine) {
         shutdown();
         synchronized (helpObject) {
-            ttsEngine = new TextToSpeech(LibreraApp.context, listener, engine);
+            ttsEngine = new TextToSpeech(HoursApp.context, listener, engine);
         }
         return ttsEngine;
     }

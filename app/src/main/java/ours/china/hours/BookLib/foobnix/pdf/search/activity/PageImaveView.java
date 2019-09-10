@@ -41,7 +41,7 @@ import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.TextWordsMessage
 import ours.china.hours.BookLib.foobnix.sys.ClickUtils;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
 import org.greenrobot.eventbus.EventBus;
@@ -389,7 +389,7 @@ public class PageImaveView extends View {
 
             if (!AppState.get().isAllowTextSelection) {
                 if (TempHolder.get().isAllowTextSelectionFirstTime) {
-                    Toast.makeText(LibreraApp.context, R.string.text_highlight_mode_is_disable, Toast.LENGTH_LONG).show();
+                    Toast.makeText(HoursApp.context, R.string.text_highlight_mode_is_disable, Toast.LENGTH_LONG).show();
                     TempHolder.get().isAllowTextSelectionFirstTime = false;
                 }
                 return;
@@ -397,7 +397,7 @@ public class PageImaveView extends View {
 
             Vibro.vibrate();
             if (AppTemp.get().isCut || AppTemp.get().isCrop) {
-                Toast.makeText(LibreraApp.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
+                Toast.makeText(HoursApp.context, R.string.the_page_is_clipped_the_text_selection_does_not_work, Toast.LENGTH_LONG).show();
                 return;
             }
             isLognPress = true;

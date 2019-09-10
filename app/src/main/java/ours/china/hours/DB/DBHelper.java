@@ -1,23 +1,25 @@
-package com.training_android.daisuke.dbmanage;
+package ours.china.hours.DB;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.v4.app.NavUtils;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import ours.china.hours.Model.Book;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static final String DB_NAME = "school.db";
-    public static final String TABLE_NAME = "tbl_stature";
+    public static final String DB_NAME = "hour.db";
+    public static final String TABLE_NAME = "book_state_table";
+
     public static final String COL_1 = "ID";
-    public static final String COL_2 = "NAME";
-    public static final String COL_3 = "SURNAME";
-    public static final String COL_4 = "STATURE";
+    public static final String COL_2 = "BOOK_ID";
+    public static final String COL_3 = "PAGES";
+    public static final String COL_4 = "READ_TIME";
+    public static final String COL_5 = "LAST_TIME";
 
     SQLiteDatabase db;
 
@@ -28,7 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + TABLE_NAME + " (ID integer primary key autoincrement, NAME text, SURNAME text, STATURE integer)");
+        db.execSQL("create table " + TABLE_NAME + " (ID integer primary key autoincrement, BOOK_ID text, PAGES text, READ_TIME text, LAST_TIME integer)");
 
     }
 
@@ -37,18 +39,18 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public ArrayList<Student> getAllData() {
-        ArrayList<Student> results = new ArrayList<Student>();
+    public ArrayList<Book> getAllData() {
+        ArrayList<Book> results = new ArrayList<Book>();
 
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME, null);
         if (cursor.moveToFirst()) {
             do {
-                Student row = new Student();
+                Book row = new Book();
 
-                row.id = cursor.getString(0);
-                row.name = cursor.getString(1);
-                row.surname = cursor.getString(2);
-                row.stature = cursor.getString(3);
+                row.setBookID(cursor.getString(1));
+                row.setPagesArray(cursor.getString(2));
+                row.setReadTime(cursor.getString(3));
+                row.setLastTime(cursor.getString(4));
 
                 results.add(row);
             } while (cursor.moveToNext());
@@ -63,10 +65,10 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("select * from " + TABLE_NAME, null);
         if (cursor.moveToFirst()) {
             do {
-                String tmp = cursor.getString(0);
-                tmp += "  " + cursor.getString(1);
+                String tmp = cursor.getString(1);
                 tmp += "  " + cursor.getString(2);
                 tmp += "  " + cursor.getString(3);
+                tmp += "  " + cursor.getString(4);
 
                 results.add(tmp);
             } while (cursor.moveToNext());
@@ -75,11 +77,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return results;
     }
 
-    public boolean insertData(String name, String surname, String stature) {
+    public boolean insertData(String bookID, String pages, String readTime, String lastTime) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_2, name);
-        contentValues.put(COL_3, surname);
-        contentValues.put(COL_4, stature);
+        contentValues.put(COL_2, bookID);
+        contentValues.put(COL_3, pages);
+        contentValues.put(COL_4, readTime);
+        contentValues.put(COL_5, lastTime);
         long row = db.insert(TABLE_NAME, null, contentValues);
         if (row == -1)
             return false;
@@ -87,12 +90,13 @@ public class DBHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateData(Student student) {
+    public boolean updateData(Book book) {
         ContentValues cv = new ContentValues();
-        cv.put(COL_2, student.name);
-        cv.put(COL_3, student.surname);
-        cv.put(COL_4, student.stature);
-        int cnt = db.update(TABLE_NAME, cv, "id = " + student.id, null);
+        cv.put(COL_2, book.getBookID());
+        cv.put(COL_3, book.getPagesArray());
+        cv.put(COL_4, book.getReadTime());
+        cv.put(COL_5, book.getLastTime());
+        int cnt = db.update(TABLE_NAME, cv, "BOOK_ID = " + book.getBookID(), null);
         if (cnt > 0)
             return true;
         else

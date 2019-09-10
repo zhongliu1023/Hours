@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -17,7 +16,15 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ours.china.hours.Common.Interfaces.DownloadInterface;
+import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.android.utils.LOG;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.TempHolder;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.DB.DBController;
+import ours.china.hours.Model.Book;
 
 public class DownloadFile  extends AsyncTask<String, String, String> {
 
@@ -26,11 +33,13 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private String folder;
     private boolean isDownloaded;
     private Context context;
-    private DownloadInterface downloadInterface;
 
-    public DownloadFile(Context context, DownloadInterface downloadInterface) {
+    DBController db;
+
+    public DownloadFile(Context context) {
         this.context = context;
-        this.downloadInterface = downloadInterface;
+
+        db = new DBController(context);
     }
     /**
      * Before starting background thread
@@ -63,7 +72,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
 
             fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1, f_url[0].length());
             fileName = timestamp + "_" + fileName;
-            folder = Environment.getExternalStorageDirectory() + File.separator + "androiddeft/";
+            folder = Environment.getExternalStorageDirectory() + File.separator + "book/";
 
             File directory = new File(folder);
 
@@ -101,8 +110,26 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String message) {
-        // dismiss the dialog after the file was downloaded
         this.progressDialog.dismiss();
-        downloadInterface.onDownloadToPath(message, true);
+
+        Book tempBook = new Book();
+        tempBook.setBookID(Global.bookID);
+        tempBook.setBookLocalUrl(message);
+        tempBook.setBookImageLocalUrl("hello");
+        db.insertData(tempBook);
+
+        LOG.d("message == >>", message);
+        if (!ExtUtils.isExteralSD(message)) {
+
+//          message == >> |/storage/emulated/0/Librera/Downloads/William Shakespeare -  Romeo and Juliet.epub|
+            FileMeta meta = AppDB.get().getOrCreate(message);
+            LOG.d("FileMeta", meta);
+
+//            meta.setIsSearchBook(true);
+            AppDB.get().updateOrSave(meta);
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+        }
+        TempHolder.listHash++;
+
     }
 }

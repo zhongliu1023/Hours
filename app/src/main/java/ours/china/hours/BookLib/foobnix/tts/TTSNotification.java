@@ -32,7 +32,7 @@ import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.ui.viewer.VerticalViewActivity;
 
 import java.io.File;
@@ -180,7 +180,7 @@ public class TTSNotification {
     public static void hideNotification() {
         try {
             LOG.d("Notification hideNotification");
-            NotificationManager nm = (NotificationManager) LibreraApp.context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager nm = (NotificationManager) HoursApp.context.getSystemService(Context.NOTIFICATION_SERVICE);
             nm.cancel(NOT_ID);
         } catch (Exception e) {
             LOG.e(e);

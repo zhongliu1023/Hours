@@ -1,7 +1,9 @@
 package ours.china.hours.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.media.Image;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +19,13 @@ import com.bumptech.glide.Glide;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.List;
 
+import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
@@ -26,12 +33,15 @@ import ours.china.hours.R;
 public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBookViewHolder> {
 
     public List<Book> bookList;
-    public Context context;
     BookItemInterface bookItemInterface;
+
+    public Context context;
+    public Activity activity;
 
     public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface) {
         this.bookList = bookList;
         this.context = context;
+        this.activity = (Activity)context;
         this.bookItemInterface = bookItemInterface;
     }
 
@@ -72,19 +82,25 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
-        Glide.with(context)
-                .load(one.getBookImage())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //example, change later
 //                bookItemInterface.onClickBookItem("https://carlosicaza.com/swiftbooks/SwiftLanguage.pdf");
 //                bookItemInterface.onClickBookItem("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
-                bookItemInterface.onClickBookItem("http://www.jedisaber.com/eBooks/books/sample.epub");
 
+                if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
+//                    displayLocalBook(position);
+
+                    List<FileMeta> localBooks = AppDB.get().getAll();
+                    ExtUtils.openFile(activity, localBooks.get(0));
+
+                } else {
+                    Global.bookID = String.valueOf(position);
+                    bookItemInterface.onClickBookItem(one.getBookUrl());
+
+                    Toast.makeText(context, one.getBookUrl(), Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -109,6 +125,36 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             readStateImage = itemView.findViewById(R.id.readState);
             bookName = itemView.findViewById(R.id.item_bookName);
         }
+    }
+
+    public void displayLocalBook(int position) {
+        Book one = bookList.get(position);
+
+        FileMeta fileMeta = new FileMeta();
+        fileMeta.setAuthor("zhong liu");
+        fileMeta.setChild("epub");
+        fileMeta.setDateTxt("9/7/19");
+        fileMeta.setExt("epub");
+        fileMeta.setGenre("test...");
+        fileMeta.setIsRecent(true);
+        fileMeta.setIsRecentProgress((float) 0.253);
+        fileMeta.setIsRecentTime(System.currentTimeMillis());
+        fileMeta.setIsSearchBook(true);
+        fileMeta.setIsStar(false);
+        fileMeta.setIsStarTime(System.currentTimeMillis());
+        fileMeta.setIsbn(one.getBookLocalUrl());
+        fileMeta.setLang("en");
+        fileMeta.setPages(20);
+        fileMeta.setPath(one.getBookLocalUrl());
+        fileMeta.setPathTxt("test");
+        fileMeta.setPublisher("");
+        fileMeta.setSequence("");
+        fileMeta.setSizeTxt("1770KB");
+        fileMeta.setSize((long) (1770 * 1000));
+        fileMeta.setState(2);
+        fileMeta.setTitle("");
+        fileMeta.setYear(2016);
+        ExtUtils.openFile(activity, fileMeta);
     }
 
 }

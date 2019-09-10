@@ -24,66 +24,55 @@ public class DBController {
         database = dbManager.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(DatabaseManager.KEY_bookName, data.getBookName());
-        values.put(DatabaseManager.KEY_bookAuthor, data.getBookAuthor());
+        values.put(DatabaseManager.KEY_bookid, data.getBookID());
         values.put(DatabaseManager.KEY_bookLocalUrl, data.getBookLocalUrl());
         values.put(DatabaseManager.KEY_bookImageLocalUrl, data.getBookImageLocalUrl());
 
-        database.insert(dbManager.tableName, null, values);
+        database.insert(DatabaseManager.bookTable, null, values);
     }
 
     // get one data
-    public Book getOneData(String bookName) {
+//    public Book getOneData(String bookID) {
+//        database = dbManager.getReadableDatabase();
+//
+//        Cursor cursor = database.rawQuery("select * from " + DatabaseManager.bookTable + " where " + DatabaseManager.KEY_bookid + " = " + bookID, null);
+//
+//        if(cursor != null){
+//            cursor.moveToFirst();
+//        } else {
+//            return null;
+//        }
+//
+//        Book data = new Book(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
+//        return data;
+//    }
+
+    public ArrayList<Book> getAllData() {
+        ArrayList<Book> results = new ArrayList<Book>();
+
         database = dbManager.getReadableDatabase();
+        Cursor cursor = database.rawQuery("select * from " + DatabaseManager.bookTable, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Book row = new Book();
 
-        Cursor cursor = database.query(DatabaseManager.tableName, DatabaseManager.columns,
-                DatabaseManager.KEY_bookName + "= ?", new String[]{bookName},
-                null, null, null);
+                row.setBookID(cursor.getString(1));
+                row.setBookLocalUrl(cursor.getString(2));
+                row.setBookImageLocalUrl(cursor.getString(3));
 
-        if(cursor != null){
-            cursor.moveToFirst();
-        } else {
-            return null;
-        }
-
-        Book data = new Book(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4));
-        return data;
-    }
-
-    // get all data
-    public List<Book> getAllData() {
-        List<Book> data = new ArrayList<>();
-        SQLiteDatabase db = dbManager.getWritableDatabase();
-
-        String selectquery = "SELECT * FROM " + DatabaseManager.tableName;
-        Cursor cursor = db.rawQuery(selectquery, null);
-
-        if (cursor == null) {
-            return null;
-        }
-
-        if(cursor.moveToFirst()){
-            do{
-                Book one = new Book();
-
-                one.setBookName(cursor.getString(1));
-                one.setBookAuthor(cursor.getString(2));
-                one.setBookLocalUrl(cursor.getString(3));
-                one.setBookImageLocalUrl(cursor.getString(4));
-
-                data.add(one);
-
+                results.add(row);
             } while (cursor.moveToNext());
         }
 
-        return data;
+        return results;
     }
 
-    public void deleteOneData(String bookName) {
-        SQLiteDatabase db = dbManager.getWritableDatabase();
 
-        db.delete(DatabaseManager.tableName, DatabaseManager.KEY_bookName + " = ?", new String[]{bookName});
-
-        db.close();
-    }
+//    public void deleteOneData(String bookName) {
+//        SQLiteDatabase db = dbManager.getWritableDatabase();
+//
+//        db.delete(DatabaseManager.tableName, DatabaseManager.KEY_bookName + " = ?", new String[]{bookName});
+//
+//        db.close();
+//    }
 }

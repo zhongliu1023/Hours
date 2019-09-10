@@ -27,7 +27,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -329,7 +329,7 @@ public class TxtUtils {
 
         if (AppState.get().isShowFooterNotesInText && AppTemp.get().hypenLang != null) {
             try {
-                String string = getLocaleStringResource(new Locale(AppTemp.get().hypenLang), R.string.foot_notes, LibreraApp.context);
+                String string = getLocaleStringResource(new Locale(AppTemp.get().hypenLang), R.string.foot_notes, HoursApp.context);
                 pageHTML = pageHTML.replaceAll("[\\[{][0-9]+[\\]}]", TTS_PAUSE + " " + TTS_PAUSE + string + TTS_PAUSE);
             } catch (Exception e) {
                 LOG.e(e);
@@ -513,7 +513,7 @@ public class TxtUtils {
                 return;
             }
 
-            final InputStream open = LibreraApp.context.getAssets().open("dict/Librera_Сокращения.txt");
+            final InputStream open = HoursApp.context.getAssets().open("dict/Librera_Сокращения.txt");
             BufferedReader input = new BufferedReader(new InputStreamReader(open));
             String line;
             while ((line = input.readLine()) != null) {
@@ -582,7 +582,7 @@ public class TxtUtils {
             }
 
             if (dict.endsWith(".db")) {
-                AppDB.get().openDictDB(LibreraApp.context, dict);
+                AppDB.get().openDictDB(HoursApp.context, dict);
                 hasDB = true;
                 continue;
 

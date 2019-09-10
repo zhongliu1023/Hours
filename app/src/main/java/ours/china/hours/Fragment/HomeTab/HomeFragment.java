@@ -1,7 +1,6 @@
 package ours.china.hours.Fragment.HomeTab;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -9,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,41 +17,48 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.util.Pair;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import org.w3c.dom.Text;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
-import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
-import ours.china.hours.Common.Interfaces.DownloadInterface;
-import ours.china.hours.Common.Utils.ItemOffsetDecoration;
+import ours.china.hours.DB.DBController;
 import ours.china.hours.Management.DownloadFile;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
+import ours.china.hours.Utility.SessionManager;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by liujie on 1/12/18.
  */
 
-public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, DownloadInterface {
+public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -69,10 +76,22 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     ImageView newsImage;
 
+    DBController db;
+    SessionManager sessionManager;
+
+    public HomeFragment() {
+        db = new DBController(getActivity());
+        Log.v("Hello", "This is DB controller part.");
+    }
+
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sessionManager = new SessionManager(getContext());
+        getAllDataFromLocal();
+        getAllDataFromServer();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -81,6 +100,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
+//        getAllDataFromServer();
 
         return rootView;
     }
@@ -89,25 +109,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
-
-        mBookList = new ArrayList<>();
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-
         adapter = new HomeBookAdapter(mBookList, getActivity(), this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
 
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
-
 
 //        recyclerBooksView.setLayoutManager(gridLayoutManager);
 //        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
@@ -122,6 +128,89 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         imgArrow = view.findViewById(R.id.imgArrow);
 
     }
+
+    List<FileMeta> localBooks;
+    public void getAllDataFromLocal() {
+        localBooks = AppDB.get().getAll();
+        Log.v("localBooks count", String.valueOf(localBooks.size()));
+    }
+
+    public void getAllDataFromServer() {
+        mBookList = new ArrayList<>();
+
+        Global.showLoading(getContext(),"generate_report");
+        Ion.with(getActivity())
+                .load(Url.searchAllBookwithMobile)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.token)
+                .setBodyParameter("mobile", sessionManager.getMobileNumber())
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        Global.hideLoading();
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+
+                                    JSONArray dataArray = new JSONArray(resObj.getString("data"));
+                                    for (int i = 0; i < dataArray.length(); i++) {
+                                        JSONObject oneObject = dataArray.getJSONObject(i);
+
+                                        Book one = new Book();
+                                        one.setBookID(oneObject.getString(Global.receive_json_key_bookId));
+                                        one.setBookImageUrl(oneObject.getString(Global.receive_json_key_imageUrl));
+                                        one.setBookAuthor(oneObject.getString(Global.receive_json_key_author));
+                                        one.setBookName(oneObject.getString(Global.receive_json_key_bookName));
+                                        one.setBookUrl(oneObject.getString(Global.receive_json_key_bookUrl));
+                                        one.setReadState(oneObject.getString(Global.receive_json_key_readState));
+
+                                        mBookList.add(one);
+                                    }
+
+                                    getTotalData();
+
+                                } else {
+                                    Toast.makeText(getActivity(), "Fail", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    // combine with local db data and make total data.
+    public void getTotalData() {
+        db = new DBController(getActivity());
+        ArrayList<Book> books = db.getAllData();
+        if (books == null) {
+            return;
+        }
+
+        for (int i = 0; i < mBookList.size(); i++) {
+            for (int j = 0; j < books.size(); j++) {
+                Book one = mBookList.get(i);
+                Book oneLocal = books.get(j);
+
+                if (one.getBookID().equals(oneLocal.getBookID())) {
+                    one.setBookLocalUrl(oneLocal.getBookLocalUrl());
+                    one.setBookImageLocalUrl(oneLocal.getBookImageLocalUrl());
+
+                    break;
+                }
+            }
+        }
+    }
+
 
     @Override
     public Pair<Integer, Integer> getNameAndIconRes() {
@@ -436,50 +525,14 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         return changedDrawable;
     }
 
-    public void getAllDataFromServer() {
-	
-	}
-
     @Override
     public void onClickBookItem(String uri) {
         if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            new DownloadFile(getActivity(), this).execute(uri);
+            new DownloadFile(getActivity()).execute(uri);
         }else{
             EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
 
-    @Override
-    public void onDownloadToPath(String path, boolean isFinished) {
-        if (!path.isEmpty()){
-            FileMeta fileMeta = new FileMeta();
-            fileMeta.setAuthor("zhong liu");
-            fileMeta.setChild("epub");
-            fileMeta.setDateTxt("9/7/19");
-            fileMeta.setExt("epub");
-            fileMeta.setGenre("test...");
-            fileMeta.setIsRecent(true);
-            fileMeta.setIsRecentProgress((float) 0.253);
-            fileMeta.setIsRecentTime(System.currentTimeMillis());
-            fileMeta.setIsSearchBook(true);
-            fileMeta.setIsStar(false);
-            fileMeta.setIsStarTime(System.currentTimeMillis());
-            fileMeta.setIsbn("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
-            fileMeta.setLang("en");
-            fileMeta.setPages(20);
-            fileMeta.setParentPath(Environment.getExternalStorageDirectory() + File.separator + "androiddeft/");
-            fileMeta.setPath(path);
-            fileMeta.setPathTxt("test");
-            fileMeta.setPublisher("");
-            fileMeta.setSequence("");
-            fileMeta.setSizeTxt("1770KB");
-            fileMeta.setSize((long) (1770 * 1000));
-            fileMeta.setState(2);
-            fileMeta.setTitle("");
-            fileMeta.setYear(2016);
-            ExtUtils.openFile(getActivity(), fileMeta);
-        }else{
-            Toast.makeText(getActivity(), "Failed downloading", Toast.LENGTH_LONG).show();
-        }
-    }
+
 }

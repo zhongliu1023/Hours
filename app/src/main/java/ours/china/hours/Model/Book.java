@@ -1,9 +1,12 @@
 package ours.china.hours.Model;
 
+import java.io.Serializable;
+
 import ours.china.hours.R;
 
-public class Book {
+public class Book implements Serializable {
 
+    String bookID = "";
     String bookName = "";
     String bookAuthor = "";
     String bookLocalUrl = "";
@@ -15,12 +18,17 @@ public class Book {
     String specifiedTime = "";
     String readState = "";
     String publishedDate ="";
+    String totalPage = "";
+    String pagesArray = "";
+    String readTime = "";
+    String lastTime = "";
 
     public Book() {
     }
 
-    public Book(String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl,
-                String bookImageUrl, String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate) {
+    public Book(String bookID, String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl, String bookImageUrl,
+                String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate, String totalPage, String pagesArray, String readTime, String lastTime) {
+        this.bookID = bookID;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
         this.bookLocalUrl = bookLocalUrl;
@@ -32,13 +40,18 @@ public class Book {
         this.specifiedTime = specifiedTime;
         this.readState = readState;
         this.publishedDate = publishedDate;
+        this.totalPage = totalPage;
+        this.pagesArray = pagesArray;
+        this.readTime = readTime;
+        this.lastTime = lastTime;
     }
 
-    public Book(String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl) {
-        this.bookName = bookName;
-        this.bookAuthor = bookAuthor;
-        this.bookLocalUrl = bookLocalUrl;
-        this.bookImageLocalUrl = bookImageLocalUrl;
+    public String getBookID() {
+        return bookID;
+    }
+
+    public void setBookID(String bookID) {
+        this.bookID = bookID;
     }
 
     public String getBookName() {
@@ -127,5 +140,37 @@ public class Book {
 
     public void setPublishedDate(String publishedDate) {
         this.publishedDate = publishedDate;
+    }
+
+    public String getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(String totalPage) {
+        this.totalPage = totalPage;
+    }
+
+    public String getPagesArray() {
+        return pagesArray;
+    }
+
+    public void setPagesArray(String pagesArray) {
+        this.pagesArray = pagesArray;
+    }
+
+    public String getReadTime() {
+        return readTime;
+    }
+
+    public void setReadTime(String readTime) {
+        this.readTime = readTime;
+    }
+
+    public String getLastTime() {
+        return lastTime;
+    }
+
+    public void setLastTime(String lastTime) {
+        this.lastTime = lastTime;
     }
 }

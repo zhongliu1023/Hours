@@ -27,7 +27,7 @@ public class SessionManager {
     }
 
     public void setMobileNumber(String mobileNumber) {
-        editor.putString(KEY_mobile, "");
+        editor.putString(KEY_mobile, mobileNumber);
         editor.commit();
     }
 
@@ -37,7 +37,7 @@ public class SessionManager {
     }
 
     public void setPassword(String password) {
-        editor.putString(KEY_password, "");
+        editor.putString(KEY_password, password);
         editor.commit();
     }
 

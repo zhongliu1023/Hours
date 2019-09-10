@@ -14,7 +14,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.core.codec.OutlineLink;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -57,7 +57,7 @@ public class Fb2Extractor extends BaseExtractor {
         }
         try {
             {
-                InputStream xmlStream = LibreraApp.context.getAssets().open("union_genres_ru_1.xml");
+                InputStream xmlStream = HoursApp.context.getAssets().open("union_genres_ru_1.xml");
                 XmlPullParser xpp = XmlParser.buildPullParser();
                 xpp.setInput(xmlStream, "UTF-8");
 
@@ -76,7 +76,7 @@ public class Fb2Extractor extends BaseExtractor {
                 xmlStream.close();
             }
             {
-                InputStream xmlStream = LibreraApp.context.getAssets().open("union_genres_ru_2.xml");
+                InputStream xmlStream = HoursApp.context.getAssets().open("union_genres_ru_2.xml");
                 XmlPullParser xpp = XmlParser.buildPullParser();
                 xpp.setInput(xmlStream, "UTF-8");
 

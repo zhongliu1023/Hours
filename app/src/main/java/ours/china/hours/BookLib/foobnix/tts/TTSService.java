@@ -42,7 +42,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.common.settings.books.SharedBooks;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
@@ -295,15 +295,15 @@ public class TTSService extends Service {
         Intent intent = playBookIntent(page, path, anchor);
 
         if (Build.VERSION.SDK_INT >= 26) {
-            LibreraApp.context.startForegroundService(intent);
+            HoursApp.context.startForegroundService(intent);
         } else {
-            LibreraApp.context.startService(intent);
+            HoursApp.context.startService(intent);
         }
 
     }
 
     private static Intent playBookIntent(int page, String path, String anchor) {
-        Intent intent = new Intent(LibreraApp.context, TTSService.class);
+        Intent intent = new Intent(HoursApp.context, TTSService.class);
         intent.setAction(TTSService.ACTION_PLAY_CURRENT_PAGE);
         intent.putExtra(EXTRA_INT, page);
         intent.putExtra(EXTRA_PATH, path);
@@ -527,7 +527,7 @@ public class TTSService extends Service {
                 } catch (InterruptedException e) {
                 }
                 TTSEngine.get().getTTS().setOnUtteranceCompletedListener(null);
-                TTSEngine.get().speek(LibreraApp.context.getString(R.string.the_book_is_over));
+                TTSEngine.get().speek(HoursApp.context.getString(R.string.the_book_is_over));
 
                 EventBus.getDefault().post(new TtsStatus());
 

@@ -1,12 +1,8 @@
 package ours.china.hours.Activity.Auth;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,10 +16,7 @@ import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
-import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
-import ours.china.hours.MainApplication;
 import ours.china.hours.Management.Url;
-import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
 
@@ -44,26 +37,12 @@ public class Splash extends AppCompatActivity {
 
         init();
 
-
-        new Handler().postDelayed(new Runnable(){
-            @Override
-            public void run() {
-                Intent mainIntent = new Intent(Splash.this, LoginOptionActivity.class);
-                Splash.this.startActivity(mainIntent);
-                Splash.this.finish();
-            }
-        }, SPLASH_DISPLAY_LENGTH);
     }
 
     public void init() {
         sessionManager = new SessionManager(Splash.this);
 
         if (!sessionManager.getMobileNumber().equals("") && !sessionManager.getPassword().equals("")) {
-            Global.mainApplication.setMobileNumber(sessionManager.getMobileNumber());
-            Global.mainApplication.setPassword(sessionManager.getPassword());
-
-            Intent intent = new Intent(Splash.this, MainActivity.class);
-            startActivity(intent);
 
             getDataFromServer();
         } else {
@@ -86,8 +65,8 @@ public class Splash extends AppCompatActivity {
                 .setBodyParameter("client_id", "testclient")
                 .setBodyParameter("client_secret", "testpass")
                 .setBodyParameter("scope", "userinfo cloud file node")
-                .setBodyParameter("username", Global.mainApplication.getMobileNumber())
-                .setBodyParameter("password", Global.mainApplication.getPassword())
+                .setBodyParameter("username", sessionManager.getMobileNumber())
+                .setBodyParameter("password", sessionManager.getPassword())
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override

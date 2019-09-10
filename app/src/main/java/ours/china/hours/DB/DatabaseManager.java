@@ -10,20 +10,24 @@ import androidx.annotation.Nullable;
 public class DatabaseManager extends SQLiteOpenHelper {
 
     private static final int DB_version = 1;
-    private static final String DB_name = "Hour_DB";
+    private static final String DB_name = "Hour.db";
 
-    int a = 0;
-
-    public static final String tableName = "bookTable";
+    public static final String bookTable = "bookTable";
     public static final String KEY_id = "id";
-    public static final String KEY_bookName = "bookName";
-    public static final String KEY_bookAuthor = "bookAuthor";
+    public static final String KEY_bookid = "bookID";
     public static final String KEY_bookLocalUrl = "bookLocalUrl";
     public static final String KEY_bookImageLocalUrl = "bookImageLocalUrl";
 
-    public static final String[] columns = new String[] {
-            DatabaseManager.KEY_id, DatabaseManager.KEY_bookName, DatabaseManager.KEY_bookAuthor, DatabaseManager.KEY_bookLocalUrl, DatabaseManager.KEY_bookImageLocalUrl
-    };
+    private static final String CREATE_TABLE_BOOKS = "CREATE TABLE " + bookTable
+            + "(" + KEY_id + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_bookid + " TEXT,"
+            + KEY_bookLocalUrl + " TEXT,"
+            + KEY_bookImageLocalUrl + " TEXT"
+            + ")";
+//
+//    public static final String[] columns = new String[] {
+//            DatabaseManager.KEY_id, DatabaseManager.KEY_bookName, DatabaseManager.KEY_bookAuthor, DatabaseManager.KEY_bookLocalUrl, DatabaseManager.KEY_bookImageLocalUrl
+//    };
 
     public DatabaseManager(@Nullable Context context) {
         super(context, DB_name, null, DB_version);
@@ -31,33 +35,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + tableName
-                + "(" + KEY_id + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_bookName + " TEXT,"
-                + KEY_bookAuthor + " TEXT,"
-                + KEY_bookLocalUrl + " TEXT,"
-                + KEY_bookImageLocalUrl + " TEXT"
-                + ");";
-
-        Log.d("debug", createTable);
-        db.execSQL(createTable);
-    }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-        a++;
+        db.execSQL(CREATE_TABLE_BOOKS);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d("db", "update");
-        db.execSQL("DROP TABLE IF EXISTS " + tableName);
+        db.execSQL("DROP TABLE IF EXISTS '" + bookTable + "'");
         onCreate(db);
     }
 
-    @Override
-    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        onUpgrade(db, oldVersion, newVersion);
-    }
 }
