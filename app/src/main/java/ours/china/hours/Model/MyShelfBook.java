@@ -4,12 +4,14 @@ public class MyShelfBook {
 
     String bookImageUrl;
     String downState;
+    String readState;
     String bookName;
     String bookAuthor;
 
-    public MyShelfBook(String bookImageUrl, String downState, String bookName, String bookAuthor) {
+    public MyShelfBook(String bookImageUrl, String downState, String readState, String bookName, String bookAuthor) {
         this.bookImageUrl = bookImageUrl;
         this.downState = downState;
+        this.readState = readState;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
     }
@@ -30,6 +32,14 @@ public class MyShelfBook {
         this.downState = downState;
     }
 
+    public String getReadState() {
+        return readState;
+    }
+
+    public void setReadState(String readState) {
+        this.readState = readState;
+    }
+
     public String getBookName() {
         return bookName;
     }
@@ -45,4 +55,5 @@ public class MyShelfBook {
     public void setBookAuthor(String bookAuthor) {
         this.bookAuthor = bookAuthor;
     }
+
 }

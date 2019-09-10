@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" 
-    android:padding="5dp"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:paddingStart="@dimen/getneral_padding_16"
+        android:paddingEnd="@dimen/getneral_padding_16"
+        android:layout_height="@dimen/home_tab_body_title_height">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="图书馆搜索结果"
-            android:textSize="18sp"
-            android:padding="5dp"
+            android:textSize="@dimen/sw360_standard_fontsize_20"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/txtMoreSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="查看更多"
-            android:textSize="18sp"
+            android:textColor="@color/pink"
+            android:textSize="@dimen/sw360_standard_fontsize_20"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="5dp"/>
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/getneral_padding_16">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/library_search_result"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>
-    <View
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:background="@color/seperator"/>
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="@dimen/getneral_padding_16">
         <TextView
             android:id="@+id/my_bookshelf_search_result_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:padding="5dp"
+            android:textSize="@dimen/sw360_standard_fontsize_20"
             android:text="我的书架搜索结果"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/my_bookshelf_search_result"
             android:layout_below="@id/my_bookshelf_search_result_title"
+            android:layout_marginTop="@dimen/getneral_padding_8"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </RelativeLayout>

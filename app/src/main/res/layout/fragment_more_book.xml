@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:padding="10dp"
+    android:paddingEnd="@dimen/getneral_padding_16"
+    android:paddingStart="@dimen/getneral_padding_16"
     android:layout_height="match_parent">
+
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/home_tab_body_title_height">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="图书馆搜索结果"
-            android:textSize="18sp"
+            android:layout_centerVertical="true"
             android:padding="5dp"
-            android:layout_centerVertical="true"/>
+            android:text="图书馆搜索结果"
+            android:textSize="@dimen/sw360_standard_fontsize_18" />
+
         <TextView
             android:id="@+id/txtBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="返回"
-            android:textSize="18sp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:padding="5dp"/>
+            android:padding="5dp"
+            android:text="返回"
+            android:textSize="@dimen/sw360_standard_fontsize_18" />
     </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"

@@ -10,6 +10,6 @@
         android:background="@drawable/flexbox_item_back"
         android:padding="5dp"
         android:layout_margin="5dp"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/sw360_standard_fontsize_18"/>
 
 </LinearLayout>

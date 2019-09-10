@@ -8,48 +8,72 @@
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <RelativeLayout android:orientation="vertical"
-        android:layout_width="@dimen/book_item_width"
-        android:layout_height="match_parent">
+        android:layout_width="100dp"
+        android:layout_height="wrap_content">
         <ImageView
             android:id="@+id/item_book_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/book_image"
-            android:padding="1dp"/>
-        <ImageView
-            android:id="@+id/downStateMark"
-            android:layout_width="20dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="8dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/download"/>
+            android:padding="3dp"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/book_image"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:id="@+id/imgDownState"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/label2_icon"/>
+            <ImageView
+                android:id="@+id/imgReadState"
+                android:layout_width="wrap_content"
+                android:layout_height="90dp"
+                android:src="@drawable/label1_icon"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="20dp">
+        android:padding="@dimen/getneral_padding_16">
         <TextView
-            android:id="@+id/bookName"
+            android:id="@+id/item_bookName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
+            android:textSize="@dimen/sw360_standard_fontsize_20"
             android:text="百年孤独"/>
         <TextView
-            android:id="@+id/downState"
+            android:id="@+id/txtDownState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:textSize="20sp"
+            android:textSize="@dimen/sw360_standard_fontsize_18"
             android:text="已下载"/>
         <TextView
             android:id="@+id/bookAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/item_bookName"
+            android:layout_marginTop="@dimen/getneral_padding_16"
+            android:textSize="@dimen/getneral_padding_16"
             android:text="马尔克斯"/>
+
+        <ProgressBar
+            android:id="@+id/progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:max="100"
+            android:progress="30"/>
     </RelativeLayout>
 </LinearLayout>
 

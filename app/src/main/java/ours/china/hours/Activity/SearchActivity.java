@@ -46,7 +46,7 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void event() {
-        imgBack = findViewById(R.id.img_back);
+        imgBack = findViewById(R.id.imgBack);
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

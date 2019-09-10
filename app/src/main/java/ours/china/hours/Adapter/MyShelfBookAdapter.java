@@ -17,15 +17,16 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
 
 public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.ViewHolder> {
 
     private Context context;
-    private List<MyShelfBook> myShelfBooks;
+    private List<Book> myShelfBooks;
 
-    public MyShelfBookAdapter(Context context, List<MyShelfBook> myShelfBooks) {
+    public MyShelfBookAdapter(Context context, List<Book> myShelfBooks) {
         this.context = context;
         this.myShelfBooks = myShelfBooks;
     }
@@ -40,22 +41,35 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MyShelfBook one = myShelfBooks.get(position);
 
-        if (one.getDownState().equals("downloaded")) {
-            holder.downStateMark.setImageResource(R.drawable.download);
-        } else {
-            holder.downStateMark.setVisibility(View.INVISIBLE);
-        }
-
-        Glide.with(context)
-                .load(one.getBookImageUrl())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
+        Book one = myShelfBooks.get(position);
 
         holder.bookName.setText(one.getBookName());
-        holder.downState.setText(one.getDownState());
+        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
+
+            holder.imgDownState.setImageResource(R.drawable.download);
+            holder.txtDownState.setText("已下载");
+            Glide.with(context)
+                    .load(one.getBookImageLocalUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        } else {
+            holder.imgDownState.setVisibility(View.INVISIBLE);
+            holder.txtDownState.setText("未下载");
+            Glide.with(context)
+                    .load(one.getBookImageUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        }
+
+        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+            holder.imgReadState.setImageResource(R.drawable.read);
+        } else {
+            holder.imgReadState.setVisibility(View.INVISIBLE);
+        }
+
         holder.bookAuthor.setText(one.getBookAuthor());
+
     }
 
     @Override
@@ -66,20 +80,23 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView bookImage;
-        public ImageView downStateMark;
-        public TextView bookName;
-        public TextView downState;
-        public TextView bookAuthor;
+        ImageView bookImage;
+        ImageView imgDownState;
+        ImageView imgReadState;
+        TextView bookName;
+        TextView bookAuthor;
+        TextView txtDownState;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             bookImage = itemView.findViewById(R.id.item_book_image);
-            bookName = itemView.findViewById(R.id.bookName);
-            downState = itemView.findViewById(R.id.downState);
-            downStateMark = itemView.findViewById(R.id.downStateMark);
+            imgDownState = itemView.findViewById(R.id.imgDownState);
+            imgReadState = itemView.findViewById(R.id.imgReadState);
+            bookName = itemView.findViewById(R.id.item_bookName);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            txtDownState = itemView.findViewById(R.id.txtDownState);
+
         }
     }
 }

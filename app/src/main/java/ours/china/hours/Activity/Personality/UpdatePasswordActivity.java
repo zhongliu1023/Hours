@@ -84,6 +84,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         final String access_token = Global.access_token;
         final String mobile = Global.mobile;
 
+
         if (oldPass.equals("")){
             Global.alert(UpdatePasswordActivity.this, getResources().getString(R.string.update_password), getResources().getString(R.string.update_password_old_hint), getResources().getString(R.string.confirm));
             edUpdatePassOld.requestFocus();

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.MoreBookAdapter;
 import ours.china.hours.Model.MoreBook;
 import ours.china.hours.R;
@@ -47,11 +46,12 @@ public class MoreSearchFragment extends Fragment {
         moreSearchRecyclerView = view.findViewById(R.id.more_search_result);
 
         moreBooks = new ArrayList<>();
-        moreBooks.add(new MoreBook("hello", "百年孤独", "马尔克斯"));
-        moreBooks.add(new MoreBook("hello", "百年孤独", "马尔克斯"));
-        moreBooks.add(new MoreBook("hello", "百年孤独", "马尔克斯"));
-        moreBooks.add(new MoreBook("hello", "百年孤独", "马尔克斯"));
-        moreBooks.add(new MoreBook("hello", "百年孤独", "马尔克斯"));
+        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
+        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
+        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
+        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
 
         adapter = new MoreBookAdapter(getActivity(), moreBooks);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity());

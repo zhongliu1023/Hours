@@ -11,6 +11,7 @@
         android:layout_height="@dimen/margin_150">
 
         <TextView
+            android:id="@+id/tvOutTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

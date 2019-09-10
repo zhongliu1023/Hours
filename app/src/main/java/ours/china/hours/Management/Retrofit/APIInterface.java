@@ -59,7 +59,16 @@ public interface APIInterface {
     @FormUrlEncoded
     @POST("updatePassword")
     Call<VerifyCode> updatePassword(@Field("access_token") String access_token, @Field("mobile") String mobile,@Field("oldPass") String oldPass, @Field("newPass") String newPass);
-//
+
+
+    @FormUrlEncoded
+    @POST("updateMobile")
+    Call<VerifyCode> updateMobile(@Field("access_token") String access_token, @Field("oldMobile") String oldMobile,@Field("newMobile") String newMobile);
+
+    @FormUrlEncoded
+    @POST("confirmUpdateMobile")
+    Call<VerifyCode> confirmUpdateMobile(@Field("access_token") String access_token, @Field("oldMobile") String oldMobile,@Field("newMobile") String newMobile, @Field("otp") String otp);
+
 
 //    @FormUrlEncoded
 //    @POST("register")

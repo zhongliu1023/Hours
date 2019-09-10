@@ -6,20 +6,29 @@ import android.content.DialogInterface;
 import android.widget.TextView;
 
 import ours.china.hours.Dialog.AlertDlg;
+<<<<<<< HEAD
+import ours.china.hours.Dialog.OutDlg;
+import ours.china.hours.MainApplication;
 import ours.china.hours.R;
 
 public class Global {
 
+    public static MainApplication mainApplication = MainApplication.getInstance();
+
     public static String registeredFacePath = "";
+    public static String canGetFaceFeature = "no";
+    public static String faceFeatureData = "";
+    public static String faceImageLocalUrl = "";
 
     public static String editStateOfFavorite = "no";
     public static String editStateOfFavoritesDetails = "no";
 
     public static String mobile = "";
-    public static String identify = "";
+    public static String identify = "1";
+    public static String faceState = "1";
 
     /** when login , return key-> value*/
-    public static String access_token = "";
+    public static String token = "";
     public static String refresh_token = "";
     public static String expires_in = "";
     public static String token_type = "";
@@ -39,6 +48,15 @@ public class Global {
         dlg.btnOK.setText(btnTitle);
         dlg.show();
     }
+
+
+    public static void PersonDlg(Context context, String title){
+
+        OutDlg outDlg = new OutDlg(context, R.style.AppTheme_Alert);
+        outDlg.tvOutTitle.setText(title);
+        outDlg.show();
+    }
+
 
     public static ProgressDialog mProgressDialog;
     public static void showLoading(Context context, String title)

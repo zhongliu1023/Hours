@@ -45,7 +45,7 @@ public class APIClient {
         });
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.6.222/Hour/")
+                .baseUrl("http://192.168.6.208/Hour/")
 //                .baseUrl("http://192.168.6.222/htdocs_tunai/")
 //                .baseUrl("https://www.tunaikoop.com/api/")
                 .addConverterFactory(ScalarsConverterFactory.create())
