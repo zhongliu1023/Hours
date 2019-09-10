@@ -36,10 +36,6 @@ public interface APIInterface {
     @POST("uploadIdentify")
     Call<UploadIdentify> uploadIdentify(@Part MultipartBody.Part file, @Part("name") RequestBody nam );
 
-//    @Multipart
-//    @POST("uploadIdentify")
-//    Call<UploadIdentify> uploadIdentify(@Part ArrayList<MultipartBody.Part> file, @Part("name") ArrayList<RequestBody> name, @Field("size") Integer size );
-
 
     @FormUrlEncoded
     @POST("verifyForgot")
@@ -55,11 +51,16 @@ public interface APIInterface {
     Call<Login> login(@Field("grant_type") String grant_type, @Field("username") String mobile,
                     @Field("password") String password,@Field("client_id") String client_id,
                     @Field("client_secret") String client_secret, @Field("scope") String scope);
+
+    @FormUrlEncoded
+    @POST("feedback")
+    Call<VerifyCode> feedback(@Field("access_token") String access_token, @Field("mobile") String mobile,@Field("feedback") String feedback);
+
+    @FormUrlEncoded
+    @POST("updatePassword")
+    Call<VerifyCode> updatePassword(@Field("access_token") String access_token, @Field("mobile") String mobile,@Field("oldPass") String oldPass, @Field("newPass") String newPass);
 //
-//    @FormUrlEncoded
-//    @POST("forgot")
-//    Call<Forgot> forgotprocess(@Field("email") String email);
-//
+
 //    @FormUrlEncoded
 //    @POST("register")
 //    Call<Register> registerprocess(@Field("name") String name, @Field("email") String email, @Field("phone") String phone, @Field("pass") String pass, @Field("refer") String refer, @Field("promo") String promo, @Field("fb") String fb);

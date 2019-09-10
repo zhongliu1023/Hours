@@ -1,15 +1,15 @@
 package ours.china.hours.Fragment.AuthFragment;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+        import android.os.Bundle;
+        import android.view.LayoutInflater;
+        import android.view.View;
+        import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+        import androidx.annotation.NonNull;
+        import androidx.annotation.Nullable;
+        import androidx.fragment.app.Fragment;
 
-import ours.china.hours.R;
+        import ours.china.hours.R;
 
 public class FaceLoginFragment extends Fragment {
 

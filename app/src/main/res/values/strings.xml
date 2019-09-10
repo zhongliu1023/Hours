@@ -678,10 +678,12 @@
     <string name="statement">软件声明</string>
     <string name="confirm_out">确定退出么</string>
     <string name="feedback">意见反馈</string>
+    <string name="feedback_write">请输入意见反馈</string>
     <string name="feedback_edit_hint">请输入您的意见和建议</string>
     <string name="feedback_dialog">感谢您的反馈\n我们会做的更好</string>
     <string name="update_password_old">旧密码</string>
     <string name="update_password_new">新密码</string>
+    <string name="enter_same_pass">请输入相同的密码</string>
     <string name="update_password_confirm">确认新密码</string>
     <string name="update_password_old_hint">请输入旧密码</string>
     <string name="update_password_new_hint">请输入新密码</string>
