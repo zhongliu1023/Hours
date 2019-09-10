@@ -6,52 +6,74 @@
         android:id="@+id/statusBarLayout"
         android:layout_width="match_parent"
         android:layout_height="25dp"
+        android:background="@color/black"
         android:orientation="vertical"/>
-    <RelativeLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/searchbar_height">
-        <ImageView
-            android:id="@+id/img_back"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/back_image"/>
-        <RelativeLayout
-            android:layout_toEndOf="@id/img_back"
-            android:layout_toStartOf="@id/txtSearch"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="8dp"
-            android:background="@drawable/search_back">
-            <ImageView
-                android:id="@+id/search_image"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/home_search"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="5dp"
-                android:layout_alignParentStart="true"/>
-            <EditText
-                android:layout_toEndOf="@+id/search_image"
+            android:layout_height="?attr/actionBarSize">
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp"
-                android:layout_marginEnd="5dp"
-                android:layout_height="match_parent"
-                android:hint="搜索书名、作者、出版社"
-                android:background="@color/white"/>
-        </RelativeLayout>
-        <TextView
-            android:id="@+id/txtSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="搜索"
-            android:textColor="@color/pink"
-            android:textSize="18sp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="5dp"
-            android:padding="5dp"/>
-    </RelativeLayout>
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/imgBack"
+                    android:layout_width="25dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/return_icon"
+                    android:layout_centerVertical="true"/>
+                <RelativeLayout
+                    android:layout_toStartOf="@id/txtSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@id/imgBack"
+                    android:layout_marginStart="@dimen/getneral_padding_8"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/search_back">
+                    <ImageView
+                        android:id="@+id/search_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/search_icon"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_alignParentStart="true"/>
+                    <EditText
+                        android:layout_toEndOf="@+id/search_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textSize="16sp"
+                        android:layout_marginEnd="5dp"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:textColorHint="@color/alpa_40"
+                        android:background="@color/history_stroke"
+                        android:hint="搜索书名、作者、出版社"
+                        android:textColor="@color/home_background_color"/>
+                </RelativeLayout>
+                <TextView
+                    android:id="@+id/txtSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:textSize="@dimen/sw360_standard_fontsize_20"
+                    android:layout_marginEnd="@dimen/getneral_padding_16"
+                    android:layout_marginStart="8dp"
+                    android:text="搜索" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/seperator"/>
 
     <FrameLayout
         android:id="@+id/frame"

@@ -13,23 +13,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
-import ours.china.hours.Model.LibraryBook;
+import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
 public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.ViewHolder> {
 
     private Context context;
-    private List<LibraryBook> mLibraryBooks;
+    private List<Book> bookList;
 
-    public LibraryBookAdapter(Context context, List<LibraryBook> mLibraryBooks) {
+    public LibraryBookAdapter(Context context, List<Book> mLibraryBooks) {
         this.context = context;
-        this.mLibraryBooks = mLibraryBooks;
+        this.bookList = mLibraryBooks;
     }
 
     @NonNull
@@ -42,37 +39,50 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        LibraryBook one = mLibraryBooks.get(position);
+        Book one = bookList.get(position);
 
         holder.bookName.setText(one.getBookName());
-        Glide.with(context)
-                .load(one.getBookImageUrl())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
+        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, BookDetailActivity.class);
-                context.startActivity(intent);
-            }
-        });
+            holder.downloadStateImage.setImageResource(R.drawable.download);
+            Glide.with(context)
+                    .load(one.getBookImageLocalUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        } else {
+            holder.downloadStateImage.setVisibility(View.INVISIBLE);
+            Glide.with(context)
+                    .load(one.getBookImageUrl())
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        }
+
+        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+            holder.readStateImage.setImageResource(R.drawable.read);
+        } else {
+            holder.readStateImage.setVisibility(View.INVISIBLE);
+        }
+
     }
 
     @Override
     public int getItemCount() {
-        return mLibraryBooks.size();
+        return bookList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView bookImage;
-        public TextView bookName;
+        ImageView bookImage;
+        ImageView downloadStateImage;
+        ImageView readStateImage;
+        TextView bookName;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             bookImage = itemView.findViewById(R.id.item_book_image);
+            downloadStateImage = itemView.findViewById(R.id.downState);
+            readStateImage = itemView.findViewById(R.id.readState);
             bookName = itemView.findViewById(R.id.item_bookName);
         }
     }

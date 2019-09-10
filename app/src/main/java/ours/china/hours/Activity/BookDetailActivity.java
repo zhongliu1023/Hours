@@ -13,7 +13,6 @@ import ours.china.hours.R;
 public class BookDetailActivity extends AppCompatActivity {
 
     ImageView imgBack;
-    TextView txtSearch;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -24,9 +23,7 @@ public class BookDetailActivity extends AppCompatActivity {
     }
 
     public void init() {
-        imgBack = findViewById(R.id.img_back);
-        txtSearch = findViewById(R.id.txtSearch);
-
+        imgBack = findViewById(R.id.imgBack);
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -38,15 +35,5 @@ public class BookDetailActivity extends AppCompatActivity {
             }
         });
 
-        txtSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (getFragmentManager().getBackStackEntryCount() == 0) {
-                    BookDetailActivity.this.finish();
-                } else {
-                    getFragmentManager().popBackStack();
-                }
-            }
-        });
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Model.MoreBook;
+import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
 
 public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHolder> {
@@ -42,22 +43,42 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MoreBook one = moreBooks.get(position);
+        final MoreBook one = moreBooks.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        holder.bookAuthor.setText(one.getBookAuthor());
+        if (one.getDownState().equals("已下载")) {
+            holder.imgDownState.setImageResource(R.drawable.label2_icon);
+        } else {
+            holder.imgDownState.setVisibility(View.INVISIBLE);
+        }
+
+        if (one.getReadState().equals("已阅")) {
+            holder.imgReadState.setImageResource(R.drawable.label1_icon);
+        } else {
+            holder.imgReadState.setVisibility(View.INVISIBLE);
+        }
+
         Glide.with(context)
                 .load(one.getBookImageUrl())
                 .placeholder(R.drawable.book_image)
                 .into(holder.bookImage);
 
+        holder.bookName.setText(one.getBookName());
+        holder.bookAuthor.setText(one.getBookAuthor());
+        holder.txtDownState.setText(one.getBookAuthor());
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, BookDetailActivity.class);
-                context.startActivity(intent);
+
+                if (!one.getDownState().equals("已下载")) {
+                    Intent intent = new Intent(context, BookDetailActivity.class);
+
+                    // here include book information.
+                    context.startActivity(intent);
+                }
             }
         });
+
     }
 
     @Override
@@ -66,16 +87,24 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+
         ImageView bookImage;
+        ImageView imgDownState;
+        ImageView imgReadState;
         TextView bookName;
         TextView bookAuthor;
+        TextView txtDownState;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            bookImage = itemView.findViewById(R.id.bookImage);
-            bookName = itemView.findViewById(R.id.bookName);
+            bookImage = itemView.findViewById(R.id.item_book_image);
+            imgDownState = itemView.findViewById(R.id.imgDownState);
+            imgReadState = itemView.findViewById(R.id.imgReadState);
+            bookName = itemView.findViewById(R.id.item_bookName);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            txtDownState = itemView.findViewById(R.id.txtDownState);
+
         }
     }
 }

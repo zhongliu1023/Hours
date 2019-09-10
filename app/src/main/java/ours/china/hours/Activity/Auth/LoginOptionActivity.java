@@ -1,58 +1,20 @@
 package ours.china.hours.Activity.Auth;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.arcsoft.face.ActiveFileInfo;
-import com.arcsoft.face.ErrorInfo;
-import com.arcsoft.face.FaceEngine;
 import com.google.android.material.tabs.TabLayout;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import ours.china.hours.Activity.MainActivity;
-import ours.china.hours.Activity.ProfileActivity;
 import ours.china.hours.Adapter.LoginOptionAdapter;
-import ours.china.hours.CustomView.NonSwipeableViewPager;
-import ours.china.hours.FaceDetect.common.Constants;
-import ours.china.hours.FaceDetect.util.ConfigUtil;
 import ours.china.hours.Fragment.AuthFragment.FaceLoginFragment;
 import ours.china.hours.Fragment.AuthFragment.PasswordLoginFragment;
-import ours.china.hours.Fragment.BookTab.BookFragmentRoot;
-import ours.china.hours.Fragment.HistoryTab.HistoryFragmentRoot;
-import ours.china.hours.Fragment.HomeTab.HomeFragment;
-import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
 import ours.china.hours.R;
 
 public class LoginOptionActivity extends AppCompatActivity {
@@ -109,7 +71,6 @@ public class LoginOptionActivity extends AppCompatActivity {
                     tabTextView.setTextSize(14);
                 }
             }
-
         }
 
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

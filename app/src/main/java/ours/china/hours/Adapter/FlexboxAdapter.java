@@ -6,22 +6,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.R;
 
 public class FlexboxAdapter extends RecyclerView.Adapter<FlexboxAdapter.ViewHolder> {
 
-    public String[] listStr;
+    public List<String> listStr;
     public Context context;
 
-    public FlexboxAdapter(String[] listStr, Context context) {
+    public FlexboxAdapter(ArrayList<String> listStr, Context context) {
         this.listStr = listStr;
         this.context = context;
     }
@@ -36,13 +38,20 @@ public class FlexboxAdapter extends RecyclerView.Adapter<FlexboxAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String one = listStr[position];
+        final String one = listStr.get(position);
         holder.txtItem.setText(one);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, one, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return listStr.length;
+        return listStr.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

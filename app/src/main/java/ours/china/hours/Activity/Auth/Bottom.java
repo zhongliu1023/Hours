@@ -32,13 +32,11 @@ public class Bottom extends AppCompatActivity implements WheelPicker.OnItemSelec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bottom_sheet_copy);
 
-
         wheelCenter = (WheelPicker) findViewById(R.id.main_wheel_center);
         wheelCenter.setOnItemSelectedListener(this);
 
         btnPerfectDone = (Button) findViewById(R.id.btnPerfectDone);
-//        randomlySetGotoBtnIndex();
-////        gotoBtn.setOnClickListener(this);
+
         btnPerfectDone.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Toast.makeText(Bottom.this, wheelCenter.getData().get(wheelCenter.getCurrentItemPosition()).toString(), Toast.LENGTH_SHORT).show();

@@ -10,6 +10,6 @@ import retrofit2.http.Part;
 
 public interface UploadFaceInterface {
     @Multipart
-    @POST("uploadImage")
+    @POST("bookUserFaceInfo")
     Call<UploadObject> uploadFile(@Part MultipartBody.Part file, @Part("name") RequestBody name);
 }

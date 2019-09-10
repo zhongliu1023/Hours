@@ -1,8 +1,13 @@
 package ours.china.hours.Activity.Auth;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,12 +21,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aigestudio.wheelpicker.WheelPicker;
+import com.arcsoft.face.ActiveFileInfo;
+import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.FaceEngine;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.FaceDetect.common.Constants;
+import ours.china.hours.FaceDetect.util.ConfigUtil;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Confirm;
 import ours.china.hours.Model.Register;
 import ours.china.hours.R;
@@ -44,10 +68,21 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
 
     public APIInterface apiInterface;
 
+    // for face engine
+    private static final String TAG = "LoginOptionActivity";
+    private Toast toast = null;
+    private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
+    private static final String[] NEEDED_PERMISSIONS = new String[]{
+            Manifest.permission.READ_PHONE_STATE
+    };
+    private FaceEngine faceEngine = new FaceEngine();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfect_infor);
+
+        ConfigUtil.setFtOrient(PerfectInforActivity.this, FaceEngine.ASF_OP_270_ONLY);
 
         apiInterface = APIClient.getClient().create(APIInterface.class);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -65,6 +100,8 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
         showClassName();
         upAnddownPicker();
         setClassName();
+
+        goFaceRegister();
 
     }
 
@@ -120,12 +157,20 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
         });
     }
 
+    public void goFaceRegister() {
+        tvPerfectFace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                activeEngine(view);
+            }
+        });
+    }
 
     public void register(){
         String name = edPerfectName.getText().toString();
         String identyStatus = "";
         if (Global.identify.equals(getResources().getString(R.string.identify_success))){
-             identyStatus = "1";
+            identyStatus = "1";
         }
         String faceState = "1";
         String school = edPerfectSchool.getText().toString();
@@ -151,41 +196,43 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
             return;
         }
 
-        try {
-            Global.showLoading(PerfectInforActivity.this,"generate_report");
-            Call<Register> call = apiInterface.register(name, mobile, identyStatus, faceState,
-                                    school, classs,studId);
-            call.enqueue(new Callback<Register>() {
-                @Override public void onResponse(Call<Register> call, Response<Register> response) {
-                    Global.hideLoading();
+        Global.showLoading(PerfectInforActivity.this,"generate_report");
+        Ion.with(PerfectInforActivity.this)
+                .load(Url.register)
+                .setTimeout(10000)
+                .setBodyParameter("name", name)
+                .setBodyParameter("mobile", mobile)
+                .setBodyParameter("identyStatus", identyStatus)
+                .setBodyParameter("faceState", faceState)
+                .setBodyParameter("school", school)
+                .setBodyParameter("classs", classs)
+                .setBodyParameter("studId", studId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
 
-                    if (response.code() == 404){
-                        Toast.makeText(PerfectInforActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(PerfectInforActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(PerfectInforActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Toast.makeText(PerfectInforActivity.this, res, Toast.LENGTH_SHORT).show();
-                        if (res.equals("success")){
-                              Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
-                              startActivity(intent);
-                        }else if (res.equals("fail")){
-                            Toast.makeText(PerfectInforActivity.this, "fail1", Toast.LENGTH_SHORT).show();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+                                    Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(PerfectInforActivity.this, "Extra error", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(PerfectInforActivity.this, "Api error", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<Register> call, Throwable t) {
-                    Log.i("PerfectActivity", t.getMessage());
-                }
-            });
-
-        }
-        catch (Exception e) {
-            Log.i("PerfectActivity", e.getMessage());
-        }
+                });
     }
 
 
@@ -194,15 +241,15 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
         tvPerfectClass.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
-                         bottom_sheet.setVisibility(View.VISIBLE);
-                        sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                        btnPerfectSubmit.setVisibility(View.GONE);
+                    bottom_sheet.setVisibility(View.VISIBLE);
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    btnPerfectSubmit.setVisibility(View.GONE);
 
-                    } else {
-                        bottom_sheet.setVisibility(View.INVISIBLE);
-                        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                        btnPerfectSubmit.setVisibility(View.VISIBLE);
-                    }
+                } else {
+                    bottom_sheet.setVisibility(View.INVISIBLE);
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    btnPerfectSubmit.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
@@ -234,28 +281,123 @@ public class PerfectInforActivity extends AppCompatActivity implements WheelPick
 
     private void setClassName(){
 
-      btnPerfectDone.setOnClickListener(new View.OnClickListener() {
-          @Override public void onClick(View view) {
-              data = wheelCenter.getData().get(wheelCenter.getCurrentItemPosition()).toString();
-              tvPerfectClass.setText(data.toString());
-              tvPerfectClass.setTextColor(getResources().getColor(android.R.color.black));
-              Log.i("PerfectInfoActivity", data);
-              if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                  sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                  btnPerfectSubmit.setVisibility(View.VISIBLE);
-                  bottom_sheet.setVisibility(View.INVISIBLE);
+        btnPerfectDone.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                data = wheelCenter.getData().get(wheelCenter.getCurrentItemPosition()).toString();
+                tvPerfectClass.setText(data.toString());
+                tvPerfectClass.setTextColor(getResources().getColor(android.R.color.black));
+                Log.i("PerfectInfoActivity", data);
+                if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    btnPerfectSubmit.setVisibility(View.VISIBLE);
+                    bottom_sheet.setVisibility(View.INVISIBLE);
 
-              }
-          }
-      });
+                }
+            }
+        });
     }
 
+    public void activeEngine(final View view) {
+        if (!checkPermissions(NEEDED_PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
+            return;
+        }
+        if (view != null) {
+            view.setClickable(false);
+        }
+        Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                int activeCode = faceEngine.activeOnline(PerfectInforActivity.this, Constants.APP_ID, Constants.SDK_KEY);
+                emitter.onNext(activeCode);
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Integer>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Integer activeCode) {
+                        if (activeCode == ErrorInfo.MOK) {
+                            showToast(getString(R.string.active_success));
+                            Intent intent = new Intent(PerfectInforActivity.this, FaceRegisterActivity.class);
+                            startActivity(intent);
+                        } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
+                            showToast(getString(R.string.already_activated));
+                            Intent intent = new Intent(PerfectInforActivity.this, FaceRegisterActivity.class);
+                            startActivity(intent);
+                        } else {
+                            showToast(getString(R.string.active_failed, activeCode));
+                        }
+
+                        if (view != null) {
+                            view.setClickable(true);
+                        }
+                        ActiveFileInfo activeFileInfo = new ActiveFileInfo();
+                        int res = faceEngine.getActiveFileInfo(PerfectInforActivity.this,activeFileInfo);
+                        if (res == ErrorInfo.MOK) {
+                            Log.i(TAG, activeFileInfo.toString());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+
+
+    private boolean checkPermissions(String[] neededPermissions) {
+        if (neededPermissions == null || neededPermissions.length == 0) {
+            return true;
+        }
+        boolean allGranted = true;
+        for (String neededPermission : neededPermissions) {
+            allGranted &= ContextCompat.checkSelfPermission(this, neededPermission) == PackageManager.PERMISSION_GRANTED;
+        }
+        return allGranted;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == ACTION_REQUEST_PERMISSIONS) {
+            boolean isAllGranted = true;
+            for (int grantResult : grantResults) {
+                isAllGranted &= (grantResult == PackageManager.PERMISSION_GRANTED);
+            }
+            if (isAllGranted) {
+                activeEngine(null);
+            } else {
+                showToast(getString(R.string.permission_denied));
+            }
+        }
+    }
+
+    private void showToast(String s) {
+        if (toast == null) {
+            toast = Toast.makeText(this, s, Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            toast.setText(s);
+            toast.show();
+        }
+    }
 
     @Override public void onClick(View view) {
 
-
     }
-
 
     @Override public void onItemSelected(WheelPicker picker, Object data, int position) {
         String text = "";

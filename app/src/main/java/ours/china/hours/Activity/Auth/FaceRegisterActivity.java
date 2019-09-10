@@ -37,6 +37,12 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,6 +64,7 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.FaceDetect.UploadFaceInterface;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
@@ -73,6 +80,7 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.UploadObject;
 import ours.china.hours.R;
 import retrofit2.Call;
@@ -82,6 +90,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+
     private static final String TAG = "RegisterAndRecognize";
     private static final int MAX_DETECT_NUM = 10;
     /**
@@ -391,6 +400,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     }
 
     private void registerFace(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {
+//        Toast.makeText(FaceRegisterActivity.this, "Hello", Toast.LENGTH_SHORT).show();
         if (registerStatus == REGISTER_STATUS_READY && facePreviewInfoList != null && facePreviewInfoList.size() > 0) {
             registerStatus = REGISTER_STATUS_PROCESSING;
             Observable.create(new ObservableOnSubscribe<Boolean>() {
@@ -416,7 +426,8 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
-                                faceUploadWork();
+                                featureDataUpload();
+//                                faceUploadWork();
 //                                new Handler().postDelayed(new Runnable() {
 //                                    @Override
 //                                    public void run() {
@@ -424,6 +435,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 //                                        startActivity(intent);
 //                                    }
 //                                }, 2000);
+
                             }
 
                         }
@@ -600,6 +612,9 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         if (registerStatus == REGISTER_STATUS_DONE) {
             registerStatus = REGISTER_STATUS_READY;
         }
+
+        Global.canGetFaceFeature = "yes";
+
     }
 
     /**
@@ -616,7 +631,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         }
     }
 
-    private static final String SERVER_PATH = "http://192.168.6.208/htdocs_tunai/";
+//    private static final String SERVER_PATH = "http://192.168.6.208/htdocs_tunai/";
     public void faceUploadWork() {
         File file = new File(Global.registeredFacePath);
         Log.d(TAG, "Filename " + file.getName());
@@ -625,8 +640,9 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("file", file.getName(), mFile);
         RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(SERVER_PATH)
+                .baseUrl(Url.imageUpload)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         UploadFaceInterface uploadImage = retrofit.create(UploadFaceInterface.class);
@@ -634,11 +650,12 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         fileUpload.enqueue(new Callback<UploadObject>() {
             @Override
             public void onResponse(Call<UploadObject> call, Response<UploadObject> response) {
-                Toast.makeText(FaceRegisterActivity.this, "Response " + response.raw().message(), Toast.LENGTH_LONG).show();
-                Toast.makeText(FaceRegisterActivity.this, "Success " + response.body().getSuccess(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(FaceRegisterActivity.this, "Response " + response.raw().message(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(FaceRegisterActivity.this, "Success " + response.body().getSuccess(), Toast.LENGTH_LONG).show();
 
-                Intent intent = new Intent(FaceRegisterActivity.this, UserInformationRegisterActivity.class);
-                startActivity(intent);
+                Toast.makeText(FaceRegisterActivity.this, "upload success", Toast.LENGTH_SHORT).show();
+
+//                featureDataUpload();
             }
             @Override
             public void onFailure(Call<UploadObject> call, Throwable t) {
@@ -646,6 +663,46 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             }
         });
 
+    }
+
+    public void featureDataUpload() {
+//        Global.showLoading(FaceRegisterActivity.this,"generate_report");
+        Toast.makeText(FaceRegisterActivity.this, Global.faceFeatureData, Toast.LENGTH_SHORT).show();
+        Ion.with(FaceRegisterActivity.this)
+                .load(Url.featuredata)
+                .setTimeout(10000)
+                .setBodyParameter("mobile", Global.mobile)
+                .setBodyParameter("faceStateInfo", Global.faceFeatureData)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+//                        Global.hideLoading();
+
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+                                    Toast.makeText(FaceRegisterActivity.this, "feature data upload Success", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(FaceRegisterActivity.this, MainActivity.class);
+                                    startActivity(intent);
+
+                                    finish();
+                                } else {
+                                    Toast.makeText(FaceRegisterActivity.this, "Extra error", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(FaceRegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 }

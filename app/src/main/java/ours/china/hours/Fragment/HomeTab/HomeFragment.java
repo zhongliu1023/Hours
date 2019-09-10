@@ -1,11 +1,13 @@
 package ours.china.hours.Fragment.HomeTab;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,20 +29,29 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.DownloadInterface;
 import ours.china.hours.Common.Utils.ItemOffsetDecoration;
+import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by liujie on 1/12/18.
  */
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, DownloadInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -80,26 +91,26 @@ public class HomeFragment extends Fragment {
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
         mBookList = new ArrayList<>();
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
+//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
 
-        adapter = new HomeBookAdapter(mBookList, getActivity());
+        adapter = new HomeBookAdapter(mBookList, getActivity(), this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
 
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
 
+
 //        recyclerBooksView.setLayoutManager(gridLayoutManager);
 //        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
-
 
         // popupWindowWork.
         relTypeBook = view.findViewById(R.id.relTypeBook);
@@ -109,6 +120,21 @@ public class HomeFragment extends Fragment {
 
         txtTypeBook.setText(getString(R.string.popup1_all, "90"));
         imgArrow = view.findViewById(R.id.imgArrow);
+
+    }
+
+    @Override
+    public Pair<Integer, Integer> getNameAndIconRes() {
+        return null;
+    }
+
+    @Override
+    public void notifyFragment() {
+
+    }
+
+    @Override
+    public void resetFragment() {
 
     }
 
@@ -410,5 +436,50 @@ public class HomeFragment extends Fragment {
         return changedDrawable;
     }
 
+    public void getAllDataFromServer() {
+	
+	}
 
+    @Override
+    public void onClickBookItem(String uri) {
+        if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            new DownloadFile(getActivity(), this).execute(uri);
+        }else{
+            EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    @Override
+    public void onDownloadToPath(String path, boolean isFinished) {
+        if (!path.isEmpty()){
+            FileMeta fileMeta = new FileMeta();
+            fileMeta.setAuthor("zhong liu");
+            fileMeta.setChild("epub");
+            fileMeta.setDateTxt("9/7/19");
+            fileMeta.setExt("epub");
+            fileMeta.setGenre("test...");
+            fileMeta.setIsRecent(true);
+            fileMeta.setIsRecentProgress((float) 0.253);
+            fileMeta.setIsRecentTime(System.currentTimeMillis());
+            fileMeta.setIsSearchBook(true);
+            fileMeta.setIsStar(false);
+            fileMeta.setIsStarTime(System.currentTimeMillis());
+            fileMeta.setIsbn("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
+            fileMeta.setLang("en");
+            fileMeta.setPages(20);
+            fileMeta.setParentPath(Environment.getExternalStorageDirectory() + File.separator + "androiddeft/");
+            fileMeta.setPath(path);
+            fileMeta.setPathTxt("test");
+            fileMeta.setPublisher("");
+            fileMeta.setSequence("");
+            fileMeta.setSizeTxt("1770KB");
+            fileMeta.setSize((long) (1770 * 1000));
+            fileMeta.setState(2);
+            fileMeta.setTitle("");
+            fileMeta.setYear(2016);
+            ExtUtils.openFile(getActivity(), fileMeta);
+        }else{
+            Toast.makeText(getActivity(), "Failed downloading", Toast.LENGTH_LONG).show();
+        }
+    }
 }

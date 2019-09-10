@@ -4,27 +4,36 @@
     android:layout_height="match_parent">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_marginStart="@dimen/getneral_padding_16"
+        android:layout_marginEnd="@dimen/getneral_padding_16"
+        android:layout_height="@dimen/home_tab_body_title_height">
         <TextView
+            android:id="@+id/searchRecord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="搜索记录"
-            android:textSize="18sp"
-            android:padding="5dp"
-            android:layout_marginStart="5dp"
+            android:textSize="@dimen/sw360_standard_fontsize_18"
             android:layout_centerVertical="true"/>
         <TextView
+            android:id="@+id/clearSearchHistory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="清空"
-            android:textSize="18sp"
+            android:text="清空搜索记录"
+            android:textColor="@color/pink"
+            android:textSize="@dimen/sw360_standard_fontsize_18"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="5dp"
             android:padding="5dp"/>
     </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="@dimen/getneral_padding_16"
+        android:background="@color/seperator"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/flexbox_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+
 </LinearLayout>
