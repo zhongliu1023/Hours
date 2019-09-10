@@ -15,7 +15,7 @@ import ours.china.hours.R;
 
 public class OutDlg extends Dialog {
 
-    public TextView tvOutConfirm, tvOutCancel;
+    public TextView tvOutConfirm, tvOutCancel, tvOutTitle;
     public Button btnOk;
 
 
@@ -26,6 +26,7 @@ public class OutDlg extends Dialog {
 
         tvOutCancel = (TextView)this.findViewById(R.id.tvOutCancel);
         tvOutConfirm = (TextView)this.findViewById(R.id.tvOutConfirm);
+        tvOutTitle = (TextView)this.findViewById(R.id.tvOutTitle);
 
         tvOutCancel.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
@@ -51,4 +52,6 @@ public class OutDlg extends Dialog {
             }
         });
     }
+
+
 }

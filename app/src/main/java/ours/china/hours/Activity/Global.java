@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.widget.TextView;
 
 import ours.china.hours.Dialog.AlertDlg;
+import ours.china.hours.Dialog.OutDlg;
 import ours.china.hours.R;
 
 public class Global {
@@ -16,7 +17,8 @@ public class Global {
     public static String editStateOfFavoritesDetails = "no";
 
     public static String mobile = "";
-    public static String identify = "";
+    public static String identify = "1";
+    public static String faceState = "1";
 
     /** when login , return key-> value*/
     public static String access_token = "";
@@ -39,6 +41,15 @@ public class Global {
         dlg.btnOK.setText(btnTitle);
         dlg.show();
     }
+
+
+    public static void PersonDlg(Context context, String title){
+
+        OutDlg outDlg = new OutDlg(context, R.style.AppTheme_Alert);
+        outDlg.tvOutTitle.setText(title);
+        outDlg.show();
+    }
+
 
     public static ProgressDialog mProgressDialog;
     public static void showLoading(Context context, String title)
