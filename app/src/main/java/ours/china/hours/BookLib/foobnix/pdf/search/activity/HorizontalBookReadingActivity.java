@@ -44,6 +44,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.List;
@@ -70,6 +72,8 @@ import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.UiSystemUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.AlertDialogs;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.AnchorHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BookmarkPanel;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BrightnessHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.Dialogs;
@@ -81,16 +85,22 @@ import ours.china.hours.BookLib.foobnix.pdf.info.widget.DraggbleTouchListener;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.FileInformationDialog;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.RecentUpates;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStart;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStop;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.InvalidateMessage;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageAutoFit;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageEvent;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessagePageXY;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessegeBrightness;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.CloseAppDialog;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.VerticalViewPager;
 import ours.china.hours.BookLib.foobnix.sys.ClickUtils;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
+import ours.china.hours.BookLib.foobnix.tts.MessagePageNumber;
 import ours.china.hours.BookLib.foobnix.tts.TTSEngine;
 import ours.china.hours.BookLib.foobnix.tts.TTSNotification;
 import ours.china.hours.BookLib.foobnix.tts.TTSService;
+import ours.china.hours.BookLib.foobnix.tts.TtsStatus;
 import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
@@ -268,6 +278,8 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
 
         touch1.setOnMove(onMoveAction);
         touch2.setOnMove(onMoveAction);
+
+        pagesCountIndicator = (TextView) findViewById(R.id.pagesCountIndicator);
 
         updateSeekBarColorAndSize();
 
@@ -458,8 +470,8 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
 
                     seekBar.setVisibility(View.VISIBLE);
 
-                    AppTemp.get().lastClosedActivity = HorizontalViewActivity.class.getSimpleName();
-                    AppTemp.get().lastMode = HorizontalViewActivity.class.getSimpleName();
+                    AppTemp.get().lastClosedActivity = HorizontalBookReadingActivity.class.getSimpleName();
+                    AppTemp.get().lastMode = HorizontalBookReadingActivity.class.getSimpleName();
                     LOG.d("lasta save", AppTemp.get().lastClosedActivity);
 
                     PageImageState.get().isAutoFit = PageImageState.get().needAutoFit;
@@ -497,9 +509,9 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
 
 //                    updateIconMode();
 
-                    DialogsPlaylist.dispalyPlaylist(HorizontalBookReadingActivity.this, dc);
+//                    DialogsPlaylist.dispalyPlaylist(HorizontalBookReadingActivity.this, dc);
 
-                    HypenPanelHelper.init(parentParent, dc);
+//                    HypenPanelHelper.init(parentParent, dc);
 
                 }
 
@@ -1064,7 +1076,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
     public void onStart() {
         super.onStart();
         // Analytics.onStart(this);
-        EventBus.getDefault().register(this);
+        EventBus.getDefault().register(HorizontalBookReadingActivity.this);
 
     }
 
@@ -1484,5 +1496,227 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
             }
         }
     };
+
+
+    Runnable flippingRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+
+            if (flippingTimer >= AppState.get().flippingInterval) {
+                flippingTimer = 0;
+                if (dc.getCurentPage() == dc.getPageCount() - 1) {
+                    if (AppState.get().isLoopAutoplay) {
+                        dc.onGoToPage(1);
+                    } else {
+                        onFlippingStop(null);
+                        return;
+                    }
+                } else {
+                    nextPage();
+                }
+            }
+
+            flippingTimer += 1;
+//            flippingIntervalView.setText("{" + (AppState.get().flippingInterval - flippingTimer + 1) + "}");
+//            flippingIntervalView.setVisibility(AppState.get().isShowToolBar ? View.VISIBLE : View.GONE);
+            flippingHandler.postDelayed(flippingRunnable, 1000);
+
+        }
+    };
+
+    @Subscribe
+    public void showHideTextSelectors(MessagePageXY event) {
+        if (event.getType() == MessagePageXY.TYPE_HIDE) {
+            anchorX.setVisibility(View.GONE);
+            anchorY.setVisibility(View.GONE);
+
+        }
+        if (event.getType() == MessagePageXY.TYPE_SHOW) {
+            anchorX.setVisibility(View.VISIBLE);
+            anchorY.setVisibility(View.VISIBLE);
+
+            float x = event.getX() - anchorX.getWidth();
+            float y = event.getY() - anchorX.getHeight() / 2;
+
+            AnchorHelper.setXY(anchorX, x, y);
+            AnchorHelper.setXY(anchorY, event.getX1(), event.getY1());
+
+        }
+
+    }
+
+    @Subscribe
+    public void onMessegeBrightness(MessegeBrightness msg) {
+//        BrightnessHelper.onMessegeBrightness(handler, msg, toastBrightnessText, overlay);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onTTSStatus(TtsStatus status) {
+        try {
+//            ttsActive.setVisibility(TxtUtils.visibleIf(!TTSEngine.get().isShutdown()));
+        } catch (Exception e) {
+            LOG.e(e);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPageNumber(final MessagePageNumber event) {
+        try {
+//            ttsActive.setVisibility(View.VISIBLE);
+            dc.onGoToPage(event.getPage() + 1);
+        } catch (Exception e) {
+            LOG.e(e);
+        }
+    }
+
+    boolean isFlipping = false;
+
+    @Subscribe
+    public void onFlippingStart(FlippingStart event) {
+        isFlipping = true;
+        flippingTimer = 0;
+        flippingHandler.removeCallbacks(flippingRunnable);
+        flippingHandler.post(flippingRunnable);
+//        flippingIntervalView.setText("");
+//        flippingIntervalView.setVisibility(AppState.get().isShowToolBar ? View.VISIBLE : View.GONE);
+
+        if (AppState.get().isEditMode) {
+            AppState.get().isEditMode = false;
+            hideShow();
+        }
+
+//        onPageFlip1.setVisibility(View.VISIBLE);
+//        onPageFlip1.setImageResource(R.drawable.glyphicons_37_file_pause);
+    }
+
+    @Subscribe
+    public void onFlippingStop(FlippingStop event) {
+        isFlipping = false;
+        flippingHandler.removeCallbacks(flippingRunnable);
+        flippingHandler.removeCallbacksAndMessages(null);
+//        flippingIntervalView.setVisibility(View.GONE);
+//        onPageFlip1.setImageResource(R.drawable.glyphicons_37_file_play);
+
+    }
+
+    Runnable doShowHideWrapperControllsRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            doShowHideWrapperControlls();
+        }
+    };
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Subscribe
+    public void onEvent(MessageEvent ev) {
+
+        if(currentScrollState != ViewPager.SCROLL_STATE_IDLE){
+            LOG.d("Skip event");
+            return;
+        }
+
+        clickUtils.init();
+        LOG.d("MessageEvent", ev.getMessage(), ev.getX(), ev.getY());
+        if (ev.getMessage().equals(MessageEvent.MESSAGE_CLOSE_BOOK)) {
+//            showInterstial();
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_CLOSE_BOOK_APP)) {
+            dc.onCloseActivityFinal(new Runnable() {
+
+                @Override
+                public void run() {
+                    MainTabs2.closeApp(dc.getActivity());
+                }
+            });
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_PERFORM_CLICK)) {
+            boolean isOpen = closeDialogs();
+            if (isOpen) {
+                return;
+            }
+
+            int x = (int) ev.getX();
+            int y = (int) ev.getY();
+            if (clickUtils.isClickRight(x, y) && AppState.get().tapZoneRight != AppState.TAP_DO_NOTHING) {
+                if (AppState.get().tapZoneRight == AppState.TAP_NEXT_PAGE) {
+                    nextPage();
+                } else {
+                    prevPage();
+                }
+            } else if (clickUtils.isClickLeft(x, y) && AppState.get().tapZoneLeft != AppState.TAP_DO_NOTHING) {
+                if (AppState.get().tapZoneLeft == AppState.TAP_PREV_PAGE) {
+                    prevPage();
+                } else {
+                    nextPage();
+                }
+            } else if (clickUtils.isClickTop(x, y) && AppState.get().tapZoneTop != AppState.TAP_DO_NOTHING) {
+                if (AppState.get().tapZoneTop == AppState.TAP_PREV_PAGE) {
+                    prevPage();
+                } else {
+                    nextPage();
+                }
+
+            } else if (clickUtils.isClickBottom(x, y) && AppState.get().tapZoneBottom != AppState.TAP_DO_NOTHING) {
+                if (AppState.get().tapZoneBottom == AppState.TAP_NEXT_PAGE) {
+                    nextPage();
+                } else {
+                    prevPage();
+                }
+
+            } else {
+                LOG.d("Click-center!", x, y);
+                handler.removeCallbacks(doShowHideWrapperControllsRunnable);
+                handler.postDelayed(doShowHideWrapperControllsRunnable, 250);
+                // Toast.makeText(this, "Click", Toast.LENGTH_SHORT).show();
+            }
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_DOUBLE_TAP)) {
+            handler.removeCallbacks(doShowHideWrapperControllsRunnable);
+//            updateLockMode();
+            // Toast.makeText(this, "DB", Toast.LENGTH_SHORT).show();
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_PLAY_PAUSE)) {
+            TTSService.playPause(HorizontalBookReadingActivity.this, dc);
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_SELECTED_TEXT)) {
+            if (dc.isTextFormat() && TxtUtils.isFooterNote(AppState.get().selectedText)) {
+                DragingDialogs.showFootNotes(anchor, dc, new Runnable() {
+
+                    @Override
+                    public void run() {
+//                        showHideHistory();
+                    }
+                });
+            } else {
+
+                if (AppState.get().isRememberDictionary) {
+                    final String text = AppState.get().selectedText;
+                    DictsHelper.runIntent(dc.getActivity(), text);
+                    dc.clearSelectedText();
+                } else {
+                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+                }
+            }
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_GOTO_PAGE_BY_LINK)) {
+            if (ev.getPage() == -1 && TxtUtils.isNotEmpty(ev.getBody())) {
+                AlertDialogs.openUrl(this, ev.getBody());
+            } else {
+                dc.getLinkHistory().add(dc.getCurentPage() + 1);
+                dc.onGoToPage(ev.getPage() + 1);
+//                showHideHistory();
+            }
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_GOTO_PAGE_SWIPE)) {
+            if (ev.getPage() > 0) {
+                nextPage();
+            } else {
+                prevPage();
+            }
+        } else if (ev.getMessage().equals(MessageEvent.MESSAGE_AUTO_SCROLL)) {
+            if (isFlipping) {
+                onFlippingStop(null);
+            } else {
+                onFlippingStart(null);
+            }
+
+        }
+    }
+
 
 }

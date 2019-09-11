@@ -24,7 +24,7 @@ import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.model.AppTemp;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.R;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
@@ -51,7 +51,7 @@ public class RecentBooksWidget extends AppWidgetProvider {
 
             String className = VerticalViewActivity.class.getName();
             if (AppTemp.get().readingMode == AppState.READING_MODE_BOOK) {
-                className = HorizontalViewActivity.class.getName();
+                className = HorizontalBookReadingActivity.class.getName();
             }
 
             Intent nintent = new Intent(Intent.ACTION_VIEW, (Uri) intent.getParcelableExtra("uri"));
@@ -76,7 +76,7 @@ public class RecentBooksWidget extends AppWidgetProvider {
     }
 
     private void easyMode(Context context, FileMeta meta, String id, boolean isEditMode) {
-        Intent intent2 = new Intent(context, HorizontalViewActivity.class);
+        Intent intent2 = new Intent(context, HorizontalBookReadingActivity.class);
         intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent2.setData(Uri.fromFile(new File(meta.getPath())));
         intent2.putExtra(id, true);
@@ -148,7 +148,7 @@ public class RecentBooksWidget extends AppWidgetProvider {
 
         String className = VerticalViewActivity.class.getName();
         if (AppTemp.get().readingMode == AppState.READING_MODE_BOOK) {
-            className = HorizontalViewActivity.class.getName();
+            className = HorizontalBookReadingActivity.class.getName();
         }
         remoteViews.removeAllViews(R.id.linearLayout);
 

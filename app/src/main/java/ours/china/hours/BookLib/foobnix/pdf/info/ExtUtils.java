@@ -60,7 +60,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.widget.ChooserDialogFragment;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.PrefDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalModeController;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.zipmanager.ZipDialog;
@@ -987,7 +987,7 @@ public class ExtUtils {
             return;
         }
 
-        final Intent intent = new Intent(c, HorizontalViewActivity.class);
+        final Intent intent = new Intent(c, HorizontalBookReadingActivity.class);
         Uri temp = checkPlaylisturi(uri, intent, playlist);
         intent.setData(temp);
 
@@ -1467,7 +1467,7 @@ public class ExtUtils {
                                 AppTemp.get().readingMode = AppState.READING_MODE_SCROLL;
                                 showDocumentWithoutDialog(a, (File) result, null);
 
-                            } else if (a instanceof HorizontalViewActivity) {
+                            } else if (a instanceof HorizontalBookReadingActivity) {
                                 AppTemp.get().readingMode = AppState.READING_MODE_BOOK;
                                 showDocumentWithoutDialog(a, (File) result, null);
                             } else {

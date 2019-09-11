@@ -18,7 +18,7 @@ import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.model.AppTemp;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.R;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.tts.TTSActivity;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
@@ -61,7 +61,7 @@ public class RecentUpates {
 
                     Intent lastBookIntent = new Intent(c, VerticalViewActivity.class);
                     if (AppTemp.get().readingMode == AppState.READING_MODE_BOOK) {
-                        lastBookIntent = new Intent(c, HorizontalViewActivity.class);
+                        lastBookIntent = new Intent(c, HorizontalBookReadingActivity.class);
                     }
                     lastBookIntent.setAction(Intent.ACTION_VIEW);
                     lastBookIntent.setData(Uri.fromFile(new File(recentLast.getPath())));

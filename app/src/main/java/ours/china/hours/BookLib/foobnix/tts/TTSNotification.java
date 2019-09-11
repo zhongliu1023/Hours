@@ -27,7 +27,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
@@ -88,7 +88,7 @@ public class TTSNotification {
 
             FileMeta fileMeta = AppDB.get().getOrCreate(bookPath);
 
-            Intent intent = new Intent(context, HorizontalViewActivity.class.getSimpleName().equals(AppTemp.get().lastMode) ? HorizontalViewActivity.class : VerticalViewActivity.class);
+            Intent intent = new Intent(context, HorizontalBookReadingActivity.class.getSimpleName().equals(AppTemp.get().lastMode) ? HorizontalBookReadingActivity.class : VerticalViewActivity.class);
             intent.setAction(ACTION_TTS);
             intent.setData(Uri.fromFile(new File(bookPath)));
             if (page > 0) {
