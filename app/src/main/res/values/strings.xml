@@ -1,5 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <string name="drawer_open">open drawer</string>
+    <string name="drawer_close">close drawer</string>
+
     <string name="app_name">Hours</string>
     <string name="datePicker_setButton">OK</string>
     <string name="datePicker_clearButton">CLEAR</string>

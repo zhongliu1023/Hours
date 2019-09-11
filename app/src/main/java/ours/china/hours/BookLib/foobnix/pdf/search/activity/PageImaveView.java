@@ -629,13 +629,9 @@ public class PageImaveView extends View {
 
     }
 
-    ;
-
     public void invalidateAndMsg() {
         EventBus.getDefault().post(new InvalidateMessage());
     }
-
-    ;
 
     Runnable scrolling = new Runnable() {
 
