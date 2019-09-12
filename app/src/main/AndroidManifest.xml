@@ -112,14 +112,14 @@
             android:name=".Activity.MainActivity"
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".BookLib.foobnix.pdf.search.activity.HorizontalViewActivity"
+            android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:screenOrientation="behind"
+            android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
 
         <activity

@@ -245,6 +245,6 @@
         android:layout_centerInParent="false"
         android:minWidth="10dip"
         android:minHeight="10dip"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 </RelativeLayout>

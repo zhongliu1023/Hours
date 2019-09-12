@@ -16,6 +16,10 @@ import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.BookLib.foobnix.model.AppProfile;
+import ours.china.hours.BookLib.foobnix.model.AppState;
+import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
+import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.Management.Url;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
@@ -55,6 +59,16 @@ public class Splash extends AppCompatActivity {
                 }
             }, SPLASH_DISPLAY_LENGTH);
         }
+
+
+        // for theme color. In HorizontalBookReadingActivity, set the color of bottombar and actionbar to white color.
+        TintUtil.color = getResources().getColor(R.color.white);
+        AppState.get().tintColor = getResources().getColor(R.color.white);
+        TempHolder.listHash++;
+
+        AppProfile.save(this);
+        // -- end.
+
     }
 
     public void getDataFromServer() {

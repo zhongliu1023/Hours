@@ -188,5 +188,5 @@
         <item name="android:windowFullscreen">false</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
->>>>>>> dao_branch
+
 </resources>

@@ -83,7 +83,7 @@ public class BookCSS {
     ///
 
 
-    public static final String LINK_COLOR_UNIVERSAL = "#0066cc";
+    public static final String LINK_COLOR_UNIVERSAL = "#00000000";
 
     public static final int TEXT_ALIGN_JUSTIFY = 0;
     public static final int TEXT_ALIGN_LEFT = 1;

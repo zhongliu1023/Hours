@@ -543,6 +543,8 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
             }
 
         });
+
+        // my definition.
     }
 
 
@@ -967,8 +969,8 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
         }
 
         if (AppState.get().isShowLongBackDialog) {
-            CloseAppDialog.showOnLongClickDialog(HorizontalBookReadingActivity.this, null, dc);
-        } else {
+//            CloseAppDialog.showOnLongClickDialog(HorizontalBookReadingActivity.this, null, dc);
+//        } else {
 //            showInterstial();
         }
 
@@ -1064,6 +1066,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
     @Override
     protected void attachBaseContext(Context context) {
         AppProfile.init(context);
+        closeDialogs();
         super.attachBaseContext(MyContextWrapper.wrap(context));
     }
 
@@ -1245,94 +1248,93 @@ public class HorizontalBookReadingActivity extends FragmentActivity {
     }
 
     public void hideShow(boolean animated) {
-        {
-//            updateBannnerTop();
-//            showPagesHelper();
+//        updateBannnerTop();
+//        showPagesHelper();
 
-            if (prev == AppState.get().isEditMode) {
-                return;
-            }
-            prev = AppState.get().isEditMode;
+        if (prev == AppState.get().isEditMode) {
+            return;
+        }
+        prev = AppState.get().isEditMode;
 
-            if (!animated || AppState.get().appTheme == AppState.THEME_INK) {
-                actionBar.setVisibility(AppState.get().isEditMode ? View.VISIBLE : View.GONE);
-                bottomBar.setVisibility(AppState.get().isEditMode ? View.VISIBLE : View.GONE);
+        if (!animated || AppState.get().appTheme == AppState.THEME_INK) {
+            actionBar.setVisibility(AppState.get().isEditMode ? View.VISIBLE : View.GONE);
+            bottomBar.setVisibility(AppState.get().isEditMode ? View.VISIBLE : View.GONE);
+//            adFrame.setVisibility(AppState.get().isEditMode ? View.VISIBLE : View.GONE);
 
-                DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
-                return;
-            }
+            DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
+            return;
+        }
 
-            final TranslateAnimation hideActionBar = new TranslateAnimation(0, 0, 0, -actionBar.getHeight());
-            final TranslateAnimation hideBottomBar = new TranslateAnimation(0, 0, 0, bottomBar.getHeight());
+        final TranslateAnimation hideActionBar = new TranslateAnimation(0, 0, 0, -actionBar.getHeight());
+        final TranslateAnimation hideBottomBar = new TranslateAnimation(0, 0, 0, bottomBar.getHeight());
 
-            final TranslateAnimation showActoinBar = new TranslateAnimation(0, 0, -actionBar.getHeight(), 0);
-            final TranslateAnimation showBottomBar = new TranslateAnimation(0, 0, bottomBar.getHeight(), 0);
+        final TranslateAnimation showActoinBar = new TranslateAnimation(0, 0, -actionBar.getHeight(), 0);
+        final TranslateAnimation showBottomBar = new TranslateAnimation(0, 0, bottomBar.getHeight(), 0);
 
-            updateAnimation(hideActionBar);
-            updateAnimation(hideBottomBar);
+        updateAnimation(hideActionBar);
+        updateAnimation(hideBottomBar);
 
-            updateAnimation(showActoinBar);
-            updateAnimation(showBottomBar);
+        updateAnimation(showActoinBar);
+        updateAnimation(showBottomBar);
 
-            if (AppState.get().isEditMode) {
-                DocumentController.turnOnButtons(this);
+        if (AppState.get().isEditMode) {
+            DocumentController.turnOnButtons(this);
 
-                actionBar.startAnimation(showActoinBar);
-                bottomBar.startAnimation(showBottomBar);
+            actionBar.startAnimation(showActoinBar);
+            bottomBar.startAnimation(showBottomBar);
 
-                showBottomBar.setAnimationListener(new Animation.AnimationListener() {
+            showBottomBar.setAnimationListener(new Animation.AnimationListener() {
 
-                    @Override
-                    public void onAnimationStart(final Animation animation) {
-                    }
+                @Override
+                public void onAnimationStart(final Animation animation) {
+                }
 
-                    @Override
-                    public void onAnimationRepeat(final Animation animation) {
-                    }
+                @Override
+                public void onAnimationRepeat(final Animation animation) {
+                }
 
-                    @Override
-                    public void onAnimationEnd(final Animation animation) {
-                        actionBar.setVisibility(View.VISIBLE);
-                        bottomBar.setVisibility(View.VISIBLE);
+                @Override
+                public void onAnimationEnd(final Animation animation) {
+                    actionBar.setVisibility(View.VISIBLE);
+                    bottomBar.setVisibility(View.VISIBLE);
 
-                        Keyboards.invalidateEink(parentParent);
+                    Keyboards.invalidateEink(parentParent);
 
-                    }
-                });
+                }
+            });
 
-            } else {
-                DocumentController.turnOffButtons(this);
+        } else {
+            DocumentController.turnOffButtons(this);
 
-                actionBar.startAnimation(hideActionBar);
-                bottomBar.startAnimation(hideBottomBar);
+            actionBar.startAnimation(hideActionBar);
+            bottomBar.startAnimation(hideBottomBar);
 
-                hideBottomBar.setAnimationListener(new Animation.AnimationListener() {
+            hideBottomBar.setAnimationListener(new Animation.AnimationListener() {
 
-                    @Override
-                    public void onAnimationStart(final Animation animation) {
-                    }
+                @Override
+                public void onAnimationStart(final Animation animation) {
+                }
 
-                    @Override
-                    public void onAnimationRepeat(final Animation animation) {
-                    }
+                @Override
+                public void onAnimationRepeat(final Animation animation) {
+                }
 
-                    @Override
-                    public void onAnimationEnd(final Animation animation) {
-                        actionBar.setVisibility(View.GONE);
-                        bottomBar.setVisibility(View.GONE);
+                @Override
+                public void onAnimationEnd(final Animation animation) {
+                    actionBar.setVisibility(View.GONE);
+                    bottomBar.setVisibility(View.GONE);
 
-                        Keyboards.invalidateEink(parentParent);
+                    Keyboards.invalidateEink(parentParent);
 
-                    }
+                }
 
-                });
+            });
 
-            }
+        }
 
-            if (pagerAdapter != null) {
-                DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
-                pagerAdapter.notifyDataSetChanged();
-            }
+        if (pagerAdapter != null) {
+            DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
+            pagerAdapter.notifyDataSetChanged();
         }
     }
 
