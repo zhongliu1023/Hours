@@ -15,4 +15,5 @@ public class Url {
 
     // for search book
     public static String searchAllBookwithMobile = baseUrl + "searchAllBookwithMobile";
+    public static String bookStateChangeOperation = baseUrl + "updateParamWithMobile";
 }
