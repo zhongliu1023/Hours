@@ -91,15 +91,12 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
         sessionManager = new SessionManager(getContext());
         getAllDataFromLocal();
-        getAllDataFromServer();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-        init(rootView);
-        popupWindowWork(inflater);
-        event(rootView);
+        getAllDataFromServer(rootView, inflater);
 //        getAllDataFromServer();
 
         return rootView;
@@ -135,7 +132,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         Log.v("localBooks count", String.valueOf(localBooks.size()));
     }
 
-    public void getAllDataFromServer() {
+    public void getAllDataFromServer(View rootView, LayoutInflater inflater) {
         mBookList = new ArrayList<>();
 
         Global.showLoading(getContext(),"generate_report");
@@ -143,7 +140,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 .load(Url.searchAllBookwithMobile)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.token)
-                .setBodyParameter("mobile", sessionManager.getMobileNumber())
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -172,6 +168,10 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                     }
 
                                     getTotalData();
+
+                                    init(rootView);
+                                    popupWindowWork(inflater);
+                                    event(rootView);
 
                                 } else {
                                     Toast.makeText(getActivity(), "Fail", Toast.LENGTH_SHORT).show();

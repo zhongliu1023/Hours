@@ -375,6 +375,7 @@ public class FaceLoginActivity extends AppCompatActivity implements ViewTreeObse
                 .build();
         cameraHelper.init();
         cameraHelper.start();
+
     }
 
     private void registerFace(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {

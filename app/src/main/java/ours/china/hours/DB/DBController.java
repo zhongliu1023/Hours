@@ -31,7 +31,66 @@ public class DBController {
         database.insert(DatabaseManager.bookTable, null, values);
     }
 
-    // get one data
+    public void insertBookStateData(Book data) {
+        database = dbManager.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseManager.KEY_bookid, data.getBookID());
+        values.put(DatabaseManager.KEY_bookPages, data.getPagesArray());
+        values.put(DatabaseManager.KEY_bookReadTime, data.getReadTime());
+        values.put(DatabaseManager.KEY_bookLastTime, data.getLastTime());
+
+        database.insert(DatabaseManager.bookStateTable, null, values);
+    }
+
+    public void updateBookStateData(Book data) {
+        ContentValues updateValues = new ContentValues();
+
+        updateValues.put(DatabaseManager.KEY_bookPages, data.getPagesArray());
+        updateValues.put(DatabaseManager.KEY_bookReadTime, data.getReadTime());
+        updateValues.put(DatabaseManager.KEY_bookLastTime, data.getLastTime());
+
+        String where = "bookID = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{data.getBookID()});
+        database.close();
+    }
+
+    public void updateBookPageNumbersState(Book data) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_bookPages, data.getPagesArray());
+
+        String where = "bookID = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{data.getBookID()});
+        database.close();
+    }
+
+    public void updateBookReadTimeState(Book data) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_bookReadTime, data.getReadTime());
+
+        String where = "bookID = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{data.getBookID()});
+        database.close();
+    }
+
+    public void updateBookLastTimeState(Book data) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_bookLastTime, data.getLastTime());
+
+        String where = "bookID = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{data.getBookID()});
+        database.close();
+    }
+
+//
 //    public Book getOneData(String bookID) {
 //        database = dbManager.getReadableDatabase();
 //
@@ -47,6 +106,27 @@ public class DBController {
 //        return data;
 //    }
 
+    public Book getBookStateData(String bookID) {
+        database = dbManager.getWritableDatabase();
+
+        Cursor cursor = database.query(DatabaseManager.bookStateTable, DatabaseManager.columns,
+                DatabaseManager.KEY_bookid + "= ?", new String[]{bookID},
+                null, null, null);
+//        Cursor cursor = database.query("select * from " + DatabaseManager.bookStateTable + " where " + DatabaseManager.KEY_bookid + " = '" + bookID + "'", null);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+        } else {
+            return null;
+        }
+
+        Book data = new Book();
+        data.setPagesArray(cursor.getString(2));
+        data.setReadTime(cursor.getString(3));
+        data.setLastTime(cursor.getString(4));
+
+        return data;
+    }
+
     public ArrayList<Book> getAllData() {
         ArrayList<Book> results = new ArrayList<Book>();
 
@@ -59,6 +139,27 @@ public class DBController {
                 row.setBookID(cursor.getString(1));
                 row.setBookLocalUrl(cursor.getString(2));
                 row.setBookImageLocalUrl(cursor.getString(3));
+
+                results.add(row);
+            } while (cursor.moveToNext());
+        }
+
+        return results;
+    }
+
+    public ArrayList<Book> getAllBookStateData() {
+        ArrayList<Book> results = new ArrayList<Book>();
+
+        database = dbManager.getReadableDatabase();
+        Cursor cursor = database.rawQuery("select * from " + DatabaseManager.bookStateTable, null);
+        if (cursor.moveToFirst()) {
+            do {
+                Book row = new Book();
+
+                row.setBookID(cursor.getString(1));
+                row.setPagesArray(cursor.getString(2));
+                row.setReadTime(cursor.getString(3));
+                row.setLastTime(cursor.getString(4));
 
                 results.add(row);
             } while (cursor.moveToNext());

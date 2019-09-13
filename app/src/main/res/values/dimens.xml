@@ -47,6 +47,7 @@
     <dimen name="color_rect">10dp</dimen>
 
     <!--  for general padding  -->
+    <dimen name="getneral_padding_4">4dp</dimen>
     <dimen name="getneral_padding_8">8dp</dimen>
     <dimen name="getneral_padding_12">12dp</dimen>
     <dimen name="getneral_padding_16">16dp</dimen>

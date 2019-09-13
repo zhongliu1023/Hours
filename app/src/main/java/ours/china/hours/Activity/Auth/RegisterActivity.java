@@ -66,7 +66,6 @@ public class RegisterActivity  extends AppCompatActivity {
         btnRegConfirm = (Button)findViewById(R.id.btnRegConfirm);
     }
 
-
     private void gotoForgot(){
 
         tvReForgot.setOnClickListener(new View.OnClickListener() {

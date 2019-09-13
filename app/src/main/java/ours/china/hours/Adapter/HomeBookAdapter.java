@@ -85,18 +85,14 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //example, change later
-//                bookItemInterface.onClickBookItem("https://carlosicaza.com/swiftbooks/SwiftLanguage.pdf");
-//                bookItemInterface.onClickBookItem("http://192.168.6.222/Hour/assets/upload/book/austen.epub");
 
+                Global.bookID = one.getBookID();
                 if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
-//                    displayLocalBook(position);
 
                     List<FileMeta> localBooks = AppDB.get().getAll();
                     ExtUtils.openFile(activity, localBooks.get(0));
 
                 } else {
-                    Global.bookID = String.valueOf(position);
                     bookItemInterface.onClickBookItem(one.getBookUrl());
 
                     Toast.makeText(context, one.getBookUrl(), Toast.LENGTH_SHORT).show();
