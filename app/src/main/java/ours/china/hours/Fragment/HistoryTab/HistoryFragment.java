@@ -18,12 +18,13 @@ import java.util.List;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
+import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.ReadingCompleteBookActivity;
 import ours.china.hours.Activity.ReadingNowBookActivity;
 import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;
 import ours.china.hours.Adapter.ReadingStatusBookAdapter;
-import ours.china.hours.Model.Book;
 import ours.china.hours.Model.ReadingCompleteStatusBook;
+import ours.china.hours.Model.ReadingStatusBook;
 import ours.china.hours.R;
 
 /**
@@ -40,7 +41,7 @@ public class HistoryFragment extends Fragment {
     ReadingCompleteStatusBookAdapter readingBookCompleteAdapter;
     ReadingStatusBookAdapter readingBookStatusAdapter;
 
-    private ArrayList<Book> statusBooks;
+    private ArrayList<ReadingStatusBook> statusBooks;
     private ArrayList<ReadingCompleteStatusBook>  completeStatusBooks;
 
     @Nullable
@@ -61,6 +62,10 @@ public class HistoryFragment extends Fragment {
 
         statusBooks = new ArrayList<>();
         completeStatusBooks = new ArrayList<>();
+
+        statusBooks.add(new ReadingStatusBook("hello", "百年孤独", "24", "20.6", "29", "19-10-01"));
+        statusBooks.add(new ReadingStatusBook("hello", "百年孤独", "24", "20.6", "29", "19-10-01"));
+        statusBooks.add(new ReadingStatusBook("hello", "百年孤独", "24", "20.6", "29", "19-10-01"));
 
         completeStatusBooks.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
         completeStatusBooks.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
