@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.TextView;
 
+import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
 import ours.china.hours.R;
 
@@ -19,6 +20,9 @@ public class Global {
     public static String editStateOfFavoritesDetails = "no";
 
     public static String mobile = "";
+    public static String password = "";
+
+    public static String faceState = "";
     public static String identify = "";
 
     /** when login , return key-> value*/
@@ -46,6 +50,22 @@ public class Global {
     public static String receive_json_key_readState = "isRead";
 
     public static String bookID = "";
+    public static String bookName = "";
+
+    public static String faceFeatureSavedUrl = "";
+    public static String faceFeatureSavedImageUrl = "";
+
+    public static String bookImageLocalUrl = "";
+    public static String bookUrl = "";
+    public static String bookLocalUrl = "";
+    public static String bookSpecifiedTime = "";
+
+    public static int bookDownloadedPosition = 0;
+    public static String readingNowOrHistory = "";
+
+
+    public static UpdateDisplayInterface updateDisplayInterface;
+
 
 
     public static void alert(Context context, String title, String message, String btnTitle) {

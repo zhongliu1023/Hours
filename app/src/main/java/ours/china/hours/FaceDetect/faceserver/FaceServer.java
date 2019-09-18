@@ -246,7 +246,7 @@ public class FaceServer {
                     }
 
                     File file = new File(imgDir + File.separator + userName + IMG_SUFFIX);
-                    Global.registeredFacePath = imgDir + File.separator + userName + IMG_SUFFIX;
+                    Global.faceFeatureSavedImageUrl = imgDir + File.separator + userName + IMG_SUFFIX;
                     Log.v("Detected face imageUrl", imgDir + File.separator + userName + IMG_SUFFIX);
                     // image file url == > "data/data/ours.china.hours/files/register/imgs/registered %d.jpg
 
@@ -282,6 +282,9 @@ public class FaceServer {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fosImage);
                         fosImage.close();
                     }
+
+                    // my added code.
+                    Global.faceFeatureSavedUrl = featureDir + File.separator + userName;
 
                     FileOutputStream fosFeature = new FileOutputStream(featureDir + File.separator + userName);
                     fosFeature.write(faceFeature.getFeatureData());

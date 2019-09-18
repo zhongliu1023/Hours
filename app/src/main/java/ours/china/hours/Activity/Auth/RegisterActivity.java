@@ -34,7 +34,10 @@ public class RegisterActivity  extends AppCompatActivity {
     private EditText edReMobile, edReVerification, edRePassword;
     private Button btnRegister, btnRegConfirm;
     private TextView tvReForgot, tvReLogin;
-    private String TAG = RegisterActivity.class.getSimpleName();
+
+    private static String TAG = "RegisterActivity";
+
+    String mobile, password;
 
     APIInterface apiInterface;
 
@@ -115,28 +118,27 @@ public class RegisterActivity  extends AppCompatActivity {
         final String mobile = edReMobile.getText().toString();
         final String password = edRePassword.getText().toString();
 
+        Global.mobile = mobile;
+        Global.password = password;
+
         if (mobile.equals("")){
             Global.alert(RegisterActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
             edReMobile.requestFocus();
             return;
         }
 
-        if (password.equals("")){
-            Global.alert(RegisterActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
-            edRePassword.requestFocus();
-            return;
-        }
-
+        Log.i(TAG, "mobile => " + mobile);
         Global.showLoading(RegisterActivity.this,"generate_report");
         Ion.with(RegisterActivity.this)
                 .load(Url.verifyCode)
                 .setTimeout(10000)
                 .setBodyParameter("mobile", mobile)
                 .setBodyParameter("password", password)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
+                .asString()
+                .setCallback(new FutureCallback<String>() {
                     @Override
-                    public void onCompleted(Exception e, JsonObject result) {
+                    public void onCompleted(Exception e, String result) {
+                        Log.i(TAG, "result = >" + result);
                         Global.hideLoading();
 
                         if (e == null) {
@@ -145,18 +147,18 @@ public class RegisterActivity  extends AppCompatActivity {
                                 resObj = new JSONObject(result.toString());
 
                                 if (resObj.getString("res").equals("success")) {
-                                    Toast.makeText(RegisterActivity.this, "verify success", Toast.LENGTH_SHORT).show();
-                                    btnRegister.setVisibility(View.INVISIBLE);
-                                    btnRegConfirm.setVisibility(View.VISIBLE);
+                                    Toast.makeText(RegisterActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
+                                } else if (resObj.getString("err").equals("mobile")) {
+                                    Toast.makeText(RegisterActivity.this, "电话号码已登录", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    Toast.makeText(RegisterActivity.this, "verify error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RegisterActivity.this, "验证码发送失败", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
                             }
 
                         } else {
-                            Toast.makeText(RegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, "验证码成功失败", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -167,12 +169,18 @@ public class RegisterActivity  extends AppCompatActivity {
     public void confirmVerifyProcess(){
 
         String otp = edReVerification.getText().toString();
-        final String mobile = edReMobile.getText().toString();
+        mobile = edReMobile.getText().toString();
+        password = edRePassword.getText().toString();
 
         if (mobile.equals("")){
             Global.alert(RegisterActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
             edReMobile.requestFocus();
             return;
+        }
+
+        if (password.equals("")) {
+            Global.alert(RegisterActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
+            edRePassword.requestFocus();
         }
 
         if (otp.equals("")){
@@ -181,17 +189,23 @@ public class RegisterActivity  extends AppCompatActivity {
             return;
         }
 
+        Log.i(TAG, "mobile => " + mobile);
+        Log.i(TAG, "password => " + password);
+        Log.i(TAG, "opt => " + otp);
+
         Global.showLoading(RegisterActivity.this,"generate_report");
         Ion.with(RegisterActivity.this)
                 .load(Url.confirmVerify)
                 .setTimeout(10000)
                 .setBodyParameter("mobile", mobile)
+                .setBodyParameter("password", password)
                 .setBodyParameter("otp", otp)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         Global.hideLoading();
+                        Log.i(TAG, "result => " + result);
 
                         if (e == null) {
                             JSONObject resObj = null;
@@ -200,17 +214,18 @@ public class RegisterActivity  extends AppCompatActivity {
 
                                 if (resObj.getString("res").equals("success")) {
                                     Global.mobile = mobile;
+                                    Log.i(TAG, "mobile number => " + Global.mobile);
                                     Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
                                     startActivity(intent);
                                 } else {
-                                    Toast.makeText(RegisterActivity.this, "confirm error", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RegisterActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
                             }
 
                         } else {
-                            Toast.makeText(RegisterActivity.this, "Api error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

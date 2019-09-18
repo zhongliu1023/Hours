@@ -2,6 +2,7 @@ package ours.china.hours.Fragment.HistoryTab;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,12 @@ import java.util.List;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
+import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.ReadingCompleteBookActivity;
 import ours.china.hours.Activity.ReadingNowBookActivity;
 import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;
 import ours.china.hours.Adapter.ReadingStatusBookAdapter;
+import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.ReadingCompleteStatusBook;
 import ours.china.hours.R;
@@ -40,42 +43,77 @@ public class HistoryFragment extends Fragment {
     ReadingCompleteStatusBookAdapter readingBookCompleteAdapter;
     ReadingStatusBookAdapter readingBookStatusAdapter;
 
-    private ArrayList<Book> statusBooks;
-    private ArrayList<ReadingCompleteStatusBook>  completeStatusBooks;
+    ArrayList<Book> bookArrayList;
+    ArrayList<Book> completeStatusBooks;
+
+
+    DBController db;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_history_tab, container, false);
 
+        bookArrayList = new ArrayList<>();
+        completeStatusBooks = new ArrayList<>();
         init(rootView);
         pieChartInit(rootView);
         event(rootView);
+        getDataFromLocalDB();
+
 
         return rootView;
     }
 
     public void init(View rootView) {
         recyclerReadingBookNow = rootView.findViewById(R.id.recycler_book_reading_now);
-        recyclerReadingBookCompleted = rootView.findViewById(R.id.recycler_book_reading_completed);
-
-        statusBooks = new ArrayList<>();
-        completeStatusBooks = new ArrayList<>();
-
-        completeStatusBooks.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        completeStatusBooks.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-
-        readingBookStatusAdapter = new ReadingStatusBookAdapter(getContext(), statusBooks);
-        readingBookCompleteAdapter = new ReadingCompleteStatusBookAdapter(getContext(), completeStatusBooks);
-
+        readingBookStatusAdapter = new ReadingStatusBookAdapter(getContext(), bookArrayList);
         RecyclerView.LayoutManager manager1 = new LinearLayoutManager(getActivity());
-        RecyclerView.LayoutManager manager2 = new LinearLayoutManager(getActivity());
         recyclerReadingBookNow.setLayoutManager(manager1);
-        recyclerReadingBookCompleted.setLayoutManager(manager2);
-
         recyclerReadingBookNow.setAdapter(readingBookStatusAdapter);
+        recyclerReadingBookNow.setNestedScrollingEnabled(false);
+
+        recyclerReadingBookCompleted = rootView.findViewById(R.id.recycler_book_reading_completed);
+        readingBookCompleteAdapter = new ReadingCompleteStatusBookAdapter(getContext(), completeStatusBooks);
+        recyclerReadingBookCompleted.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerReadingBookCompleted.setAdapter(readingBookCompleteAdapter);
+        recyclerReadingBookCompleted.setNestedScrollingEnabled(false);
+
     }
+
+    public void getDataFromLocalDB() {
+        Global.readingNowOrHistory = "history";
+        db = new DBController(getActivity());
+        ArrayList<Book> tempBookArrayList = db.getAllData();
+        if (tempBookArrayList != null && tempBookArrayList.size() != 0) {
+            completeStatusBooks.clear();
+            bookArrayList.clear();
+            for (int i = 0; i < tempBookArrayList.size(); i++) {
+                Book one = (Book) tempBookArrayList.get(i);
+                Book tempBook = db.getBookStateData(one.getBookID());
+                if (tempBook != null) {
+                    one.setPagesArray(tempBook.getPagesArray());
+                    one.setReadTime(tempBook.getReadTime());
+                    one.setLastTime(tempBook.getLastTime());
+                }
+                if (one.getTotalPage().equals(String.valueOf(one.getPagesArray().split(",").length))) {
+                    completeStatusBooks.add(one);
+                } else {
+                    bookArrayList.add(one);
+                }
+            }
+            readingBookStatusAdapter.notifyDataSetChanged();
+            readingBookCompleteAdapter.notifyDataSetChanged();
+
+            Log.i("HistoryFragment", "data list => " + bookArrayList.toString() + bookArrayList.size());
+        }
+    }
+
 
     public void pieChartInit(View rootView) {
         pieChartView = rootView.findViewById(R.id.pieChart);

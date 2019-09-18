@@ -45,6 +45,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -63,6 +64,7 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.bumptech.glide.request.target.ThumbnailImageViewTarget;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -93,6 +95,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
 import ours.china.hours.BookLib.foobnix.android.utils.Keyboards;
@@ -139,6 +142,7 @@ import ours.china.hours.BookLib.foobnix.pdf.search.view.VerticalViewPager;
 import ours.china.hours.BookLib.foobnix.sys.ClickUtils;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.tts.MessagePageNumber;
+import ours.china.hours.BookLib.foobnix.tts.TTSControlsView;
 import ours.china.hours.BookLib.foobnix.tts.TTSEngine;
 import ours.china.hours.BookLib.foobnix.tts.TTSNotification;
 import ours.china.hours.BookLib.foobnix.tts.TTSService;
@@ -146,7 +150,6 @@ import ours.china.hours.BookLib.foobnix.tts.TtsStatus;
 import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
-import ours.china.hours.BuildConfig;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
@@ -166,7 +169,7 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
 
-public class HorizontalBookReadingActivity extends FragmentActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+public class HorizontalBookReadingActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
 
     // ------------- for document browser ----------------
     VerticalViewPager viewPager;
@@ -190,6 +193,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     volatile int isInitOrientation;
 
     String quickBookmark;
+    TTSControlsView ttsActive;
 
     // my definition part. from here.
     private ActionBarDrawerToggle mDrawerToggle;
@@ -206,7 +210,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
     // --------------------------- end ----------------------
 
-    long faceDetectStartTime;
+    long faceDetectStartTime = 0;
     long faceDetectRemovedTime;
     long readTime = 0;
 
@@ -216,6 +220,11 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     String currentPage;
 
     DBController db;
+
+    TextView topReadTime, pageReadingPercent;
+    ImageView imgBack;
+
+    long displayedTime, tempDisplayedTime;
 
     public static boolean stateChangFlag = false;
     public long countTime;
@@ -296,8 +305,9 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
     @Override
     protected void onNewIntent(final Intent intent) {
-
         super.onNewIntent(intent);
+        Log.i("horizontalbookreading", "onNewIntent => start");
+
         if (TTSNotification.ACTION_TTS.equals(intent.getAction())) {
             return;
         }
@@ -306,10 +316,14 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             finish();
             startActivity(intent);
         }
+
+        Log.i("horizontalbookreading", "onNewIntent => end");
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.i("horizontalbookreading", "onCreate => start");
+
         quickBookmark = getString(R.string.fast_bookmark);
         LOG.d("getRequestedOrientation", AppState.get().orientation, getRequestedOrientation());
 
@@ -343,6 +357,21 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             Android6.checkPermissions(this, true);
             return;
         }
+
+        // for read time
+        topReadTime = findViewById(R.id.topReadTime);
+        pageReadingPercent = findViewById(R.id.pagesReadingPercent);
+        imgBack = findViewById(R.id.imgBack);
+        imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                    HorizontalBookReadingActivity.this.finish();
+                } else {
+                    HorizontalBookReadingActivity.super.onBackPressed();
+                }
+            }
+        });
 
         // DrawerLayout
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -559,7 +588,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                     return;
                 }
                 if ((Integer) result == -2) {
-                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_SHORT).show();
                     AppState.get().isEditMode = true;
                     hideShow();
 
@@ -691,12 +720,27 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         FaceServer.getInstance().init(this);
         faceInitView();
 
+        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("")) {
+
+            displayedTime = Long.parseLong(db.getBookStateData(Global.bookID).getReadTime());
+            tempDisplayedTime = displayedTime;
+
+        } else {
+            displayedTime = 0;
+            tempDisplayedTime = 0;
+        }
+        Log.i("HorizontalBookReading", "displayedTime => " + displayedTime);
+        Log.i("HorizontalBookReading", "tempDisplayedTime => " + tempDisplayedTime);
+
+        Log.i("horizontalbookreading", "onCreate => end");
     }
 
     public void updateSeekBarColorAndSize() {
     }
 
     public void uiInit() {
+        Log.i("horizontalbookreading", "uiInit => start");
+
         imgFont = findViewById(R.id.imgFont);
         imgBrightness = findViewById(R.id.imgBrightness);
         imgNote = findViewById(R.id.imgNote);
@@ -705,9 +749,12 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         mainBottomBar = findViewById(R.id.mainBottomBar);
         fontBottomBar = findViewById(R.id.fontBottomBar);
         brightnessBottomBar = findViewById(R.id.brightnessBottomBar);
+
+        Log.i("horizontalbookreading", "uiInit => end");
     }
 
     public void event() {
+        Log.i("horizontalbookreading", "event => start");
 
         // to show navigation view.
         catalogMenu = findViewById(R.id.imgCatalogMenu);
@@ -737,9 +784,13 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 hideShow();
             }
         });
+
+        Log.i("horizontalbookreading", "event => end");
     }
 
     public void initAsync(int w, int h) {
+        Log.i("horizontalbookreading", "initAsync => start");
+
         dc = new HorizontalModeController(this, w, h) {
             @Override
             public void onGoToPageImpl(int page) {
@@ -758,12 +809,27 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         };
         // dc.init(this);
         dc.initAnchor(anchor);
+
+        // added code to insert totalpage to localDB.
+        OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
+        maxPage = info.textPage;
+
+        Book one = new Book();
+        one.setBookID(Global.bookID);
+        one.setTotalPage(maxPage);
+        db.updateBookTotalPage(one);
+
+        Log.i("horizontalbookreading", "initAsync => end");
     }
 
     private void tinUI() {
+        Log.i("horizontalbookreading", "tinUI => start");
+
         TintUtil.setTintBgSimple(actionBar, AppState.get().transparencyUI);
         TintUtil.setTintBgSimple(bottomBar, AppState.get().transparencyUI);
         TintUtil.setStatusBarColor(this);
+
+        Log.i("horizontalbookreading", "tinUI => end");
     }
 
     public void makeFullScreen() {
@@ -790,6 +856,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     }
 
     public void updateUI(int page) {
+        Log.i("horizontalbookreading", "updateUI => start");
 
         if (dc == null || viewPager == null || viewPager.getAdapter() == null) {
             return;
@@ -833,10 +900,41 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 //            floatingBookmarkTextView.setVisibility(View.GONE);
         }
 
+        // for top read time
+        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("") && db.getBookStateData(Global.bookID).getReadTime() != null) {
+            int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+            int minutes = seconds / 60;
+            int hours = minutes / 60;
+            seconds = seconds % 60;
+            topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
+
+            topReadTime.setTextColor(getResources().getColor(R.color.black));
+            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+        }
+
+
+        // for percent
+//        int pageCount;
+//        if (db.getBookStateData(Global.bookID).getTotalPage() != null && !db.getBookStateData(Global.bookID).getTotalPage().equals("")) {
+//            if (db.getBookStateData(Global.bookID).getPagesArray().equals("") || db.getBookStateData(Global.bookID).getPagesArray() == null) {
+//                pageCount = 0;
+//            } else {
+//                pageCount = db.getBookStateData(Global.bookID).getPagesArray().split(",").length;
+//            }
+//            int percent = (int) (pageCount / Integer.parseInt(db.getBookStateData(Global.bookID).getTotalPage()) * 100);
+//            pageReadingPercent.setText(getString(R.string.percentBook, String.valueOf(percent)));
+//            Log.i("HorizontalBookReading", "percent => " + String.valueOf(percent));
+//        }
+
+
+
+
+        Log.i("horizontalbookreading", "updateUI => end");
     }
 
 
     public void testScreenshots() {
+        Log.i("horizontalbookreading", "testScreenshots => start");
 
         if (getIntent().hasExtra("id1")) {
             DragingDialogs.thumbnailDialog(anchor, dc);
@@ -868,11 +966,14 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             AppState.get().isEditMode = getIntent().getBooleanExtra("isEditMode", false);
             hideShow();
         }
+
+        Log.i("horizontalbookreading", "testScreenshots => end");
     }
 
 
 
     public void loadUI() {
+        Log.i("horizontalbookreading", "loadUI => start");
 //        titleTxt.setText(dc.getTitle());
 //        pannelBookTitle.setText(dc.getTitle());
         createAdapter();
@@ -925,17 +1026,24 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
         showHelp();
 
+        Log.i("horizontalbookreading", "loadUI => end");
     }
 
     private void doShowHideWrapperControlls() {
+        Log.i("horizontalbookreading", "doShowHideWrapperControlls => start");
+
         AppState.get().isEditMode = !AppState.get().isEditMode;
         hideShow();
+
+        Log.i("horizontalbookreading", "doShowHideWrapperControlls => end");
     }
 
     long lastClick = 0;
     long lastClickMaxTime = 300;
 
     public synchronized void prevPage() {
+        Log.i("horizontalbookreading", "prevPage => start");
+
         flippingTimer = 0;
 
         boolean isAnimate = AppState.get().isScrollAnimation;
@@ -946,9 +1054,12 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         viewPager.setCurrentItem(dc.getCurentPage() - 1, isAnimate);
         dc.checkReadingTimer();
 
+        Log.i("horizontalbookreading", "prevPage => end");
     }
 
     public synchronized void nextPage() {
+        Log.i("horizontalbookreading", "nextPage => start");
+
         flippingTimer = 0;
 
         boolean isAnimate = AppState.get().isScrollAnimation;
@@ -961,11 +1072,14 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         viewPager.setCurrentItem(dc.getCurentPage() + 1, isAnimate);
         dc.checkReadingTimer();
 
+        Log.i("horizontalbookreading", "nextPage => end");
     }
 
     private volatile boolean isMyKey = false;
     @Override
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        Log.i("horizontalbookreading", "onKeyUp => start");
+
         if (isMyKey) {
             return true;
         }
@@ -993,6 +1107,8 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 return true;
             }
         }
+
+        Log.i("horizontalbookreading", "onKeyUp => end");
         return super.onKeyUp(keyCode, event);
     }
 
@@ -1000,6 +1116,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
     @Override
     public boolean onKeyDown(final int keyCode1, final KeyEvent event) {
+        Log.i("horizontalbookreading", "onKeyDown => start");
 
         int keyCode = event.getKeyCode();
         if (keyCode == 0) {
@@ -1046,7 +1163,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                     if (AppState.get().isFastBookmarkByTTS) {
                         TTSEngine.get().fastTTSBookmakr(dc);
                     } else {
-                        TTSEngine.get().stop();
+//                        TTSEngine.get().stop();
                     }
                 } else {
                     //FTTSEngine.get().playCurrent();
@@ -1094,23 +1211,29 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
         }
 
+        Log.i("horizontalbookreading", "onKeyDown => end");
         return super.onKeyDown(keyCode, event);
 
     }
 
     @Override
     public boolean onKeyLongPress(final int keyCode, final KeyEvent event) {
+        Log.i("horizontalbookreading", "onKeyLongPress => start");
+
         // Toast.makeText(this, "onKeyLongPress", Toast.LENGTH_SHORT).show();
         if (CloseAppDialog.checkLongPress(this, event)) {
             CloseAppDialog.showOnLongClickDialog(HorizontalBookReadingActivity.this, null, dc);
             return true;
         }
+
+        Log.i("horizontalbookreading", "onKeyLongPress => start");
         return super.onKeyLongPress(keyCode, event);
     }
 
 
     @Override
     public void onBackPressed() {
+        Log.i("horizontalbookreading", "onBackPressed => start");
         // Toast.makeText(this, "onBackPressed", Toast.LENGTH_SHORT).show();
 
         if (dc != null && dc.floatingBookmark != null) {
@@ -1137,9 +1260,20 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         }
 
         if (AppState.get().isShowLongBackDialog) {
-//            CloseAppDialog.showOnLongClickDialog(HorizontalBookReadingActivity.this, null, dc);
-//        } else {
-//            showInterstial();
+
+            AppTemp.get().lastClosedActivity = null;
+            if (handler != null) {
+                handler.removeCallbacksAndMessages(null);
+            }
+            nullAdapter();
+
+            if (dc != null) {
+                dc.saveCurrentPageAsync();
+                dc.onCloseActivityFinal(null);
+                dc.closeActivity();
+            } else {
+                finish();
+            }
         }
 
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -1149,9 +1283,13 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             // the read time is calculated in onPause override function when you click back button
             super.onBackPressed();
         }
+
+        Log.i("horizontalbookreading", "onBackPressed => end");
     }
 
     public void createAdapter() {
+        Log.i("horizontalbookreading", "createAdapter => start");
+
         LOG.d("createAdapter");
         nullAdapter();
         pagerAdapter = null;
@@ -1181,7 +1319,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 try {
                     return super.saveState();
                 } catch (Exception e) {
-                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
                     LOG.e(e);
                     return null;
                 }
@@ -1192,7 +1330,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 try {
                     super.restoreState(arg0, arg1);
                 } catch (Exception e) {
-                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(HorizontalBookReadingActivity.this, R.string.msg_unexpected_error, Toast.LENGTH_LONG).show();
                     LOG.e(e);
                 }
             }
@@ -1214,9 +1352,12 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         viewPager.setSaveEnabled(false);
         viewPager.setSaveFromParentEnabled(false);
 
+        Log.i("horizontalbookreading", "createAdapter => end");
     }
 
     public void showHelp() {
+        Log.i("horizontalbookreading", "showHelp => start");
+
         if (AppTemp.get().isFirstTimeHorizontal) {
             handler.postDelayed(new Runnable() {
 
@@ -1231,17 +1372,24 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             }, 1000);
         }
 
+        Log.i("horizontalbookreading", "showHelp => end");
     }
 
     @Override
     protected void attachBaseContext(Context context) {
+        Log.i("horizontalbookreading", "attachBaseContext => start");
+
         AppProfile.init(context);
         closeDialogs();
         super.attachBaseContext(MyContextWrapper.wrap(context));
+
+        Log.i("horizontalbookreading", "attachBaseContext => end");
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        Log.i("horizontalbookreading", "onRequestPermissionsResult => start");
+
         Android6.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
 
         // for face detect.
@@ -1259,21 +1407,28 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
                 }
             } else {
-                Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
             }
         }
+
+        Log.i("horizontalbookreading", "onRequestPermissionsResult => end");
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.i("horizontalbookreading", "onStart => start");
+
         // Analytics.onStart(this);
         EventBus.getDefault().register(HorizontalBookReadingActivity.this);
 
+        Log.i("horizontalbookreading", "onStart => end");
     }
 
     @Override
     public void onStop() {
+        Log.i("horizontalbookreading", "onStop => start");
+
         EventBus.getDefault().unregister(this);
         super.onStop();
         // Analytics.onStop(this);
@@ -1282,10 +1437,13 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         }
 
         RecentUpates.updateAll(this);
+
+        Log.i("horizontalbookreading", "onStop => end");
     }
 
     @Override
     protected void onDestroy() {
+        Log.i("horizontalbookreading", "onDestroy => start");
 
         if (loadinAsyncTask != null) {
             try {
@@ -1329,6 +1487,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         }
         FaceServer.getInstance().unInit();
 
+        Log.i("horizontalbookreading", "onDestroy => end");
         super.onDestroy();
     }
 
@@ -1336,8 +1495,20 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i("horizontalbookreading", "onResume => start");
 
         countTime = System.currentTimeMillis();       // this part is my definition for real time communication with api.
+        faceDetectStartTime = 0;
+
+        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("")) {
+
+            displayedTime = Long.parseLong(db.getBookStateData(Global.bookID).getReadTime());
+            tempDisplayedTime = displayedTime;
+
+        } else {
+            displayedTime = 0;
+            tempDisplayedTime = 0;
+        }
 
         DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
         DocumentController.doRotation(this);
@@ -1367,11 +1538,14 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 //        if (ttsActive != null) {
 //            ttsActive.setVisibility(TxtUtils.visibleIf(TTSEngine.get().isTempPausing()));
 //        }
+        Log.i("horizontalbookreading", "onResume => end");
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        Log.i("horizontalbookreading", "onConfigurationChanged => start");
+
         TempHolder.isActiveSpeedRead.set(false);
         clickUtils.init();
         if (isInitPosistion == null) {
@@ -1413,6 +1587,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
         isInitOrientation = AppState.get().orientation;
 
+        Log.i("horizontalbookreading", "onConfigurationChanged => start");
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -1457,8 +1632,17 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         handler.postDelayed(closeRunnable, AppState.APP_CLOSE_AUTOMATIC);
 
         // when this activity is paused, must calculate read time.
-        readTime = System.currentTimeMillis() - faceDetectStartTime;
-        updateBookReadTimeState(String.valueOf(readTime));
+        if (faceDetectStartTime != 0) {
+            readTime = System.currentTimeMillis() - faceDetectStartTime;
+            faceDetectStartTime = 0;
+            updateBookReadTimeState(String.valueOf(readTime));
+//
+//            int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+//            int minutes = seconds / 60;
+//            topReadTime.setText(getString(R.string.readTime, String.valueOf(minutes), String.valueOf(seconds)));
+//            topReadTime.setTextColor(getResources().getColor(R.color.black));
+            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+        }
 
     }
 
@@ -1624,7 +1808,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             updateSeekBarColorAndSize();
             BrightnessHelper.updateOverlay(overlay);
             hideShow();
-            TTSEngine.get().stop();
+//            TTSEngine.get().stop();
 //            showPagesHelper();
 
         }
@@ -1725,10 +1909,14 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             currentScrollState = arg0;
 
             pageChangedTime = System.currentTimeMillis();
-            if (pageChangedTime > faceDetectStartTime) {
+            if (pageChangedTime > faceDetectStartTime && faceDetectStartTime != 0) {
                 updateBookPageNumbersState(currentPage);
+//
+//                int percent = (int) (db.getBookStateData(Global.bookID).getPagesArray().split(",").length / Integer.parseInt(db.getBookStateData(Global.bookID).getTotalPage()) * 100);
+//                pageReadingPercent.setText(getString(R.string.percentBook, String.valueOf(percent)));
+//                Log.i("HorizontalBookReading", "percent => " + String.valueOf(percent));
             }
-            Toast.makeText(HorizontalBookReadingActivity.this, "page changed Time" + currentPage, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HorizontalBookReadingActivity.this, "page changed Time" + currentPage, Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -2020,7 +2208,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
         Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
 
         if (afCode != ErrorInfo.MOK) {
-            Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2118,10 +2306,12 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 if (faceRectView != null) {
                     faceRectView.clearFaceInfo();
                 }
+
                 List<FacePreviewInfo> facePreviewInfoList = faceHelper.onPreviewFrame(nv21);
                 if (facePreviewInfoList != null && faceRectView != null && drawHelper != null) {
                     drawPreviewInfo(facePreviewInfoList);
                 }
+
                 registerFace(nv21, facePreviewInfoList);
                 clearLeftFace(facePreviewInfoList);
 
@@ -2130,10 +2320,32 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        LOG.d("inside runOnUiThread == >>", stateChangFlag);
-                        if ((tempTime - countTime > 30000) && stateChangFlag) {
+                        Log.i("horizontalbookreading", "time interval => " + (tempTime - countTime));
+
+                        if (faceDetectStartTime != 0) {
+                            long currentTempTime = System.currentTimeMillis();
+                            long deltaTime = currentTempTime- faceDetectStartTime;
+
+                            displayedTime = tempDisplayedTime + deltaTime;
+
+                            int seconds = (int) displayedTime / 1000;
+                            int minutes = seconds / 60;
+                            int hours = minutes / 60;
+                            seconds = seconds % 60;
+//                            topReadTime.setText(getString(R.string.readTime, String.valueOf(hours), String.valueOf(minutes), String.valueOf(seconds)));
+                            topReadTime.setText(getString(R.string.readTime, hours, minutes, seconds));
+                            topReadTime.setTextColor(getResources().getColor(R.color.black));
+
+                            Log.i("HorizontalBookReading", "displayedTime => " + displayedTime);
+                            Log.i("HorizontalBookReading", "tempDisplayedTime => " + tempDisplayedTime);
+                        }
+
+                        if (tempTime - countTime > 20000 && stateChangFlag) {
                             bookStateChangeApiOperation();
+
                             stateChangFlag = false;
+                            countTime = System.currentTimeMillis();
+
                         }
                     }
                 });
@@ -2214,13 +2426,13 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(HorizontalBookReadingActivity.this, result, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HorizontalBookReadingActivity.this, result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(HorizontalBookReadingActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HorizontalBookReadingActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
                         }
 
@@ -2252,6 +2464,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     private void clearLeftFace(List<FacePreviewInfo> facePreviewInfoList) {
 
         Set<Integer> keySet = requestFeatureStatusMap.keySet();
+
         if (compareResultList != null) {
             for (int i = compareResultList.size() - 1; i >= 0; i--) {
                 if (!keySet.contains(compareResultList.get(i).getTrackId())) {
@@ -2259,10 +2472,36 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                     adapter.notifyItemRemoved(i);
 
                     faceDetectRemovedTime = System.currentTimeMillis();
-                    readTime = faceDetectRemovedTime - faceDetectStartTime;
-                    updateBookReadTimeState(String.valueOf(readTime));
+                    if (faceDetectStartTime != 0) {
+                        readTime = faceDetectRemovedTime - faceDetectStartTime;
+                        faceDetectStartTime = 0;
+                        updateBookReadTimeState(String.valueOf(readTime));
 
-                    Toast.makeText(this, "Here, detected face is removed." + readTime, Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(this, "Here, detected face is removed." + readTime, Toast.LENGTH_SHORT).show();
+
+                        tempDisplayedTime = displayedTime;
+
+                        int seconds = (int) displayedTime / 1000;
+                        int minutes = seconds / 60;
+                        int hours = minutes / 60;
+                        seconds = seconds % 60;
+//                        topReadTime.setText(getString(R.string.readTimeStop, String.valueOf(hours), String.valueOf(minutes), String.valueOf(seconds)));
+
+                        topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
+                        topReadTime.setTextColor(getResources().getColor(R.color.black));
+
+//                        // for r
+//                        int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+//                        int minutes = seconds / 60;
+//                        topReadTime.setText(getString(R.string.readTime, String.valueOf(minutes), String.valueOf(seconds)));
+//                        topReadTime.setTextColor(getResources().getColor(R.color.black));
+                        Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+                    } else {
+//                        Toast.makeText(this, "Here, detected face is removed. faceDetectStartTime=" + faceDetectStartTime, Toast.LENGTH_SHORT).show();
+                    }
+
+
+
                 }
             }
         }
@@ -2313,7 +2552,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
 
                     @Override
                     public void onNext(CompareResult compareResult) {
-                        Toast.makeText(HorizontalBookReadingActivity.this, "Help1", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(HorizontalBookReadingActivity.this, "Help1", Toast.LENGTH_SHORT).show();
 
                         if (compareResult == null || compareResult.getUserName() == null) {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
@@ -2325,7 +2564,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
 
                             faceDetectStartTime = System.currentTimeMillis();
-                            Toast.makeText(HorizontalBookReadingActivity.this, "Here, face detect started " +faceDetectStartTime, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HorizontalBookReadingActivity.this, "Here, face detect started " +faceDetectStartTime, Toast.LENGTH_SHORT).show();
 
                             boolean isAdded = false;
                             if (compareResultList == null) {
@@ -2401,7 +2640,13 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     public void bookStateChangeApiOperation() {
 
         if (ConnectivityHelper.isConnectedToNetwork(HorizontalBookReadingActivity.this)) {
-            LOG.d("inside api function == >>", "HHHHHHHH");
+
+            Log.e("horizontalbookreading", "HHHHHHHH");
+            Log.i("horizontalbookreading", Global.KEY_token + ":" + Global.token);
+            Log.i("horizontalbookreading", "bookId" + ":" + Global.bookID);
+            Log.i("horizontalbookreading", "page" + ":" + db.getBookStateData(Global.bookID).getPagesArray());
+            Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(Global.bookID).getReadTime());
+            Log.i("horizontalbookreading", "endPoint" + ":" + db.getBookStateData(Global.bookID).getLastTime());
 
             Ion.with(HorizontalBookReadingActivity.this)
                     .load(Url.bookStateChangeOperation)
@@ -2411,19 +2656,18 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                     .setBodyParameter("page", db.getBookStateData(Global.bookID).getPagesArray())
                     .setBodyParameter("time", db.getBookStateData(Global.bookID).getReadTime())
                     .setBodyParameter("endPoint", db.getBookStateData(Global.bookID).getLastTime())
-                    .asJsonObject()
-                    .setCallback(new FutureCallback<JsonObject>() {
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
                         @Override
-                        public void onCompleted(Exception e, JsonObject result) {
-                            LOG.d("api result == >>", result);
+                        public void onCompleted(Exception e, String result) {
+                            Log.i("horizontalbookreading", "real time api result" + result);
+                            String temp;
 
                             if (e == null) {
                                 JSONObject resObj = null;
                                 try {
                                     resObj = new JSONObject(result.toString());
-                                    Global.token = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
-
-                                    countTime = System.currentTimeMillis();
+                                    temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
 
                                 } catch (JSONException ex) {
                                     ex.printStackTrace();
@@ -2434,7 +2678,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                     });
 
         } else {
-            Toast.makeText(HorizontalBookReadingActivity.this, "Network is disconnected.", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(HorizontalBookReadingActivity.this, "Network is disconnected.", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -2471,7 +2715,7 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
             }
         }
 
-        LOG.d("updatePageNumberState == >>", stateChangFlag);
+        Log.i("horizontalbookreading", "pageNumberState flag=>" + stateChangFlag);
 
     }
 
@@ -2495,17 +2739,18 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
                 one.setReadTime(String.valueOf(saveReadTime));
             }
             db.updateBookReadTimeState(one);
+
         }
         stateChangFlag = true;
 
-        LOG.d("updateBookReadTimeState == >>", stateChangFlag);
+        Log.i("horizontalbookreading", "updateBookReadTimeState" + stateChangFlag);
 
     }
 
     public void updateBookLastTimeState() {
 
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy / MM / dd ");
+        SimpleDateFormat mdformat = new SimpleDateFormat("yy-MM-dd ");
         String lastTime = mdformat.format(calendar.getTime());
 
         Book one = new Book();

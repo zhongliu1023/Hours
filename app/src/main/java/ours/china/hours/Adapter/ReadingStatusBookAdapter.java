@@ -19,18 +19,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import org.jsoup.select.Evaluator;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
+import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
 import ours.china.hours.CustomView.CustomRectView;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
 public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatusBookAdapter.ReadingStatusBookViewHolder> {
 
+    private static final String TAG = "ReadingNowBookActivity";
     private List<Book> bookList;
     public Context context;
     ReadingStatusBookViewHolder holder;
@@ -60,6 +66,16 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
 
         holder.bookName.setText(one.getBookName());
         holder.txtReadTime.setText(one.getReadTime());
+
+        Log.i("ReadingStatusBook", "reagTime = >>>>>" + one.getReadTime());
+        if (one.getReadTime().equals("")) {
+            holder.txtReadTime.setText("0.0");
+        } else {
+            float hours = ((float) (Integer.parseInt(one.getReadTime()) / 1000)) / 3600;
+            Log.i(TAG, "hours => " + String.format("%.2f", hours));
+
+            holder.txtReadTime.setText(String.format("%.2f", hours));
+        }
         holder.txtSpecifiedTime.setText(one.getSpecifiedTime());
         holder.txtLastDate.setText(one.getLastTime());
 
@@ -69,8 +85,12 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                 .into(holder.bookImage);
 
         String[] pages = one.getPagesArray().split(",");
-        holder.txtReadPercent.setText(String.valueOf((pages.length / Integer.parseInt(one.getTotalPage())) * 100));
+        int percent = (one.getPagesArray().split(",")).length / Integer.parseInt(one.getTotalPage());
+        holder.txtReadPercent.setText(String.valueOf((pages.length * 100 / Integer.parseInt(one.getTotalPage()))));
 
+        Log.i(TAG, "book read percent => " + percent);
+        Log.i(TAG, "pages => " + one.getPagesArray());
+        Log.i(TAG, "total page => " + one.getTotalPage());
         // we can use getWidth(), getHeight(), getX(), getY() after the layout was created really.
         // so we must use getViewTreeObeserver().addOnGlobalLayoutListener().
         holder.container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -82,27 +102,26 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                 int paramWidth = (int) holder.txtStateBar.getWidth();
                 int paramHeight = (int) holder.txtStateBar.getHeight();
 
-                Log.e("ReadingNowBookActivity", String.valueOf(paramMarginLeft));
-                LOG.d("ReadingNow", paramMarginTop);
-                LOG.d("ReadingNow", paramWidth);
-                LOG.d("ReadingNow", paramHeight);
-
                 float paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.getTotalPage());
                 holder.recycleTextViews();
 
-                for (int i = 0; i < pages.length; i++) {
+                if (pages.length !=0 && !pages[0].equals("")) {
 
-                    TextView tv = holder.getRecycledTextViewOrCreate();
-                    holder.textViews.add(tv);
+                    for (int i = 0; i < pages.length; i++) {
 
-                    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int) paramWidthPerPage, paramHeight);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-                    params.leftMargin = (int) (paramWidthPerPage * Integer.parseInt(pages[i]) + paramMarginLeft + holder.container.getWidth() * 1.2 / 5.6);
-                    params.topMargin = (int) (convertDpToPixel(8) + holder.containerStateBar.getHeight() * 2 / 3 + paramMarginTop);
-                    tv.setBackgroundColor(context.getResources().getColor(R.color.pink));
+                        TextView tv = holder.getRecycledTextViewOrCreate();
+                        holder.textViews.add(tv);
 
-                    holder.container.addView(tv, params);
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int) paramWidthPerPage, paramHeight);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+                        params.leftMargin = (int) (paramWidthPerPage * Integer.parseInt(pages[i]) + paramMarginLeft + holder.container.getWidth() * 1.2 / 5.6);
+                        params.topMargin = (int) (convertDpToPixel(8) + holder.containerStateBar.getHeight() * 2 / 3 + paramMarginTop);
+                        tv.setBackgroundColor(context.getResources().getColor(R.color.pink));
+
+                        holder.container.addView(tv, params);
+                    }
                 }
+
 
             }
         });
@@ -111,7 +130,14 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
 
     @Override
     public int getItemCount() {
-        return bookList.size();
+        if (!Global.readingNowOrHistory.equals("history")) {
+            return this.bookList.size();
+        }
+        if (this.bookList.size() > 2) {
+            return 2;
+        }
+        return this.bookList.size();
+
     }
 
     public class ReadingStatusBookViewHolder extends RecyclerView.ViewHolder {

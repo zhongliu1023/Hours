@@ -11,11 +11,13 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -62,11 +64,19 @@ import ours.china.hours.Fragment.PersonalTab.PersonalFragmentRoot;
 import ours.china.hours.R;
 
 public class MainActivity  extends FragmentActivity {
+
+    Fragment activityFragment;
+    private BookFragment bookFragment;
+    FragmentManager fragmentManager;
+    private FrameLayout frameLayout;
+    private HistoryFragment historyFragment;
+    private HomeFragment homeFragment;
+    private PersonalFragment personalFragment;
+
+
     public ImageView imgHomeTab, imgBookTab, imgHistoryTab, imgProfileTab;
     private LinearLayout linHome, linBook, linHistory, linProfile;
     private TextView txtHome, txtBook, txtHistory, txtProfile;
-        private SectionsPagerAdapter mSectionsPagerAdapter;
-        private NonSwipeableViewPager mViewPager;
 
         private LinearLayout statusBarLayout;
 
@@ -117,28 +127,28 @@ public class MainActivity  extends FragmentActivity {
             imgBookTab = (ImageView) findViewById(R.id.tab_book);
             imgHistoryTab = (ImageView) findViewById(R.id.tab_history);
             imgProfileTab = (ImageView) findViewById(R.id.tab_profile);
-
-            linHome = findViewById(R.id.linHome);
-            linBook = findViewById(R.id.linBook);
-            linHistory = findViewById(R.id.linHistory);
-            linProfile = findViewById(R.id.linProfile);
-
-            txtHome = findViewById(R.id.txtHome);
-            txtBook =findViewById(R.id.txtBook);
-            txtHistory = findViewById(R.id.txtHistory);
-            txtProfile = findViewById(R.id.txtProfile);
-
+            linHome = (LinearLayout) findViewById(R.id.linHome);
+            linBook = (LinearLayout) findViewById(R.id.linBook);
+            linHistory = (LinearLayout) findViewById(R.id.linHistory);
+            linProfile = (LinearLayout) findViewById(R.id.linProfile);
+            txtHome = (TextView) findViewById(R.id.txtHome);
+            txtBook = (TextView) findViewById(R.id.txtBook);
+            txtHistory = (TextView) findViewById(R.id.txtHistory);
+            txtProfile = (TextView) findViewById(R.id.txtProfile);
             statusBarLayout = (LinearLayout) findViewById(R.id.statusBarLayout);
 
-            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-            // Set up the ViewPager with the sections adapter.
-            mViewPager = (NonSwipeableViewPager) findViewById(R.id.frame_content);
-            mViewPager.setAdapter(mSectionsPagerAdapter);
-            mViewPager.setOffscreenPageLimit(3);
-
-
-            mViewPager.setCurrentItem(0);
+            homeFragment = new HomeFragment();
+            bookFragment = new BookFragment();
+            historyFragment = new HistoryFragment();
+            personalFragment = new PersonalFragment();
+            fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().add( R.id.frame_content, homeFragment).commit();
+            fragmentManager.beginTransaction().add( R.id.frame_content, bookFragment).hide(bookFragment).commit();
+            fragmentManager.beginTransaction().add( R.id.frame_content, historyFragment).hide(historyFragment).commit();
+            fragmentManager.beginTransaction().add( R.id.frame_content, personalFragment).hide(personalFragment).commit();
+            activityFragment = homeFragment;
             changedTabIcons(0);
+
         }
         private void setListener() {
 
@@ -146,54 +156,28 @@ public class MainActivity  extends FragmentActivity {
             linHome.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mViewPager.setCurrentItem(0);
                     changedTabIcons(0);
                 }
             });
             linBook.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mViewPager.setCurrentItem(1);
                     changedTabIcons(1);
                 }
             });
             linHistory.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mViewPager.setCurrentItem(2);
                     changedTabIcons(2);
                 }
             });
             linProfile.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-//                    startActivity(intent);
-                    mViewPager.setCurrentItem(3);
                     changedTabIcons(3);
                 }
             });
-            mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
-                // This method will be invoked when a new page becomes selected.
-                @Override
-                public void onPageSelected(int position) {
-
-                }
-
-                // This method will be invoked when the current page is scrolled
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                    changedTabIcons(position);
-                }
-
-                // Called when the scroll state changes:
-                // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                    // Code goes here
-                }
-            });
         }
 
     @Override
@@ -233,32 +217,7 @@ public class MainActivity  extends FragmentActivity {
         }
         @Override
         public void onBackPressed() {
-            switch (selectedTabIndex){
-                case 0:
-                    if (isFirstPage(FragmentmanagerUtils.getFragmentManagerHome().getFragments())){
-                        super.onBackPressed();
-                        break;
-                    }
-                case 1:
-                    if (isFirstPage(FragmentmanagerUtils.getFragmentManagerIdentify().getFragments())){
-                        mViewPager.setCurrentItem(0);
-                        break;
-                    }
-                case 2:
-                    if (isFirstPage(FragmentmanagerUtils.getFragmentManagerSearch().getFragments())){
-                        mViewPager.setCurrentItem(0);
-                        break;
-                    }
-                case 3:
-                    if (isFirstPage(FragmentmanagerUtils.getFragmentManagerReports().getFragments())){
-                        mViewPager.setCurrentItem(0);
-                        break;
-                    }
-                default:
-                    FragmentsBus.getInstance().postQueue(
-                            new FragmentsEvents(FragmentsEventsKeys.BACKPRESSED));
-                    break;
-            }
+
         }
         private Drawable changeImageColor(int color, Drawable mDrawable){
             Drawable changedDrawable = mDrawable;
@@ -291,17 +250,7 @@ public class MainActivity  extends FragmentActivity {
             }
             selectedTabIndex = position;
             switch (position) {
-                case 0:
-                    imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library_icon));
-                    imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf2_icon));
-                    imgHistoryTab.setImageDrawable(getResources().getDrawable(R.drawable.state2_icon));
-                    imgProfileTab.setImageDrawable(getResources().getDrawable(R.drawable.me2_icon));
 
-                    txtHome.setTextColor(getResources().getColor(R.color.pink));
-                    txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
-                    txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
-                    txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
-                    break;
                 case 1:
                     imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
                     imgBookTab.setImageDrawable(getResources().getDrawable(R.drawable.bookshelf_icon));
@@ -312,6 +261,11 @@ public class MainActivity  extends FragmentActivity {
                     txtBook.setTextColor(getResources().getColor(R.color.pink));
                     txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
+
+                    fragmentManager.beginTransaction().hide(activityFragment).show(bookFragment).commit();
+                    activityFragment = bookFragment;
+                    bookFragment.getAllDataFromLocalDB();
+
                     break;
                 case 2:
                     imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
@@ -323,6 +277,11 @@ public class MainActivity  extends FragmentActivity {
                     txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtHistory.setTextColor(getResources().getColor(R.color.pink));
                     txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
+
+                    fragmentManager.beginTransaction().hide(activityFragment).show(historyFragment).commit();
+                    activityFragment = historyFragment;
+                    historyFragment.getDataFromLocalDB();
+
                     break;
                 case 3:
                     imgHomeTab.setImageDrawable(getResources().getDrawable(R.drawable.library2_icon));
@@ -334,6 +293,11 @@ public class MainActivity  extends FragmentActivity {
                     txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtProfile.setTextColor(getResources().getColor(R.color.pink));
+
+
+                    fragmentManager.beginTransaction().hide(activityFragment).show(personalFragment).commit();
+                    activityFragment = personalFragment;
+
                     break;
 
                 default:
@@ -346,6 +310,10 @@ public class MainActivity  extends FragmentActivity {
                     txtBook.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtHistory.setTextColor(getResources().getColor(R.color.alpa_90));
                     txtProfile.setTextColor(getResources().getColor(R.color.alpa_90));
+
+                    fragmentManager.beginTransaction().hide(activityFragment).show(homeFragment).commit();
+                    activityFragment = homeFragment;
+
                     break;
             }
         }
@@ -393,6 +361,11 @@ public class MainActivity  extends FragmentActivity {
         public CharSequence getPageTitle(int position) {
             return "OBJECT " + (position + 1);
         }
+
+        public int getItemPosition(@NonNull Object object) {
+            return POSITION_NONE;
+        }
+
     }
 
 }

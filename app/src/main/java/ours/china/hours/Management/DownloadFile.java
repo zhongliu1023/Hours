@@ -5,6 +5,13 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -70,7 +77,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
             String timestamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
 
-            fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1, f_url[0].length());
+            fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
             fileName = timestamp + "_" + fileName;
             folder = Environment.getExternalStorageDirectory() + File.separator + "book/";
 
@@ -114,16 +121,38 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
 
         Book tempBook = new Book();
         tempBook.setBookID(Global.bookID);
+        tempBook.setBookName(Global.bookName);
         tempBook.setBookLocalUrl(message);
-        tempBook.setBookImageLocalUrl("hello");
+        tempBook.setBookImageLocalUrl(Global.bookImageLocalUrl);
+        tempBook.setSpecifiedTime(Global.bookSpecifiedTime);
+
+        if (message.equals("")) {
+            Toast.makeText(this.context, "下载错误", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int tempPosition;
+        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+            tempPosition = 0;
+        } else {
+            tempPosition = AppDB.get().getAll().size();
+        }
+
+        Log.i("HomeBookAdapter => ", "LibraryPosition =>" + tempPosition);
+        tempBook.setLibraryPosition(String.valueOf(tempPosition));
         db.insertData(tempBook);
+
+        Log.i("HomeBookAdapter => ", "message => " + message);
+
+        Global.bookLocalUrl = message;
+        Global.updateDisplayInterface.insertLocalDB(tempPosition);
 
         LOG.d("message == >>", message);
         if (!ExtUtils.isExteralSD(message)) {
 
 //          message == >> |/storage/emulated/0/Librera/Downloads/William Shakespeare -  Romeo and Juliet.epub|
             FileMeta meta = AppDB.get().getOrCreate(message);
-            LOG.d("FileMeta", meta);
+            Log.i("FileMeta", "fileMeta => " + meta);
 
 //            meta.setIsSearchBook(true);
             AppDB.get().updateOrSave(meta);
@@ -131,5 +160,29 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
         }
         TempHolder.listHash++;
 
+        Log.i("HomeBookAdapter", "Book id => " + Global.bookID);
+
+        Ion.with(context)
+                .load(Url.notifyServerBookDownLoaded)
+                .setBodyParameter(Global.KEY_token, Global.token)
+                .setBodyParameter("bookID", Global.bookID)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+
+                        if (error == null) {
+                            try {
+                                JSONObject resObject = new JSONObject(result.toString());
+                                if (resObject.getString("res").equals("success")) {
+
+                                }
+
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
     }
 }

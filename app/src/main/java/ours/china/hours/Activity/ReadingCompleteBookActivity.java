@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.ReadingCompleteStatusBook;
 import ours.china.hours.R;
 
@@ -21,7 +22,7 @@ public class ReadingCompleteBookActivity extends AppCompatActivity {
     ImageView imgBack;
     ReadingCompleteStatusBookAdapter adapter;
 
-    ArrayList<ReadingCompleteStatusBook> bookList;
+    ArrayList<Book> bookList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,16 +37,8 @@ public class ReadingCompleteBookActivity extends AppCompatActivity {
         recyclerMoreReadingCompleteBook = findViewById(R.id.moreReadingCompleteBook);
 
         bookList = new ArrayList<>();
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
-        bookList.add(new ReadingCompleteStatusBook("hello", "百年孤独", "20.3", "20"));
 
-        adapter = new ReadingCompleteStatusBookAdapter(ReadingCompleteBookActivity.this, bookList);
+        adapter = new ReadingCompleteStatusBookAdapter(this, bookList);
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(ReadingCompleteBookActivity.this);
         recyclerMoreReadingCompleteBook.setLayoutManager(manager);

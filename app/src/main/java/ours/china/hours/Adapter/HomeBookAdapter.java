@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.media.Image;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
 public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBookViewHolder> {
+    private static String TAG = "HomeBookAdapter";
 
     public List<Book> bookList;
     BookItemInterface bookItemInterface;
@@ -61,6 +63,7 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
 
             // for downloaded book
+            holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
                     .load(one.getBookImageLocalUrl())
@@ -77,6 +80,7 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         }
 
         if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+            holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
@@ -87,20 +91,32 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             public void onClick(View view) {
 
                 Global.bookID = one.getBookID();
+                Global.bookName = one.getBookName();
+                Global.bookSpecifiedTime = one.getSpecifiedTime();
+                Global.bookUrl = one.getBookUrl();
+                Global.bookDownloadedPosition = position;
+
                 if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
 
                     List<FileMeta> localBooks = AppDB.get().getAll();
-                    ExtUtils.openFile(activity, localBooks.get(0));
+                    int tempLibraryPosition = Integer.parseInt(one.getLibraryPosition());
+
+                    Log.i(TAG, "library book position" + one.getLibraryPosition());
+                    ExtUtils.openFile(activity, localBooks.get(tempLibraryPosition));
 
                 } else {
-                    bookItemInterface.onClickBookItem(one.getBookUrl());
-
-                    Toast.makeText(context, one.getBookUrl(), Toast.LENGTH_SHORT).show();
+                    bookItemInterface.onClickBookItem(one.getBookImageUrl());
                 }
 
             }
         });
     }
+
+    public void reloadBook(List<Book> updatedBooklists) {
+        this.bookList = updatedBooklists;
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public int getItemCount() {

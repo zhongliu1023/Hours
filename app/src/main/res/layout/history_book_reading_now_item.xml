@@ -74,7 +74,6 @@
                         android:id="@+id/txtReadingTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="20.3"
                         android:textSize="@dimen/sw360_standard_fontsize_18"
                         android:textColor="@color/pink"/>
                     <TextView

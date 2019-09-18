@@ -60,12 +60,13 @@ public class Splash extends AppCompatActivity {
     };
     private FaceEngine faceEngine = new FaceEngine();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_270_ONLY);
+        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
 
         activeEngine();
 
@@ -223,7 +224,7 @@ public class Splash extends AppCompatActivity {
                             }
 
                         } else {
-                            Toast.makeText(Splash.this, "Unexpected error occur.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
