@@ -209,7 +209,6 @@ public class HorizontalBookReadingActivity extends FragmentActivity implements V
     long faceDetectStartTime;
     long faceDetectRemovedTime;
     long readTime = 0;
-
     long pageChangedTime;
 
     String maxPage;
