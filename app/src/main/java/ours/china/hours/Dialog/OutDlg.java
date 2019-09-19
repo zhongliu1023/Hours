@@ -19,7 +19,7 @@ import ours.china.hours.Utility.SessionManager;
 public class OutDlg extends Dialog {
 
     SessionManager sessionManager;
-    public TextView tvOutConfirm, tvOutCancel;
+    public TextView tvOutConfirm, tvOutCancel, tvOutTitle;
     public Button btnOk;
 
 

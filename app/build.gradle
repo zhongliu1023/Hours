@@ -123,4 +123,5 @@ dependencies {
     implementation 'javax.xml.stream:stax-api:1.0-2'
 
     implementation 'org.apache.commons:commons-io:1.3.2'
+    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
 }

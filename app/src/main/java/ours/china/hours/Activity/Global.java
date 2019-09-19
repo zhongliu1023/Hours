@@ -3,14 +3,13 @@ package ours.china.hours.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.widget.TextView;
 
 import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
-<<<<<<< HEAD
-<<<<<<< HEAD
 import ours.china.hours.Dialog.OutDlg;
-import ours.china.hours.MainApplication;
 
 import ours.china.hours.R;
 
@@ -36,6 +35,8 @@ public class Global {
 
     public static String KEY_token = "access_token";
     public static String KEY_refresh_token = "";
+
+    public static String access_token = "";
 
     public static String expires_in = "";
     public static String token_type = "";
@@ -79,16 +80,18 @@ public class Global {
         dlg.txtTitle.setText(title);
         dlg.txtMessage.setText(message);
         dlg.btnOK.setText(btnTitle);
+
+        dlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dlg.show();
     }
 
-
-    public static void PersonDlg(Context context, String title){
-
-        OutDlg outDlg = new OutDlg(context, R.style.AppTheme_Alert);
-        outDlg.tvOutTitle.setText(title);
-        outDlg.show();
-    }
+//
+//    public static void PersonDlg(Context context, String title){
+//
+//        OutDlg outDlg = new OutDlg(context, R.style.AppTheme_Alert);
+//        outDlg.tvOutTitle.setText(title);
+//        outDlg.show();
+//    }
 
 
     public static ProgressDialog mProgressDialog;
@@ -96,19 +99,21 @@ public class Global {
     {
         String strPleaseWaitAwhile = "请秒后";
         mProgressDialog = new ProgressDialog(context, R.style.DialogTheme);
-        mProgressDialog.setMessage(strPleaseWaitAwhile);
-        mProgressDialog.setCancelable(false);
-        mProgressDialog.setCanceledOnTouchOutside(false);
-        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-            }
-        });
+////        mProgressDialog.setContentView(R.layout.diaolog_loading);
+//        mProgressDialog.setMessage(strPleaseWaitAwhile);1305074012413
+//        mProgressDialog.setCancelable(false);
+//        mProgressDialog.setCanceledOnTouchOutside(false);
+//
+//        TextView tvLoadingMsg = (TextView) mProgressDialog.findViewById(R.id.loading_msg);
+//        tvLoadingMsg.setText(strPleaseWaitAwhile);
+//
+//        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+//            @Override
+//            public void onCancel(DialogInterface dialog) {
+//            }
+//        });
 
         mProgressDialog.show();
-        mProgressDialog.setContentView(R.layout.diaolog_loading);
-        TextView tvLoadingMsg = (TextView) mProgressDialog.findViewById(R.id.loading_msg);
-        tvLoadingMsg.setText(strPleaseWaitAwhile);
 
     }
 

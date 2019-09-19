@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Model.Book;
-import ours.china.hours.Model.ReadingCompleteStatusBook;
-import ours.china.hours.Model.ReadingStatusBook;
 import ours.china.hours.R;
 
 public class ReadingCompleteStatusBookAdapter extends RecyclerView.Adapter<ReadingCompleteStatusBookAdapter.ReadingStatusBookViewHolder> {
