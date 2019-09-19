@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -169,6 +170,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     };
 
     private String isFeatureFileUploaded = "no";
+    private Button btnBack;
 
 
     @Override
@@ -241,6 +243,16 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             afCode = faceEngine.unInit();
             Log.i(TAG, "unInitEngine: " + afCode);
         }
+    }
+
+    public void event() {
+        btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FaceRegisterActivity.super.onBackPressed();
+            }
+        });
     }
 
 
@@ -670,8 +682,9 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                     multipart.addFilePart("image", sourceImageFile);
                     multipart.addFilePart("feature", sourceFeatureFile);
 
+                    List<String> resp = multipart.finish();
                     try {
-                        Log.i("FaceRegisterActivity", "resp = " + charset);
+                        Log.i("FaceRegisterActivity", "resp = " + resp);
                         return "success";
                     } catch (Exception ex) {
                         Log.i("FaceRegisterActivity", "error = " + ex.toString());
@@ -692,7 +705,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
                 isFeatureFileUploaded = "yes";
-                Log.i("FaceRegisterActivity", "feature file upload success");
+                Log.i("FaceRegisterActivity", "feature data upload success");
                 Global.faceState = getResources().getString(R.string.identify_success);
                 Toast.makeText(FaceRegisterActivity.this, "面部注册成功", Toast.LENGTH_SHORT).show();
 

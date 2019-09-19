@@ -38,6 +38,17 @@
         android:background="@drawable/rect_button"
         android:text="@string/face_register" />
 
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/sw360_standard_fontsize_20"
+        android:padding="@dimen/sw360_standard_fontsize_16"
+        android:textColor="@color/white"
+        android:background="@drawable/rect_button"
+        android:text="back" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_person"
         android:layout_width="match_parent"

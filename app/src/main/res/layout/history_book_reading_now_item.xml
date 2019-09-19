@@ -55,7 +55,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="39"
-                        android:textSize="@dimen/sw360_standard_fontsize_18"
+                        android:textSize="@dimen/sw360_standard_fontsize_16"
                         android:textColor="@color/yellow"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -74,7 +74,7 @@
                         android:id="@+id/txtReadingTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/sw360_standard_fontsize_18"
+                        android:textSize="@dimen/sw360_standard_fontsize_16"
                         android:textColor="@color/pink"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -82,7 +82,7 @@
                         android:text="小时"
                         android:layout_alignBaseline="@id/txtReadingTime"
                         android:layout_toEndOf="@id/txtReadingTime"
-                        android:textSize="@dimen/sw360_standard_fontsize_12"/>
+                        android:textSize="@dimen/sw360_standard_fontsize_10"/>
                 </RelativeLayout>
                 <RelativeLayout
                     android:layout_width="0dp"
@@ -94,7 +94,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="15.0"
-                        android:textSize="@dimen/sw360_standard_fontsize_18"
+                        android:textSize="@dimen/sw360_standard_fontsize_16"
                         android:textColor="@color/pink"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -102,7 +102,7 @@
                         android:text="小时"
                         android:layout_alignBaseline="@id/txtSpecifiedTime"
                         android:layout_toEndOf="@id/txtSpecifiedTime"
-                        android:textSize="@dimen/sw360_standard_fontsize_14"/>
+                        android:textSize="@dimen/sw360_standard_fontsize_12"/>
                 </RelativeLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -113,8 +113,7 @@
                         android:id="@+id/txtLastDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="19-10-01"
-                        android:textSize="@dimen/sw360_standard_fontsize_18"
+                        android:textSize="@dimen/sw360_standard_fontsize_14"
                         android:textColor="@color/pink"/>
                 </LinearLayout>
             </LinearLayout>

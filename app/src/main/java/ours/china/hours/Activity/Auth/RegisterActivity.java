@@ -32,8 +32,8 @@ import ours.china.hours.R;
 public class RegisterActivity  extends AppCompatActivity {
 
     private EditText edReMobile, edReVerification, edRePassword;
-    private Button btnRegister, btnRegConfirm;
-    private TextView tvReForgot, tvReLogin;
+    private Button btnRegConfirm;
+    private TextView tvReForgot, tvReLogin, tvRegOtp;
 
     private static String TAG = "RegisterActivity";
 
@@ -63,10 +63,10 @@ public class RegisterActivity  extends AppCompatActivity {
         edReMobile = (EditText)findViewById(R.id.edReMobile);
         edReVerification = (EditText)findViewById(R.id.edReVerification);
         edRePassword = (EditText)findViewById(R.id.edRePassword);
-        btnRegister = (Button)findViewById(R.id.btnRegister);
         tvReForgot = (TextView)findViewById(R.id.tvReForgot);
-        tvReLogin = (TextView)findViewById(R.id.tvReLogin);
+        tvReLogin = findViewById(R.id.tvReLogin);
         btnRegConfirm = (Button)findViewById(R.id.btnRegConfirm);
+        tvRegOtp = (TextView) findViewById(R.id.tvRegOtp);
     }
 
     private void gotoForgot(){
@@ -93,9 +93,9 @@ public class RegisterActivity  extends AppCompatActivity {
 
     private void verifyCode(){
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
+        tvRegOtp.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                Log.i(TAG, "btnRegister = " + btnRegister.getText().toString());
+
                 verifyProcess();
             }
         });
@@ -107,7 +107,9 @@ public class RegisterActivity  extends AppCompatActivity {
         btnRegConfirm.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Log.i(TAG, "btnRegister = " + btnRegConfirm.getText().toString());
-                confirmVerifyProcess();
+//                confirmVerifyProcess();
+                Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -115,8 +117,8 @@ public class RegisterActivity  extends AppCompatActivity {
 
     private void verifyProcess(){
 
-        final String mobile = edReMobile.getText().toString();
-        final String password = edRePassword.getText().toString();
+        String mobile = edReMobile.getText().toString();
+        String password = edRePassword.getText().toString();
 
         Global.mobile = mobile;
         Global.password = password;
@@ -128,12 +130,12 @@ public class RegisterActivity  extends AppCompatActivity {
         }
 
         Log.i(TAG, "mobile => " + mobile);
+        Log.i(TAG, "password => " + password);
         Global.showLoading(RegisterActivity.this,"generate_report");
         Ion.with(RegisterActivity.this)
                 .load(Url.verifyCode)
                 .setTimeout(10000)
                 .setBodyParameter("mobile", mobile)
-                .setBodyParameter("password", password)
                 .asString()
                 .setCallback(new FutureCallback<String>() {
                     @Override
@@ -148,7 +150,7 @@ public class RegisterActivity  extends AppCompatActivity {
 
                                 if (resObj.getString("res").equals("success")) {
                                     Toast.makeText(RegisterActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
-                                } else if (resObj.getString("err").equals("mobile")) {
+                                } else if (resObj.getString("err").equals(" same mobile")) {
                                     Toast.makeText(RegisterActivity.this, "电话号码已登录", Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(RegisterActivity.this, "验证码发送失败", Toast.LENGTH_SHORT).show();
