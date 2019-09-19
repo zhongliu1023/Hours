@@ -102,6 +102,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.FontExtractor;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.PageUrl;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.Urls;
@@ -122,7 +123,6 @@ import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.ListBoxHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.MagicHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.PopupHelper;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.PageImageState;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStart;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStop;
@@ -138,7 +138,6 @@ import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.adapter.DefaultListeners;
 import ours.china.hours.BookLib.foobnix.ui2.adapter.FileMetaAdapter;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
-import ours.china.hours.R;
 
 import org.ebookdroid.BookType;
 import org.ebookdroid.common.settings.CoreSettings;
@@ -1768,7 +1767,7 @@ public class DragingDialogs {
                     }
                 });
 
-                if (!BookType.PDF.is(controller.getCurrentBook().getPath()) || !withAnnotation || controller.getActivity() instanceof HorizontalViewActivity || controller.isPasswordProtected()) {
+                if (!BookType.PDF.is(controller.getCurrentBook().getPath()) || !withAnnotation || controller.getActivity() instanceof HorizontalBookReadingActivity || controller.isPasswordProtected()) {
                     linearLayoutColor.setVisibility(View.GONE);
                     view.findViewById(R.id.onUnderline).setVisibility(View.GONE);
                     view.findViewById(R.id.onStrike).setVisibility(View.GONE);
@@ -3007,7 +3006,7 @@ public class DragingDialogs {
                     statusBarPosition.setText(modeStrings.get(modeIds.indexOf(AppState.get().statusBarPosition)));
                     TxtUtils.underlineTextView(statusBarPosition);
 
-                    statusBarPositionParent.setVisibility(TxtUtils.visibleIf(controller.getActivity() instanceof HorizontalViewActivity));
+                    statusBarPositionParent.setVisibility(TxtUtils.visibleIf(controller.getActivity() instanceof HorizontalBookReadingActivity));
 
                     statusBarPosition.setOnClickListener(new OnClickListener() {
 

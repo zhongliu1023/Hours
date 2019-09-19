@@ -51,6 +51,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExportSettingsManager;
 import ours.china.hours.BookLib.foobnix.pdf.info.FontExtractor;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.pdf.info.PasswordDialog;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
@@ -61,7 +62,6 @@ import ours.china.hours.BookLib.foobnix.pdf.info.widget.PrefDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.RecentUpates;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.UITab;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageSync;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessegeBrightness;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MsgCloseMainTabs;
@@ -543,8 +543,8 @@ public class MainTabs2 extends FragmentActivity {
 
                 @Override
                 public void run() {
-                    boolean isEasyMode = HorizontalViewActivity.class.getSimpleName().equals(AppTemp.get().lastMode);
-                    Intent intent = new Intent(MainTabs2.this, isEasyMode ? HorizontalViewActivity.class : VerticalViewActivity.class);
+                    boolean isEasyMode = HorizontalBookReadingActivity.class.getSimpleName().equals(AppTemp.get().lastMode);
+                    Intent intent = new Intent(MainTabs2.this, isEasyMode ? HorizontalBookReadingActivity.class : VerticalViewActivity.class);
                     intent.putExtra(PasswordDialog.EXTRA_APP_PASSWORD, getIntent().getStringExtra(PasswordDialog.EXTRA_APP_PASSWORD));
                     intent.setData(Uri.fromFile(new File(AppTemp.get().lastBookPath)));
                     startActivity(intent);
@@ -563,8 +563,8 @@ public class MainTabs2 extends FragmentActivity {
                 @Override
                 public void run() {
 
-                    if (HorizontalViewActivity.class.getSimpleName().equals(saveMode)) {
-                        Intent intent = new Intent(MainTabs2.this, HorizontalViewActivity.class);
+                    if (HorizontalBookReadingActivity.class.getSimpleName().equals(saveMode)) {
+                        Intent intent = new Intent(MainTabs2.this, HorizontalBookReadingActivity.class);
                         intent.setData(Uri.fromFile(new File(AppTemp.get().lastBookPath)));
                         startActivity(intent);
                         LOG.d("Start lastA", saveMode);

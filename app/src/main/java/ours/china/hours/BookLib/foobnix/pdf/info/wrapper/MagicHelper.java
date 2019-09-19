@@ -24,7 +24,7 @@ import ours.china.hours.BookLib.foobnix.android.utils.TxtUtils;
 import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -273,7 +273,7 @@ public class MagicHelper {
             return BitmapFactory.decodeFile(name, opt);
         }
         try {
-            InputStream oldBook = LibreraApp.context.getAssets().open(name);
+            InputStream oldBook = HoursApp.context.getAssets().open(name);
             Bitmap decodeStream = BitmapFactory.decodeStream(oldBook);
             Bitmap res = decodeStream.copy(Config.RGB_565, false);
             decodeStream.recycle();

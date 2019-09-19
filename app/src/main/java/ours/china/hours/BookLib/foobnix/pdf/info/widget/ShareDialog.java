@@ -31,6 +31,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.DialogSpeedRead;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.Playlists;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.Urls;
@@ -38,7 +39,6 @@ import ours.china.hours.BookLib.foobnix.pdf.info.view.Dialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.DialogsPlaylist;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.UITab;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.UpdateAllFragments;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
@@ -244,7 +244,7 @@ public class ShareDialog {
             if (a instanceof VerticalViewActivity || dc.isMusicianMode()) {
                 items.add(AppState.get().nameHorizontalMode);
             }
-            if (a instanceof HorizontalViewActivity || dc.isMusicianMode()) {
+            if (a instanceof HorizontalBookReadingActivity || dc.isMusicianMode()) {
                 items.add(AppState.get().nameVerticalMode);
             }
 
@@ -314,7 +314,7 @@ public class ShareDialog {
                     MainTabs2.startActivity(a, UITab.getCurrentTabIndex(UITab.SearchFragment));
                 }
 
-                if (dc != null && (a instanceof HorizontalViewActivity || dc.isMusicianMode()) && which == i++) {
+                if (dc != null && (a instanceof HorizontalBookReadingActivity || dc.isMusicianMode()) && which == i++) {
                     dc.onCloseActivityFinal(new Runnable() {
 
                         @Override

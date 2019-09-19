@@ -5,7 +5,7 @@ import android.content.Context;
 
 import ours.china.hours.BookLib.foobnix.sys.VerticalModeController;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.core.DecodeService;
 import org.ebookdroid.core.ViewState;
 import org.ebookdroid.core.models.DocumentModel;
@@ -32,7 +32,7 @@ public class ActivityControllerStub extends ActionController<VerticalViewActivit
 
     @Override
     public Context getContext() {
-        return LibreraApp.context;
+        return HoursApp.context;
     }
 
     @Override

@@ -168,10 +168,10 @@ public class AppState {
 
     );
     public static final List<String> STYLE_COLORS = Arrays.asList(//
-            "#3949AB", //
-            "#EA5964", //
-            "#00897B", //
-            "#000000" //
+            "#ffffff", //
+            "#ffffff", //
+            "#ffffff", //
+            "#ffffff" //
 
     );
 

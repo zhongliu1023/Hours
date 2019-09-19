@@ -270,7 +270,6 @@ public abstract class CopyAsyncTask<Params, Progress, Result> {
          */
         RUNNING,
         /**
-         * Indicates that {@link AsyncTask#onPostExecute} has finished.
          */
         FINISHED,
     }

@@ -1,26 +1,48 @@
 package ours.china.hours.Model;
 
+import java.io.Serializable;
+
 import ours.china.hours.R;
 
-public class Book {
+public class Book implements Serializable {
+    String averageTime;
+    String bookAuthor;
+    String bookID;
+    String bookImageLocalUrl;
+    String bookImageUrl;
+    String bookLocalUrl;
+    String bookName;
+    String bookSummary;
+    String bookUrl;
+    String lastTime;
+    String libraryPosition;
+    String pagesArray;
+    String publishedDate;
+    String readState;
+    String readTime;
+    String specifiedTime;
+    String totalPage;
 
-    String bookName = "";
-    String bookAuthor = "";
-    String bookLocalUrl = "";
-    String bookImageLocalUrl = "";
-    String bookUrl = "";
-    String bookImageUrl = "";
-    String bookSummary = "";
-    String averageTime = "";
-    String specifiedTime = "";
-    String readState = "";
-    String publishedDate ="";
-
-    public Book() {
-    }
-
-    public Book(String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl,
-                String bookImageUrl, String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate) {
+    public Book(String bookID, String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl, String bookImageUrl, String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate, String totalPage, String pagesArray, String readTime, String lastTime, String libraryPosition) {
+        String str = "";
+        this.bookID = str;
+        this.bookName = str;
+        this.bookAuthor = str;
+        this.bookLocalUrl = str;
+        this.bookImageLocalUrl = str;
+        this.bookUrl = str;
+        this.bookImageUrl = str;
+        this.bookSummary = str;
+        this.averageTime = str;
+        this.specifiedTime = str;
+        this.readState = str;
+        this.publishedDate = str;
+        this.totalPage = str;
+        this.pagesArray = str;
+        this.readTime = str;
+        this.lastTime = str;
+        this.libraryPosition = str;
+        this.bookID = bookID;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
         this.bookLocalUrl = bookLocalUrl;
@@ -32,17 +54,44 @@ public class Book {
         this.specifiedTime = specifiedTime;
         this.readState = readState;
         this.publishedDate = publishedDate;
+        this.totalPage = totalPage;
+        this.pagesArray = pagesArray;
+        this.readTime = readTime;
+        this.lastTime = lastTime;
+        this.libraryPosition = libraryPosition;
     }
 
-    public Book(String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl) {
-        this.bookName = bookName;
-        this.bookAuthor = bookAuthor;
-        this.bookLocalUrl = bookLocalUrl;
-        this.bookImageLocalUrl = bookImageLocalUrl;
+    public Book() {
+        String str = "";
+        this.bookID = str;
+        this.bookName = str;
+        this.bookAuthor = str;
+        this.bookLocalUrl = str;
+        this.bookImageLocalUrl = str;
+        this.bookUrl = str;
+        this.bookImageUrl = str;
+        this.bookSummary = str;
+        this.averageTime = str;
+        this.specifiedTime = str;
+        this.readState = str;
+        this.publishedDate = str;
+        this.totalPage = str;
+        this.pagesArray = str;
+        this.readTime = str;
+        this.lastTime = str;
+        this.libraryPosition = str;
+    }
+
+    public String getBookID() {
+        return this.bookID;
+    }
+
+    public void setBookID(String bookID) {
+        this.bookID = bookID;
     }
 
     public String getBookName() {
-        return bookName;
+        return this.bookName;
     }
 
     public void setBookName(String bookName) {
@@ -50,7 +99,7 @@ public class Book {
     }
 
     public String getBookAuthor() {
-        return bookAuthor;
+        return this.bookAuthor;
     }
 
     public void setBookAuthor(String bookAuthor) {
@@ -58,7 +107,7 @@ public class Book {
     }
 
     public String getBookLocalUrl() {
-        return bookLocalUrl;
+        return this.bookLocalUrl;
     }
 
     public void setBookLocalUrl(String bookLocalUrl) {
@@ -66,7 +115,7 @@ public class Book {
     }
 
     public String getBookImageLocalUrl() {
-        return bookImageLocalUrl;
+        return this.bookImageLocalUrl;
     }
 
     public void setBookImageLocalUrl(String bookImageLocalUrl) {
@@ -74,7 +123,7 @@ public class Book {
     }
 
     public String getBookUrl() {
-        return bookUrl;
+        return this.bookUrl;
     }
 
     public void setBookUrl(String bookUrl) {
@@ -82,7 +131,7 @@ public class Book {
     }
 
     public String getBookImageUrl() {
-        return bookImageUrl;
+        return this.bookImageUrl;
     }
 
     public void setBookImageUrl(String bookImageUrl) {
@@ -90,7 +139,7 @@ public class Book {
     }
 
     public String getBookSummary() {
-        return bookSummary;
+        return this.bookSummary;
     }
 
     public void setBookSummary(String bookSummary) {
@@ -98,7 +147,7 @@ public class Book {
     }
 
     public String getAverageTime() {
-        return averageTime;
+        return this.averageTime;
     }
 
     public void setAverageTime(String averageTime) {
@@ -106,7 +155,7 @@ public class Book {
     }
 
     public String getSpecifiedTime() {
-        return specifiedTime;
+        return this.specifiedTime;
     }
 
     public void setSpecifiedTime(String specifiedTime) {
@@ -114,7 +163,7 @@ public class Book {
     }
 
     public String getReadState() {
-        return readState;
+        return this.readState;
     }
 
     public void setReadState(String readState) {
@@ -122,10 +171,50 @@ public class Book {
     }
 
     public String getPublishedDate() {
-        return publishedDate;
+        return this.publishedDate;
     }
 
     public void setPublishedDate(String publishedDate) {
         this.publishedDate = publishedDate;
+    }
+
+    public String getTotalPage() {
+        return this.totalPage;
+    }
+
+    public void setTotalPage(String totalPage) {
+        this.totalPage = totalPage;
+    }
+
+    public String getPagesArray() {
+        return this.pagesArray;
+    }
+
+    public void setPagesArray(String pagesArray) {
+        this.pagesArray = pagesArray;
+    }
+
+    public String getReadTime() {
+        return this.readTime;
+    }
+
+    public void setReadTime(String readTime) {
+        this.readTime = readTime;
+    }
+
+    public String getLastTime() {
+        return this.lastTime;
+    }
+
+    public void setLastTime(String lastTime) {
+        this.lastTime = lastTime;
+    }
+
+    public String getLibraryPosition() {
+        return this.libraryPosition;
+    }
+
+    public void setLibraryPosition(String libraryPosition) {
+        this.libraryPosition = libraryPosition;
     }
 }

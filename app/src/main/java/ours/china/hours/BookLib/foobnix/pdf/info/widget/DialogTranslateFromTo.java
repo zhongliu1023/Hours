@@ -24,7 +24,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.DictsHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.DictsHelper.DictItem;
 import ours.china.hours.R;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -132,12 +132,12 @@ public class DialogTranslateFromTo {
 
     public static String getLanuageByCode(String code) {
         try {
-            if (LibreraApp.context == null || TxtUtils.isEmpty(code)) {
+            if (HoursApp.context == null || TxtUtils.isEmpty(code)) {
                 return "";
             }
 
             if (AppState.MY_SYSTEM_LANG.equals(code)) {
-                return LibreraApp.context.getString(R.string.system_language);
+                return HoursApp.context.getString(R.string.system_language);
             }
 
             try {

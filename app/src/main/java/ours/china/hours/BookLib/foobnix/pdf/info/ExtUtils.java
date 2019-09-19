@@ -59,8 +59,8 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.ChooserDialogFragment;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.PrefDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalModeController;
-import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalViewActivity;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.zipmanager.ZipDialog;
@@ -68,7 +68,7 @@ import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.R;
 
 import org.ebookdroid.BookType;
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.core.codec.CodecDocument;
 import org.ebookdroid.core.codec.CodecPage;
 import org.ebookdroid.core.codec.OutlineLink;
@@ -305,7 +305,12 @@ public class ExtUtils {
                 ExtUtils.openWith(a, file);
             } else {
                 LOG.d("openFile isExteralSD normal");
-                ExtUtils.showDocument(a, file);
+
+                // this is modification part. Here dialog does not appear.
+//                ExtUtils.showDocument(a, file);
+                ImageLoader.getInstance().clearAllTasks();
+                AppTemp.get().readingMode = AppState.READING_MODE_BOOK;
+                showDocumentWithoutDialog(a, file, null);
             }
         }
     }
@@ -684,7 +689,7 @@ public class ExtUtils {
 
     public static String readableFileSize(long size) {
         if (true) {
-            return Formatter.formatFileSize(LibreraApp.context, size).replace(" ", "");
+            return Formatter.formatFileSize(HoursApp.context, size).replace(" ", "");
         }
         if (size <= 0)
             return "0";
@@ -982,7 +987,7 @@ public class ExtUtils {
             return;
         }
 
-        final Intent intent = new Intent(c, HorizontalViewActivity.class);
+        final Intent intent = new Intent(c, HorizontalBookReadingActivity.class);
         Uri temp = checkPlaylisturi(uri, intent, playlist);
         intent.setData(temp);
 
@@ -1462,7 +1467,7 @@ public class ExtUtils {
                                 AppTemp.get().readingMode = AppState.READING_MODE_SCROLL;
                                 showDocumentWithoutDialog(a, (File) result, null);
 
-                            } else if (a instanceof HorizontalViewActivity) {
+                            } else if (a instanceof HorizontalBookReadingActivity) {
                                 AppTemp.get().readingMode = AppState.READING_MODE_BOOK;
                                 showDocumentWithoutDialog(a, (File) result, null);
                             } else {

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.camera" />
@@ -15,7 +16,7 @@
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
-        android:name=".MainApplication"
+        android:name="org.ebookdroid.HoursApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -111,14 +112,14 @@
             android:name=".Activity.MainActivity"
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".BookLib.foobnix.pdf.search.activity.HorizontalViewActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
-            android:exported="true"
-            android:launchMode="singleTask"
-            android:resizeableActivity="true"
-            android:screenOrientation="behind"
+            android:screenOrientation="sensorPortrait"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity"
+            android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
 
         <activity

@@ -15,14 +15,14 @@
         android:layout_height="25dp"
         android:orientation="vertical"/>
 
-    <ours.china.hours.CustomView.NonSwipeableViewPager
+    <FrameLayout
         android:id="@+id/frame_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@android:color/darker_gray" >
 
-    </ours.china.hours.CustomView.NonSwipeableViewPager>
+    </FrameLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/tab_height"
@@ -122,7 +122,7 @@
                 <ImageView
                     android:id="@+id/tab_profile"
                     android:layout_width="@dimen/tab_image_size"
-                    android:layout_height="24dp"
+                    android:layout_height="@dimen/tab_image_size"
                     app:srcCompat="@drawable/tab_profile" />
 
                 <TextView

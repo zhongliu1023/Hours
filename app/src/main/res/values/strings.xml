@@ -1,5 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <string name="drawer_open">open drawer</string>
+    <string name="drawer_close">close drawer</string>
+
     <string name="app_name">Hours</string>
     <string name="datePicker_setButton">OK</string>
     <string name="datePicker_clearButton">CLEAR</string>
@@ -662,6 +665,9 @@
     <string name="succes">成功</string>
     <string name="insert_photo">请插入身份证</string>
     <string name="identify_success">认证成功</string>
+
+    <string name="readTime">阅读时长：%02d:%02d:%02d</string>
+    <string name="readTimeStop">阅读时长：%02d:%02d:%02d 停止识别</string>
 
     <!--  personal information -->
     <string name="myfavourite">我的关注</string>

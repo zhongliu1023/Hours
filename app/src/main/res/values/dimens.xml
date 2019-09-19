@@ -43,11 +43,14 @@
     <dimen name="sw360_standard_fontsize_16">16sp</dimen>
     <dimen name="sw360_standard_fontsize_14">14sp</dimen>
     <dimen name="sw360_standard_fontsize_12">12sp</dimen>
+    <dimen name="sw360_standard_fontsize_10">10sp</dimen>
 
     <dimen name="color_rect">10dp</dimen>
 
     <!--  for general padding  -->
+    <dimen name="getneral_padding_4">4dp</dimen>
     <dimen name="getneral_padding_8">8dp</dimen>
+    <dimen name="getneral_padding_12">12dp</dimen>
     <dimen name="getneral_padding_16">16dp</dimen>
 
     <!--Tab LoginActivity-->

@@ -5,15 +5,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.widget.TextView;
 
+import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
+<<<<<<< HEAD
 <<<<<<< HEAD
 import ours.china.hours.Dialog.OutDlg;
 import ours.china.hours.MainApplication;
+
 import ours.china.hours.R;
 
 public class Global {
-
-    public static MainApplication mainApplication = MainApplication.getInstance();
 
     public static String registeredFacePath = "";
     public static String canGetFaceFeature = "no";
@@ -24,12 +25,18 @@ public class Global {
     public static String editStateOfFavoritesDetails = "no";
 
     public static String mobile = "";
-    public static String identify = "1";
-    public static String faceState = "1";
+    public static String password = "";
+
+    public static String faceState = "";
+    public static String identify = "";
 
     /** when login , return key-> value*/
     public static String token = "";
     public static String refresh_token = "";
+
+    public static String KEY_token = "access_token";
+    public static String KEY_refresh_token = "";
+
     public static String expires_in = "";
     public static String token_type = "";
     public static String scope = "userinfo cloud file node";
@@ -38,6 +45,32 @@ public class Global {
     public static final int REQUEST_TAKE_PHOTO_BACK = 2;
     public static final int REQUEST_GALLERY_PHOTO_FACE = 3;
     public static final int REQUEST_GALLERY_PHOTO_BACK = 4;
+
+    public static String receive_json_key_bookId = "bookId";
+    public static String receive_json_key_imageUrl = "cover";
+    public static String receive_json_key_bookName = "bookName";
+    public static String receive_json_key_bookUrl = "bookNameUrl";
+    public static String receive_json_key_author = "publisher";
+    public static String receive_json_key_introduce = "introduce";
+    public static String receive_json_key_readState = "isRead";
+
+    public static String bookID = "";
+    public static String bookName = "";
+
+    public static String faceFeatureSavedUrl = "";
+    public static String faceFeatureSavedImageUrl = "";
+
+    public static String bookImageLocalUrl = "";
+    public static String bookUrl = "";
+    public static String bookLocalUrl = "";
+    public static String bookSpecifiedTime = "";
+
+    public static int bookDownloadedPosition = 0;
+    public static String readingNowOrHistory = "";
+
+
+    public static UpdateDisplayInterface updateDisplayInterface;
+
 
 
     public static void alert(Context context, String title, String message, String btnTitle) {

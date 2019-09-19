@@ -2,6 +2,7 @@ package ours.china.hours.Dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
@@ -11,11 +12,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
 
+import ours.china.hours.Activity.Auth.LoginOptionActivity;
 import ours.china.hours.R;
+import ours.china.hours.Utility.SessionManager;
 
 public class OutDlg extends Dialog {
 
-    public TextView tvOutConfirm, tvOutCancel, tvOutTitle;
+    SessionManager sessionManager;
+    public TextView tvOutConfirm, tvOutCancel;
     public Button btnOk;
 
 
@@ -23,6 +27,7 @@ public class OutDlg extends Dialog {
         super(context);
 
         setContentView(R.layout.dialog_out);
+        sessionManager = new SessionManager(context);
 
         tvOutCancel = (TextView)this.findViewById(R.id.tvOutCancel);
         tvOutConfirm = (TextView)this.findViewById(R.id.tvOutConfirm);
@@ -31,6 +36,19 @@ public class OutDlg extends Dialog {
         tvOutCancel.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 dismiss();
+            }
+        });
+
+        tvOutConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+                sessionManager.setMobileNumber("");
+                sessionManager.setPassword("");
+
+                Intent intent = new Intent(getContext(), LoginOptionActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
             }
         });
 

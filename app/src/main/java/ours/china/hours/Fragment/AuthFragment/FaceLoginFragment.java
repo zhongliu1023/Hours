@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,9 @@ import ours.china.hours.Management.Url;
 import ours.china.hours.R;
 
 public class FaceLoginFragment extends Fragment {
+
+    private static String TAG = "FaceLoginFragment";
+    String tempMobileNumber = "";
 
     TextView txtGo;
     ImageView faceImage;
@@ -69,7 +73,7 @@ public class FaceLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), FaceLoginActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, requestNumber);
             }
         });
 
@@ -87,13 +91,13 @@ public class FaceLoginFragment extends Fragment {
         Ion.with(getActivity())
                 .load(Url.faceLogin)
                 .setTimeout(10000)
-//                .setBodyParameter("name", name)
-//                .setBodyParameter("studId", studId)
+                .setBodyParameter("mobile", tempMobileNumber)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         progressBar.setVisibility(View.INVISIBLE);
+                        Log.i(TAG, "result => " + result);
 
                         if (e == null) {
                             JSONObject resObj = null;
@@ -101,7 +105,6 @@ public class FaceLoginFragment extends Fragment {
                                 resObj = new JSONObject(result.toString());
 
                                 if (resObj.getString("res").equals("success")) {
-                                    displayImage();
 
                                     new Handler().postDelayed(new Runnable() {
                                         @Override
@@ -127,16 +130,16 @@ public class FaceLoginFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-        Toast.makeText(getActivity(), "Hello", Toast.LENGTH_SHORT).show();
 
-        if (requestCode == requestNumber) {
-            if (!Global.faceImageLocalUrl.equals("")) {
-                txtGo.setVisibility(View.INVISIBLE);
-//            getDataFromServer();
-                displayImage();
-                progressBar.setVisibility(View.VISIBLE);
-            }
+        if (requestCode == requestNumber && !Global.faceImageLocalUrl.equals("")) {
+            txtGo.setVisibility(View.INVISIBLE);
+
+            tempMobileNumber = Global.faceImageLocalUrl.substring(Global.faceImageLocalUrl.lastIndexOf('/') + 1);
+            tempMobileNumber = tempMobileNumber.split(",")[0];
+
+            Log.i(TAG, "mobile number => " + tempMobileNumber);
+            getDataFromServer();
+            displayImage();
         }
     }
 }

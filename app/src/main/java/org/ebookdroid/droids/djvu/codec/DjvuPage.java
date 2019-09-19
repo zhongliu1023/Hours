@@ -13,7 +13,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.AnnotationType;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.MagicHelper;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 
-import org.ebookdroid.LibreraApp;
+import org.ebookdroid.HoursApp;
 import org.ebookdroid.common.bitmaps.BitmapManager;
 import org.ebookdroid.common.bitmaps.BitmapRef;
 import org.ebookdroid.common.settings.CoreSettings;
@@ -60,7 +60,7 @@ public class DjvuPage extends AbstractCodecPage {
             h = getHeight(pageHandle);
             LOG.d("DjvuPage-create", count, w, h);
         }
-        sp = LibreraApp.context.getSharedPreferences("djvu", Context.MODE_PRIVATE);
+        sp = HoursApp.context.getSharedPreferences("djvu", Context.MODE_PRIVATE);
         containsErrors = sp.contains("" + filename.hashCode());
 
     }
