@@ -59,17 +59,50 @@
                 android:focusableInTouchMode="true"
                 android:hint="@string/login_mobile"/>
 
-            <EditText
-                android:id="@+id/edReVerification"
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
                 android:layout_marginTop="@dimen/margin_10"
-                android:textSize="@dimen/font_size_18"
-                android:paddingBottom="@dimen/padding_10"
-                android:hint="@string/register_identy"/>
+                android:orientation="vertical">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingBottom="@dimen/padding_10"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edReVerification"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="7"
+                        android:background="@android:color/transparent"
+                        android:textSize="@dimen/font_size_18"
+                        android:hint="@string/register_identy"/>
+
+                    <TextView
+                        android:id="@+id/tvRegOtp"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="wrap_content"
+                        android:gravity="end|center_vertical"
+                        android:textColor="@color/default_shadow_color"
+                        android:textSize="@dimen/font_size_18"
+                        android:text="@string/login_verify_code"/>
+
+
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:height="1px"
+                    android:background="@color/default_shadow_color"
+                    android:layout_alignParentBottom="true"
+                    android:text="" />
+
+
+            </LinearLayout>
 
 
             <EditText
@@ -90,16 +123,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/btnRegister"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/register"
-                android:textColor="@color/white"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:gravity="center"
-                android:layout_marginTop="@dimen/margin_30"
-                android:background="@drawable/button_back"/>
 
             <Button
                 android:id="@+id/btnRegConfirm"
@@ -109,7 +132,6 @@
                 android:textColor="@color/white"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:gravity="center"
-                android:visibility="invisible"
                 android:layout_marginTop="@dimen/margin_30"
                 android:background="@drawable/button_back"/>
         </RelativeLayout>

@@ -20,8 +20,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String KEY_bookid = "bookID";
 
     // for bookTable
+
+    public static final String KEY_bookName = "bookName";
     public static final String KEY_bookLocalUrl = "bookLocalUrl";
     public static final String KEY_bookImageLocalUrl = "bookImageLocalUrl";
+    public static final String KEY_bookSpecifiedTime = "bookSpecifiedTime";
+    public static final String KEY_bookTotalPage = "bookTotalPage";
+    public static final String KEY_bookLibraryPosition = "bookLibraryPosition";
+
 
     // for bookStateTable.
     public static final String KEY_bookPages = "bookPages";
@@ -31,8 +37,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_BOOKS = "CREATE TABLE " + bookTable
             + "(" + KEY_id + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_bookid + " TEXT,"
+            + KEY_bookName + " TEXT,"
             + KEY_bookLocalUrl + " TEXT,"
-            + KEY_bookImageLocalUrl + " TEXT"
+            + KEY_bookImageLocalUrl + " TEXT,"
+            + KEY_bookSpecifiedTime + " TEXT,"
+            + KEY_bookTotalPage + " TEXT,"
+            + KEY_bookLibraryPosition + " TEXT"
             + ")";
 
     private static final String CREATE_TABLE_STATE_BOOKS = "CREATE TABLE " + bookStateTable

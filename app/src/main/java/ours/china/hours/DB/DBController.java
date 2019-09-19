@@ -25,8 +25,13 @@ public class DBController {
 
         ContentValues values = new ContentValues();
         values.put(DatabaseManager.KEY_bookid, data.getBookID());
+        values.put(DatabaseManager.KEY_bookName, data.getBookName());
         values.put(DatabaseManager.KEY_bookLocalUrl, data.getBookLocalUrl());
         values.put(DatabaseManager.KEY_bookImageLocalUrl, data.getBookImageLocalUrl());
+        values.put(DatabaseManager.KEY_bookSpecifiedTime, data.getSpecifiedTime());
+        values.put(DatabaseManager.KEY_bookTotalPage, data.getTotalPage());
+        values.put(DatabaseManager.KEY_bookLibraryPosition, data.getLibraryPosition());
+
 
         database.insert(DatabaseManager.bookTable, null, values);
     }
@@ -90,6 +95,15 @@ public class DBController {
         database.close();
     }
 
+    public void updateBookTotalPage(Book data) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_bookTotalPage, data.getTotalPage());
+        database = dbManager.getReadableDatabase();
+        String[] strArr = new String[]{data.getBookID()};
+        database.update(DatabaseManager.bookTable, updateValues, "bookID = ?", strArr);
+        database.close();
+    }
+
 //
 //    public Book getOneData(String bookID) {
 //        database = dbManager.getReadableDatabase();
@@ -128,22 +142,22 @@ public class DBController {
     }
 
     public ArrayList<Book> getAllData() {
-        ArrayList<Book> results = new ArrayList<Book>();
-
-        database = dbManager.getReadableDatabase();
-        Cursor cursor = database.rawQuery("select * from " + DatabaseManager.bookTable, null);
+        ArrayList<Book> results = new ArrayList();
+        this.database = this.dbManager.getReadableDatabase();
+        Cursor cursor = this.database.rawQuery("select * from bookTable", null);
         if (cursor.moveToFirst()) {
             do {
                 Book row = new Book();
-
                 row.setBookID(cursor.getString(1));
-                row.setBookLocalUrl(cursor.getString(2));
-                row.setBookImageLocalUrl(cursor.getString(3));
-
+                row.setBookName(cursor.getString(2));
+                row.setBookLocalUrl(cursor.getString(3));
+                row.setBookImageLocalUrl(cursor.getString(4));
+                row.setSpecifiedTime(cursor.getString(5));
+                row.setTotalPage(cursor.getString(6));
+                row.setLibraryPosition(cursor.getString(7));
                 results.add(row);
             } while (cursor.moveToNext());
         }
-
         return results;
     }
 

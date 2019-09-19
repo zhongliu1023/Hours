@@ -5,29 +5,43 @@ import java.io.Serializable;
 import ours.china.hours.R;
 
 public class Book implements Serializable {
+    String averageTime;
+    String bookAuthor;
+    String bookID;
+    String bookImageLocalUrl;
+    String bookImageUrl;
+    String bookLocalUrl;
+    String bookName;
+    String bookSummary;
+    String bookUrl;
+    String lastTime;
+    String libraryPosition;
+    String pagesArray;
+    String publishedDate;
+    String readState;
+    String readTime;
+    String specifiedTime;
+    String totalPage;
 
-    String bookID = "";
-    String bookName = "";
-    String bookAuthor = "";
-    String bookLocalUrl = "";
-    String bookImageLocalUrl = "";
-    String bookUrl = "";
-    String bookImageUrl = "";
-    String bookSummary = "";
-    String averageTime = "";
-    String specifiedTime = "";
-    String readState = "";
-    String publishedDate ="";
-    String totalPage = "";
-    String pagesArray = "";
-    String readTime = "";
-    String lastTime = "";
-
-    public Book() {
-    }
-
-    public Book(String bookID, String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl, String bookImageUrl,
-                String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate, String totalPage, String pagesArray, String readTime, String lastTime) {
+    public Book(String bookID, String bookName, String bookAuthor, String bookLocalUrl, String bookImageLocalUrl, String bookUrl, String bookImageUrl, String bookSummary, String averageTime, String specifiedTime, String readState, String publishedDate, String totalPage, String pagesArray, String readTime, String lastTime, String libraryPosition) {
+        String str = "";
+        this.bookID = str;
+        this.bookName = str;
+        this.bookAuthor = str;
+        this.bookLocalUrl = str;
+        this.bookImageLocalUrl = str;
+        this.bookUrl = str;
+        this.bookImageUrl = str;
+        this.bookSummary = str;
+        this.averageTime = str;
+        this.specifiedTime = str;
+        this.readState = str;
+        this.publishedDate = str;
+        this.totalPage = str;
+        this.pagesArray = str;
+        this.readTime = str;
+        this.lastTime = str;
+        this.libraryPosition = str;
         this.bookID = bookID;
         this.bookName = bookName;
         this.bookAuthor = bookAuthor;
@@ -44,10 +58,32 @@ public class Book implements Serializable {
         this.pagesArray = pagesArray;
         this.readTime = readTime;
         this.lastTime = lastTime;
+        this.libraryPosition = libraryPosition;
+    }
+
+    public Book() {
+        String str = "";
+        this.bookID = str;
+        this.bookName = str;
+        this.bookAuthor = str;
+        this.bookLocalUrl = str;
+        this.bookImageLocalUrl = str;
+        this.bookUrl = str;
+        this.bookImageUrl = str;
+        this.bookSummary = str;
+        this.averageTime = str;
+        this.specifiedTime = str;
+        this.readState = str;
+        this.publishedDate = str;
+        this.totalPage = str;
+        this.pagesArray = str;
+        this.readTime = str;
+        this.lastTime = str;
+        this.libraryPosition = str;
     }
 
     public String getBookID() {
-        return bookID;
+        return this.bookID;
     }
 
     public void setBookID(String bookID) {
@@ -55,7 +91,7 @@ public class Book implements Serializable {
     }
 
     public String getBookName() {
-        return bookName;
+        return this.bookName;
     }
 
     public void setBookName(String bookName) {
@@ -63,7 +99,7 @@ public class Book implements Serializable {
     }
 
     public String getBookAuthor() {
-        return bookAuthor;
+        return this.bookAuthor;
     }
 
     public void setBookAuthor(String bookAuthor) {
@@ -71,7 +107,7 @@ public class Book implements Serializable {
     }
 
     public String getBookLocalUrl() {
-        return bookLocalUrl;
+        return this.bookLocalUrl;
     }
 
     public void setBookLocalUrl(String bookLocalUrl) {
@@ -79,7 +115,7 @@ public class Book implements Serializable {
     }
 
     public String getBookImageLocalUrl() {
-        return bookImageLocalUrl;
+        return this.bookImageLocalUrl;
     }
 
     public void setBookImageLocalUrl(String bookImageLocalUrl) {
@@ -87,7 +123,7 @@ public class Book implements Serializable {
     }
 
     public String getBookUrl() {
-        return bookUrl;
+        return this.bookUrl;
     }
 
     public void setBookUrl(String bookUrl) {
@@ -95,7 +131,7 @@ public class Book implements Serializable {
     }
 
     public String getBookImageUrl() {
-        return bookImageUrl;
+        return this.bookImageUrl;
     }
 
     public void setBookImageUrl(String bookImageUrl) {
@@ -103,7 +139,7 @@ public class Book implements Serializable {
     }
 
     public String getBookSummary() {
-        return bookSummary;
+        return this.bookSummary;
     }
 
     public void setBookSummary(String bookSummary) {
@@ -111,7 +147,7 @@ public class Book implements Serializable {
     }
 
     public String getAverageTime() {
-        return averageTime;
+        return this.averageTime;
     }
 
     public void setAverageTime(String averageTime) {
@@ -119,7 +155,7 @@ public class Book implements Serializable {
     }
 
     public String getSpecifiedTime() {
-        return specifiedTime;
+        return this.specifiedTime;
     }
 
     public void setSpecifiedTime(String specifiedTime) {
@@ -127,7 +163,7 @@ public class Book implements Serializable {
     }
 
     public String getReadState() {
-        return readState;
+        return this.readState;
     }
 
     public void setReadState(String readState) {
@@ -135,7 +171,7 @@ public class Book implements Serializable {
     }
 
     public String getPublishedDate() {
-        return publishedDate;
+        return this.publishedDate;
     }
 
     public void setPublishedDate(String publishedDate) {
@@ -143,7 +179,7 @@ public class Book implements Serializable {
     }
 
     public String getTotalPage() {
-        return totalPage;
+        return this.totalPage;
     }
 
     public void setTotalPage(String totalPage) {
@@ -151,7 +187,7 @@ public class Book implements Serializable {
     }
 
     public String getPagesArray() {
-        return pagesArray;
+        return this.pagesArray;
     }
 
     public void setPagesArray(String pagesArray) {
@@ -159,7 +195,7 @@ public class Book implements Serializable {
     }
 
     public String getReadTime() {
-        return readTime;
+        return this.readTime;
     }
 
     public void setReadTime(String readTime) {
@@ -167,10 +203,18 @@ public class Book implements Serializable {
     }
 
     public String getLastTime() {
-        return lastTime;
+        return this.lastTime;
     }
 
     public void setLastTime(String lastTime) {
         this.lastTime = lastTime;
+    }
+
+    public String getLibraryPosition() {
+        return this.libraryPosition;
+    }
+
+    public void setLibraryPosition(String libraryPosition) {
+        this.libraryPosition = libraryPosition;
     }
 }

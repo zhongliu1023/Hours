@@ -30,6 +30,7 @@ import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Common.Utils.ItemOffsetDecoration;
+import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -53,6 +54,8 @@ public class BookFragment extends Fragment implements BookItemInterface {
     ImageView imgArrow;
     TextView txtTypeBook;
 
+    DBController db;
+
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
+        getAllDataFromLocalDB();
 
         return rootView;
     }
@@ -73,18 +77,6 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
-
-        mBookList = new ArrayList<>();
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
-//        mBookList.add(new Book("hello", "百年孤独", "downloaded", "nonRead"));
 
         adapter = new HomeBookAdapter(mBookList, getActivity(), this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
@@ -102,9 +94,19 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
     }
 
+    public void getAllDataFromLocalDB() {
+        db = new DBController(getActivity());
+        mBookList = db.getAllData();
+        adapter.reloadBook(this.mBookList);
+
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+
+        this.mBookList = db.getAllData();
+        adapter.notifyDataSetChanged();
     }
 
     PopupWindow popupWindow1;
@@ -345,7 +347,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
                     public void run() {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }, 3000);
+                }, 1000);
             }
         });
     }

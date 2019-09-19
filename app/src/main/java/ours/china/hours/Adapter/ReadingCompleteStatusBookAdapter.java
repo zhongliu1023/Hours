@@ -15,16 +15,17 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.ReadingCompleteStatusBook;
 import ours.china.hours.Model.ReadingStatusBook;
 import ours.china.hours.R;
 
 public class ReadingCompleteStatusBookAdapter extends RecyclerView.Adapter<ReadingCompleteStatusBookAdapter.ReadingStatusBookViewHolder> {
 
-    private List<ReadingCompleteStatusBook> bookList;
+    private List<Book> bookList;
     public Context context;
 
-    public ReadingCompleteStatusBookAdapter(Context context, ArrayList<ReadingCompleteStatusBook> bookList) {
+    public ReadingCompleteStatusBookAdapter(Context context, ArrayList<Book> bookList) {
         this.context = context;
         this.bookList = bookList;
     }
@@ -39,7 +40,7 @@ public class ReadingCompleteStatusBookAdapter extends RecyclerView.Adapter<Readi
 
     @Override
     public void onBindViewHolder(@NonNull ReadingStatusBookViewHolder holder, int position) {
-        ReadingCompleteStatusBook one = bookList.get(position);
+        Book one = bookList.get(position);
 
         holder.bookName.setText(one.getBookName());
         holder.txtReadTime.setText(one.getReadTime());

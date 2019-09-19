@@ -81,7 +81,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++){
                     View tabViewChild = vgTab.getChildAt(i);
                     if (tabViewChild instanceof  TextView){
-                        ((TextView)tabViewChild).setTextSize(18);
+                        ((TextView)tabViewChild).setTextSize(32);
                         ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.black));
                     }
                 }
@@ -95,7 +95,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++){
                     View tabViewChild = vgTab.getChildAt(i);
                     if (tabViewChild instanceof  TextView){
-                        ((TextView)tabViewChild).setTextSize(16);
+                        ((TextView)tabViewChild).setTextSize(32);
                         ((TextView)tabViewChild).setTextColor(getResources().getColor(R.color.default_shadow_color));
                     }
                 }

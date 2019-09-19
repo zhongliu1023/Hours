@@ -49,6 +49,7 @@ import ours.china.hours.Utility.SessionManager;
 
 public class Splash extends AppCompatActivity {
 
+    private static final String TAG = "Splash";
     private final int SPLASH_DISPLAY_LENGTH = 1000;
 
     SessionManager sessionManager;
@@ -60,15 +61,16 @@ public class Splash extends AppCompatActivity {
     };
     private FaceEngine faceEngine = new FaceEngine();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_270_ONLY);
+        Log.i(TAG, "Here is start point");
+        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
 
         activeEngine();
-
 
     }
 
@@ -95,6 +97,7 @@ public class Splash extends AppCompatActivity {
                     @Override
                     public void onNext(Integer activeCode) {
                         if (activeCode == ErrorInfo.MOK) {
+                            Log.i(TAG, "active engine completed");
                             showToast(getString(R.string.active_success));
                             init();
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
@@ -223,7 +226,7 @@ public class Splash extends AppCompatActivity {
                             }
 
                         } else {
-                            Toast.makeText(Splash.this, "Unexpected error occur.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
