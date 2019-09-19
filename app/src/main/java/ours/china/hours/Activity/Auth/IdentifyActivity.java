@@ -5,10 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -47,8 +49,10 @@ import ours.china.hours.BuildConfig;
 import ours.china.hours.Common.Utils.FileCompressor;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.UploadIdentify;
 import ours.china.hours.R;
+import ours.china.hours.Utility.MultipartUtility;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -221,73 +225,8 @@ public class IdentifyActivity extends AppCompatActivity {
         btnIdentifySubmit.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                File file = mPhotoFile;
-                File backFile = mPhotoBackFile;
-                if (file != null && backFile != null){
-                    Log.i("IdentifyActivity", "FileName = " + file.getName());
-                    Log.i("IdentifyActivity", "backFile =" + backFile.getName());
+                new UploadFileAsync(IdentifyActivity.this).execute();
 
-                    List<RequestBody> mFile = new ArrayList<>();
-                    List<MultipartBody.Part> fileToServer = new ArrayList<>();
-                    List<RequestBody> fileName = new ArrayList<>();
-
-
-                    mFile.add(RequestBody.create(MediaType.parse("image/*"), file));
-                    mFile.add(RequestBody.create(MediaType.parse("image/*"), backFile));
-                    fileToServer.add(MultipartBody.Part.createFormData("file", Global.mobile + file.getName(), mFile.get(0)));
-                    fileToServer.add(MultipartBody.Part.createFormData("file", Global.mobile + backFile.getName(), mFile.get(1)));
-                    fileName.add(RequestBody.create(MediaType.parse("text/plain"), file.getName()));
-                    fileName.add(RequestBody.create(MediaType.parse("text/plain"), backFile.getName()));
-
-
-//                    RequestBody mFile = RequestBody.create(MediaType.parse("image/*"), file);
-//                    MultipartBody.Part fileToServer = MultipartBody.Part.createFormData("file", file.getName(), mFile);
-//                    RequestBody fileName = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-                    Global.showLoading(IdentifyActivity.this,"generate_report");
-                    for (int j = 0; j < 2; j++){
-                        try {
-
-                            Call<UploadIdentify> call = apiInterface.uploadIdentify(fileToServer.get(j), fileName.get(j));
-                            call.enqueue(new Callback<UploadIdentify>() {
-                                @Override
-                                public void onResponse(Call<UploadIdentify> call, Response<UploadIdentify> response) {
-                                    Global.hideLoading();
-
-                                    if (response.code() == 404){
-                                        Toast.makeText(IdentifyActivity.this, "404", Toast.LENGTH_SHORT).show();
-                                    }else if (response.code() == 422){
-                                        Toast.makeText(IdentifyActivity.this, "422", Toast.LENGTH_SHORT).show();
-                                    }else if (response.code() == 500){
-                                        Toast.makeText(IdentifyActivity.this, "500", Toast.LENGTH_SHORT).show();
-                                    }else if (response.code() == 200){
-                                        String res = response.body().res;
-                                        Log.i("Register", res.toString());
-                                        Global.identify = getResources().getString(R.string.identify_success);
-                                        Intent intent = new Intent(IdentifyActivity.this, PerfectInforActivity.class);
-                                        startActivity(intent);
-                                        Toast.makeText(IdentifyActivity.this, "Response " + res.toString(), Toast.LENGTH_LONG).show();
-
-                                    }
-                                }
-
-                                @Override public void onFailure(Call<UploadIdentify> call, Throwable t) {
-                                    Global.hideLoading();
-                                    Toast.makeText(IdentifyActivity.this, "fail2", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }catch (Exception e){
-                            Log.i("IdentyActivity", e.getMessage());
-                            Global.hideLoading();
-                    }
-
-
-
-                    }
-                }
-                else {
-                    Toast.makeText(IdentifyActivity.this, R.string.insert_photo, Toast.LENGTH_SHORT).show();
-                }
             }
         });
 
@@ -440,6 +379,66 @@ public class IdentifyActivity extends AppCompatActivity {
                     imgBtnIdentifyBack.setVisibility(View.INVISIBLE);
                     Glide.with(IdentifyActivity.this).load(mPhotoBackFile).apply(new RequestOptions().placeholder(R.drawable.id_back_icon)).into(imgIdentyBack);
                 }
+        }
+    }
+
+    private class UploadFileAsync extends AsyncTask<String, Void, String> {
+
+        private Context context;
+        private String serverResponseCode = "";
+
+        public UploadFileAsync(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+//            File sourceFeatureFile = mPhotoFile;
+//            File sourceImageFile = mPhotoBackFile;
+
+            if (mPhotoFile.isFile() && mPhotoBackFile.isFile()) {
+                try {
+                    String charset = "UTF-8";
+                    MultipartUtility multipart = new MultipartUtility(Url.uploadFaceInfo, charset);
+                    multipart.addHeaderField("User-Agent", "CodeJava");
+                    multipart.addHeaderField("Test-Header", "Header-Value");
+
+                    multipart.addFormField("mobile", Global.mobile);
+                    multipart.addFilePart("front", mPhotoFile);
+                    multipart.addFilePart("back", mPhotoBackFile);
+
+                    // response data is determined by server's response code.
+                    List<String> response = multipart.finish();
+
+                    if (response.get(0).contains("success")) {
+                        return "success";
+
+                    } else {
+                        return "fail";
+                    }
+                } catch (IOException e2) {
+                    Log.i("FaceRegisterActivity", "error = " + e2.toString());
+                    return "fail";
+                }
+            }
+
+            Log.i("FaceRegisterActivity", "File not found");
+
+            return "fail";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if (s.equals("success")) {
+                Global.identify = getResources().getString(R.string.identify_success);
+                Toast.makeText(IdentifyActivity.this, "认证成功", Toast.LENGTH_LONG).show();
+
+                IdentifyActivity.super.onBackPressed();
+
+            } else {
+                Toast.makeText(IdentifyActivity.this, "面部注册失败", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

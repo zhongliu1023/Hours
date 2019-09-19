@@ -682,12 +682,13 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                     multipart.addFilePart("image", sourceImageFile);
                     multipart.addFilePart("feature", sourceFeatureFile);
 
-                    List<String> resp = multipart.finish();
-                    try {
-                        Log.i("FaceRegisterActivity", "resp = " + resp);
+                    // response data is determined by server's response code.
+                    List<String> response = multipart.finish();
+
+                    if (response.get(0).contains("success")) {
                         return "success";
-                    } catch (Exception ex) {
-                        Log.i("FaceRegisterActivity", "error = " + ex.toString());
+
+                    } else {
                         return "fail";
                     }
                 } catch (IOException e2) {
