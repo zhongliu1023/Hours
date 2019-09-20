@@ -20,9 +20,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
 /**
@@ -40,6 +43,7 @@ public class RegisterActivity  extends AppCompatActivity {
     String mobile, password;
 
     APIInterface apiInterface;
+    SharedPreferencesManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,7 @@ public class RegisterActivity  extends AppCompatActivity {
 
 
     private void initUI(){
+        sessionManager = new SharedPreferencesManager(this);
         edReMobile = (EditText)findViewById(R.id.edReMobile);
         edReVerification = (EditText)findViewById(R.id.edReVerification);
         edRePassword = (EditText)findViewById(R.id.edRePassword);
@@ -84,8 +89,7 @@ public class RegisterActivity  extends AppCompatActivity {
 
         tvReLogin.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                Intent intent = new Intent(RegisterActivity.this, LoginOptionActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
     }
@@ -107,9 +111,7 @@ public class RegisterActivity  extends AppCompatActivity {
         btnRegConfirm.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Log.i(TAG, "btnRegister = " + btnRegConfirm.getText().toString());
-//                confirmVerifyProcess();
-                Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
-                startActivity(intent);
+                confirmVerifyProcess();
             }
         });
     }
@@ -150,10 +152,8 @@ public class RegisterActivity  extends AppCompatActivity {
 
                                 if (resObj.getString("res").equals("success")) {
                                     Toast.makeText(RegisterActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
-                                } else if (resObj.getString("err").equals(" same mobile")) {
-                                    Toast.makeText(RegisterActivity.this, "电话号码已登录", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(RegisterActivity.this, "验证码发送失败", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(RegisterActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
@@ -199,9 +199,13 @@ public class RegisterActivity  extends AppCompatActivity {
         Ion.with(RegisterActivity.this)
                 .load(Url.confirmVerify)
                 .setTimeout(10000)
-                .setBodyParameter("mobile", mobile)
+                .setBodyParameter("username", mobile)
                 .setBodyParameter("password", password)
                 .setBodyParameter("otp", otp)
+                .setBodyParameter("grant_type", "password")
+                .setBodyParameter("client_id", Url.CLIENT_ID)
+                .setBodyParameter("client_secret", Url.CLIENT_SECRET)
+                .setBodyParameter("scope", Url.SCOPE)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -215,7 +219,16 @@ public class RegisterActivity  extends AppCompatActivity {
                                 resObj = new JSONObject(result.toString());
 
                                 if (resObj.getString("res").equals("success")) {
+                                    // save token and refresh token.
+                                    Global.access_token = resObj.getString("access_token");
+                                    Global.refresh_token = resObj.getString("refresh_token");
+
                                     Global.mobile = mobile;
+                                    User currentUser = new User();
+                                    currentUser.mobile = mobile;
+                                    currentUser.password = password;
+                                    UsersManagement.saveCurrentUser(currentUser, sessionManager);
+
                                     Log.i(TAG, "mobile number => " + Global.mobile);
                                     Intent intent = new Intent(RegisterActivity.this, PerfectInforActivity.class);
                                     startActivity(intent);

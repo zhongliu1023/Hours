@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_user"
-            android:textSize="@dimen/font_size_24"
+            android:textSize="@dimen/navigation_title_size"
             android:textColor="@android:color/black"
             android:layout_centerInParent="true"/>
     </RelativeLayout>
@@ -30,15 +30,18 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tablayout_id"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/tab_layout_height"
         android:background="@color/colorPrimary"
         app:tabMode="fixed"
         app:tabGravity="fill"
         android:layout_marginTop="@dimen/margin_30"
-        android:layout_marginLeft="@dimen/margin_40"
-        android:layout_marginRight="@dimen/margin_40"
-        app:tabIndicatorColor="@color/colorAccent">
-
+        android:layout_marginLeft="@dimen/margin_60"
+        android:layout_marginRight="@dimen/margin_60"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorColor="@color/colorAccent"
+        app:tabTextColor="@color/alpa_90"
+        app:tabSelectedTextColor="@android:color/black"
+        app:tabTextAppearance="@style/TabLayoutText">
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager.widget.ViewPager

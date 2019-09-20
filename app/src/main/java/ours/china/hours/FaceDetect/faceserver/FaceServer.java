@@ -21,7 +21,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.FaceDetect.model.FaceRegisterInfo;
@@ -285,7 +289,11 @@ public class FaceServer {
 
                     // my added code.
                     Global.faceFeatureSavedUrl = featureDir + File.separator + userName;
-
+                    StringBuilder byteString = new StringBuilder();
+                    for(byte b : faceFeature.getFeatureData()){
+                        byteString.append(Byte.toString(b));
+                    }
+                    Global.faceHash = byteString.toString();
                     FileOutputStream fosFeature = new FileOutputStream(featureDir + File.separator + userName);
                     fosFeature.write(faceFeature.getFeatureData());
                     fosFeature.close();

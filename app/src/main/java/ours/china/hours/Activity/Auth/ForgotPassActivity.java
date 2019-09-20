@@ -12,13 +12,21 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.VerifyCode;
 import ours.china.hours.Model.VerifyForgot;
 import ours.china.hours.R;
@@ -29,9 +37,9 @@ import retrofit2.Response;
 public class ForgotPassActivity extends AppCompatActivity {
 
     EditText edForMobile, edForVerify, edForPass;
-    Button btnForComplete, btnForConfirm;
+    Button btnForConfirm;
     ImageView imgForBack;
-
+    TextView tvRegOtp;
     APIInterface apiInterface;
 
     @Override
@@ -44,7 +52,7 @@ public class ForgotPassActivity extends AppCompatActivity {
 
         initUI();
         gotoBack();
-        verifyForgot();
+        verifyCode();
         confirmForgot();
     }
 
@@ -54,72 +62,59 @@ public class ForgotPassActivity extends AppCompatActivity {
         edForMobile = (EditText)findViewById(R.id.edForMobile);
         edForVerify = (EditText)findViewById(R.id.edForVerify);
         edForPass = (EditText)findViewById(R.id.edForPass);
-        btnForComplete = (Button)findViewById(R.id.btnForComplete);
         imgForBack = (ImageView)findViewById(R.id.imgForBack);
         btnForConfirm = (Button)findViewById(R.id.btnForConfirm);
+        tvRegOtp = (TextView) findViewById(R.id.tvRegOtp);
 
     }
 
+    private void verifyCode(){
 
-    private void verifyForgot(){
-
-        btnForComplete.setOnClickListener(new View.OnClickListener() {
+        tvRegOtp.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                final String mobile = edForMobile.getText().toString();
-                final String password = edForPass.getText().toString();
-
-                if (mobile.equals("")){
-                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
-                    edForMobile.requestFocus();
-                    return;
-                }
-
-                if (password.equals("")){
-                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
-                    edForPass.requestFocus();
-                    return;
-                }
-
-                try {
-                    Global.showLoading(ForgotPassActivity.this,"generate_report");
-                    Call<VerifyForgot> call = apiInterface.verifyForgot(mobile, password);
-                    call.enqueue(new Callback<VerifyForgot>() {
-                        @Override
-                        public void onResponse(Call<VerifyForgot> call, Response<VerifyForgot> response) {
-                            Global.hideLoading();
-
-                            if (response.code() == 404){
-                                Toast.makeText(ForgotPassActivity.this, "404", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 422){
-                                Toast.makeText(ForgotPassActivity.this, "422", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 500){
-                                Toast.makeText(ForgotPassActivity.this, "500", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 200){
-                                String res = response.body().res;
-                                Log.i("ForgotPassActivity", res);
-                                if (res.equals("success")){
-                                    btnForComplete.setVisibility(View.INVISIBLE);
-                                    btnForConfirm.setVisibility(View.VISIBLE);
-                                    Toast.makeText(ForgotPassActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
-                                }else {
-                                    Toast.makeText(ForgotPassActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-
-                        @Override public void onFailure(Call<VerifyForgot> call, Throwable t) {
-                            Global.hideLoading();
-                            Toast.makeText(ForgotPassActivity.this, "fail2", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                catch (Exception e) {
-                    Log.i("register" ,e.getMessage());
-                    Toast.makeText(ForgotPassActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                verifyProcess();
             }
         });
+    }
+
+    private void verifyProcess(){
+        String mobile = edForMobile.getText().toString();
+        Global.mobile = mobile;
+        if (mobile.equals("")){
+            Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
+            edForMobile.requestFocus();
+            return;
+        }
+        Global.showLoading(ForgotPassActivity.this,"generate_report");
+        Ion.with(ForgotPassActivity.this)
+                .load(Url.request_forgot)
+                .setTimeout(10000)
+                .setBodyParameter("mobile", mobile)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+                                    Toast.makeText(ForgotPassActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(ForgotPassActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(ForgotPassActivity.this, "验证码成功失败", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 }
 
 
@@ -141,59 +136,61 @@ public class ForgotPassActivity extends AppCompatActivity {
         btnForConfirm.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                final String mobile = edForMobile.getText().toString();
-                final String password = edForPass.getText().toString();
-                final String otp = edForVerify.getText().toString();
+                String otp = edForVerify.getText().toString();
+                String mobile = edForMobile.getText().toString();
+                String password = edForPass.getText().toString();
 
                 if (mobile.equals("")){
-                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.login_forgot_password), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
-                    edForMobile.requestFocus();
+                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
+                    edForVerify.requestFocus();
                     return;
                 }
 
-                if (password.equals("")){
-                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.login_forgot_password), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
+                if (password.equals("")) {
+                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.login_password), getResources().getString(R.string.confirm));
                     edForPass.requestFocus();
+                }
+
+                if (otp.equals("")){
+                    Global.alert(ForgotPassActivity.this, getResources().getString(R.string.register), getResources().getString(R.string.register_identy), getResources().getString(R.string.confirm));
+                    edForVerify.requestFocus();
                     return;
                 }
 
-                try {
-                    Global.showLoading(ForgotPassActivity.this,"generate_report");
-                    Call<VerifyForgot> call = apiInterface.confirmForgot(mobile, password, otp);
-                    call.enqueue(new Callback<VerifyForgot>() {
-                        @Override
-                        public void onResponse(Call<VerifyForgot> call, Response<VerifyForgot> response) {
-                            Global.hideLoading();
+                Global.showLoading(ForgotPassActivity.this,"generate_report");
+                Ion.with(ForgotPassActivity.this)
+                        .load(Url.confirm_forgot)
+                        .setTimeout(10000)
+                        .setBodyParameter("mobile", mobile)
+                        .setBodyParameter("password", password)
+                        .setBodyParameter("otp", otp)
+                        .asJsonObject()
+                        .setCallback(new FutureCallback<JsonObject>() {
+                            @Override
+                            public void onCompleted(Exception e, JsonObject result) {
+                                Global.hideLoading();
 
-                            if (response.code() == 404){
-                                Toast.makeText(ForgotPassActivity.this, "404", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 422){
-                                Toast.makeText(ForgotPassActivity.this, "422", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 500){
-                                Toast.makeText(ForgotPassActivity.this, "500", Toast.LENGTH_SHORT).show();
-                            }else if (response.code() == 200){
-                                String res = response.body().res;
-                                Log.i("ForgotPassActivity", res);
-                                if (res.equals("success")){
-                                    Toast.makeText(ForgotPassActivity.this, getResources().getString(R.string.forgot_complete), Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(ForgotPassActivity.this, LoginOptionActivity.class);
-                                    startActivity(intent);
-                                }else {
-                                    Toast.makeText(ForgotPassActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                if (e == null) {
+                                    JSONObject resObj = null;
+                                    try {
+                                        resObj = new JSONObject(result.toString());
+
+                                        if (resObj.getString("res").equals("success")) {
+                                            Global.mobile = mobile;
+                                            Global.password = password;
+                                            finish();
+                                        } else {
+                                            Toast.makeText(ForgotPassActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } catch (JSONException ex) {
+                                        ex.printStackTrace();
+                                    }
+
+                                } else {
+                                    Toast.makeText(ForgotPassActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                                 }
                             }
-                        }
-
-                        @Override public void onFailure(Call<VerifyForgot> call, Throwable t) {
-                            Global.hideLoading();
-                            Toast.makeText(ForgotPassActivity.this, "fail2", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                catch (Exception e) {
-                    Log.i("register" ,e.getMessage());
-                    Toast.makeText(ForgotPassActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                        });
             }
         });
     }

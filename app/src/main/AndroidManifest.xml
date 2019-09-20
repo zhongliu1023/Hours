@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="ours.china.hours">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,7 +17,6 @@
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
-        android:name="org.ebookdroid.HoursApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -26,13 +26,20 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme.NoActionBar">
 
-        <activity android:name=".Activity.Personality.UpdateinforActivity"></activity>
-        <activity android:name=".Activity.Personality.UpdatemobileActivity" />
-        <activity android:name=".Activity.Personality.UpdatePasswordActivity" />
-        <activity android:name=".Activity.Personality.FeedbackActivity" />
-        <activity android:name=".Activity.Personality.StatementActivity" />
-        <activity android:name=".Activity.Personality.AboutActivity" />
-        <activity android:name=".Activity.Personality.ProblemActivity" />
+        <activity android:name=".Activity.Personality.UpdateinforActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.UpdatemobileActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.UpdatePasswordActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.FeedbackActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.StatementActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.AboutActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Activity.Personality.ProblemActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Activity.Auth.Bottom"
             android:screenOrientation="portrait" />
@@ -41,6 +48,10 @@
             android:launchMode="singleTop"
             android:label="@string/information_veri"
             android:parentActivityName=".Activity.Auth.PerfectInforActivity" />
+        <activity
+            android:name=".Activity.Camera.CameraCrop"
+            android:launchMode="singleTop"/>
+
         <activity
             android:name=".Activity.Auth.PerfectInforActivity"
             android:launchMode="singleTop"

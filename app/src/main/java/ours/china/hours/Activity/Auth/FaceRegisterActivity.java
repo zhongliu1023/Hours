@@ -18,22 +18,16 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -45,12 +39,10 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,14 +59,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import ours.china.hours.Activity.Global;
-import ours.china.hours.Activity.MainActivity;
-import ours.china.hours.BookLib.foobnix.android.utils.AsyncTasks;
-import ours.china.hours.FaceDetect.UploadFaceInterface;
-import ours.china.hours.FaceDetect.common.Constants;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
 import ours.china.hours.FaceDetect.model.DrawInfo;
@@ -89,14 +75,10 @@ import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
 import ours.china.hours.Management.Url;
-import ours.china.hours.Model.UploadObject;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.MultipartUtility;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -119,12 +101,6 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     private Integer rgbCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private FaceEngine faceEngine;
     private FaceHelper faceHelper;
-    private List<CompareResult> compareResultList;
-    private ShowFaceInfoAdapter adapter;
-    /**
-     * 活体检测的开关  -->  Live detection switch
-     */
-    private boolean livenessDetect = true;
 
     /**
      * 注册人脸状态码，准备注册   -->   Register face status code, ready to register
@@ -155,8 +131,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
      * 绘制人脸框的控件     -->     a control that draws a face frame
      */
     private FaceRectView faceRectView;
-
-    private Switch switchLivenessDetect;
+    private ImageView imgBack;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final float SIMILAR_THRESHOLD = 0.8F;
@@ -170,8 +145,9 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     };
 
     private String isFeatureFileUploaded = "no";
-    private Button btnBack;
 
+    SharedPreferencesManager sessionManager;
+    User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,67 +168,51 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         FaceServer.getInstance().init(this);
 
         initView();
+        initListiner();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                register();
+            }
+        }, 3000);
     }
 
     private void initView() {
         previewView = findViewById(R.id.texture_preview);
-        //在布局结束后才做初始化操作
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
-
         faceRectView = findViewById(R.id.face_rect_view);
-        switchLivenessDetect = findViewById(R.id.switch_liveness_detect);
-        switchLivenessDetect.setChecked(livenessDetect);
-        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        imgBack = findViewById(R.id.imgBack);
+        sessionManager = new SharedPreferencesManager(this);
+        currentUser = UsersManagement.getCurrentUser(sessionManager);
+    }
+    private void initListiner(){
+        imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                livenessDetect = isChecked;
+            public void onClick(View view) {
+                finish();
             }
         });
-        RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
-        compareResultList = new ArrayList<>();
-        adapter = new ShowFaceInfoAdapter(compareResultList, this);
-        recyclerShowFaceInfo.setAdapter(adapter);
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
-        recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
-        recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
     }
 
-    /**
-     * 初始化引擎
-     */
     private void initEngine() {
         faceEngine = new FaceEngine();
         afCode = faceEngine.init(this, FaceEngine.ASF_DETECT_MODE_VIDEO, ConfigUtil.getFtOrient(this),
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
         VersionInfo versionInfo = new VersionInfo();
         faceEngine.getVersion(versionInfo);
-        Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
-
         if (afCode != ErrorInfo.MOK) {
             Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
         }
     }
-
-    /**
-     * 销毁引擎
-     */
     private void unInitEngine() {
 
         if (afCode == ErrorInfo.MOK) {
             afCode = faceEngine.unInit();
-            Log.i(TAG, "unInitEngine: " + afCode);
         }
     }
 
     public void event() {
-        btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FaceRegisterActivity.super.onBackPressed();
-            }
-        });
     }
 
 
@@ -308,18 +268,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             public void onFaceFeatureInfoGet(@Nullable final FaceFeature faceFeature, final Integer requestId) {
                 //FR成功
                 if (faceFeature != null) {
-//                    Log.i(TAG, "onPreview: fr end = " + System.currentTimeMillis() + " trackId = " + requestId);
-
-                    //不做活体检测的情况，直接搜索
-                    if (!livenessDetect) {
-                        searchFace(faceFeature, requestId);
-                    }
-                    //活体检测通过，搜索特征
-                    else if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.ALIVE) {
-                        searchFace(faceFeature, requestId);
-                    }
-                    //活体检测未出结果，延迟100ms再执行该函数
-                    else if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.UNKNOWN) {
+                    if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.UNKNOWN) {
                         getFeatureDelayedDisposables.add(Observable.timer(WAIT_LIVENESS_INTERVAL, TimeUnit.MILLISECONDS)
                                 .subscribe(new Consumer<Long>() {
                                     @Override
@@ -374,9 +323,6 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 
                 if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && previewSize != null) {
                     for (int i = 0; i < facePreviewInfoList.size(); i++) {
-                        if (livenessDetect) {
-                            livenessMap.put(facePreviewInfoList.get(i).getTrackId(), facePreviewInfoList.get(i).getLivenessInfo().getLiveness());
-                        }
                         /**
                          * 对于每个人脸，若状态为空或者为失败，则请求FR（可根据需要添加其他判断以限制FR次数），
                          * FR回传的人脸特征结果在{@link FaceListener#onFaceFeatureInfoGet(FaceFeature, Integer)}中回传
@@ -449,7 +395,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
-                                featureFileUpload();
+                                uploadIdFaceInformation();
                             }
 
                         }
@@ -507,14 +453,6 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
      */
     private void clearLeftFace(List<FacePreviewInfo> facePreviewInfoList) {
         Set<Integer> keySet = requestFeatureStatusMap.keySet();
-        if (compareResultList != null) {
-            for (int i = compareResultList.size() - 1; i >= 0; i--) {
-                if (!keySet.contains(compareResultList.get(i).getTrackId())) {
-                    compareResultList.remove(i);
-                    adapter.notifyItemRemoved(i);
-                }
-            }
-        }
         if (facePreviewInfoList == null || facePreviewInfoList.size() == 0) {
             requestFeatureStatusMap.clear();
             livenessMap.clear();
@@ -537,98 +475,13 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 
     }
 
-    private void searchFace(final FaceFeature frFace, final Integer requestId) {
-        Observable.create(new ObservableOnSubscribe<CompareResult>() {
-            @Override
-            public void subscribe(ObservableEmitter<CompareResult> emitter) {
-//                        Log.i(TAG, "subscribe: fr search start = " + System.currentTimeMillis() + " trackId = " + requestId);
-                CompareResult compareResult = FaceServer.getInstance().getTopOfFaceLib(frFace);
-//                        Log.i(TAG, "subscribe: fr search end = " + System.currentTimeMillis() + " trackId = " + requestId);
-                if (compareResult == null) {
-                    emitter.onError(null);
-                } else {
-                    emitter.onNext(compareResult);
-                }
-            }
-        })
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<CompareResult>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(CompareResult compareResult) {
-                        if (compareResult == null || compareResult.getUserName() == null) {
-                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                            faceHelper.addName(requestId, "VISITOR " + requestId);
-                            return;
-                        }
-
-//                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
-                        if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
-                            boolean isAdded = false;
-                            if (compareResultList == null) {
-                                requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                                faceHelper.addName(requestId, "VISITOR " + requestId);
-                                return;
-                            }
-                            for (CompareResult compareResult1 : compareResultList) {
-                                if (compareResult1.getTrackId() == requestId) {
-                                    isAdded = true;
-                                    break;
-                                }
-                            }
-                            if (!isAdded) {
-                                //对于多人脸搜索，假如最大显示数量为 MAX_DETECT_NUM 且有新的人脸进入，则以队列的形式移除
-                                if (compareResultList.size() >= MAX_DETECT_NUM) {
-                                    compareResultList.remove(0);
-                                    adapter.notifyItemRemoved(0);
-                                }
-                                //添加显示人员时，保存其trackId
-                                compareResult.setTrackId(requestId);
-                                compareResultList.add(compareResult);
-                                adapter.notifyItemInserted(compareResultList.size() - 1);
-
-//                                String tempByteStr = new String(frFace.getFeatureData());
-//                                alerDialogWork(tempByteStr);
-                            }
-                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
-                            faceHelper.addName(requestId, compareResult.getUserName());
-
-                        } else {
-                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                            faceHelper.addName(requestId, "VISITOR " + requestId);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-    }
 
 
-    /**
-     * 将准备注册的状态置为{@link #REGISTER_STATUS_READY}
-     *
-     * @param view 注册按钮
-     */
-    public void register(View view) {
+    public void register() {
         if (registerStatus == REGISTER_STATUS_DONE) {
             registerStatus = REGISTER_STATUS_READY;
         }
-
         Global.canGetFaceFeature = "yes";
-
     }
 
     /**
@@ -644,78 +497,51 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             initCamera();
         }
     }
+    private void uploadIdFaceInformation(){
+        Global.showLoading(FaceRegisterActivity.this,"generate_report");
+        String header = "Bearer " + Global.access_token;
+        File sourceFeatureFile = new File(Global.faceFeatureSavedUrl);
+        File sourceImageFile = new File(Global.faceFeatureSavedImageUrl);
+        Ion.with(FaceRegisterActivity.this)
+                .load(Url.uploadFaceInfo)
+                .setTimeout(10000)
+                .setHeader("Authorization", header)
+                .setMultipartFile("feature", "application/form-data", sourceFeatureFile)
+                .setMultipartFile("image", "application/form-data", sourceImageFile)
+                .setMultipartParameter("face_hash", Global.faceHash)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
 
-    public void featureFileUpload() {
-        String[] tempStr = {Global.faceFeatureSavedUrl, Global.faceFeatureSavedImageUrl};
-        new UploadFileAsync(this).execute(tempStr);
-    }
+                                if (resObj.getString("res").equals("success")) {
 
+                                    Global.identify = getResources().getString(R.string.identify_success);
+                                    Toast.makeText(FaceRegisterActivity.this, "认证成功", Toast.LENGTH_LONG).show();
 
-    private class UploadFileAsync extends AsyncTask<String, Void, String> {
+                                    currentUser.faceImageUrl = resObj.getString("faceImageUrl");
+                                    currentUser.faceInfoUrl = resObj.getString("faceInfoUrl");
+                                    UsersManagement.saveCurrentUser(currentUser, sessionManager);
+                                    FaceRegisterActivity.super.onBackPressed();
 
-        private Context context;
-        private String serverResponseCode = "";
+                                } else {
+                                    Toast.makeText(FaceRegisterActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
 
-        public UploadFileAsync(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-            String sourceFeatureUri = strings[0];
-            String secondImageUrl = strings[1];
-
-            Log.i("FaceRegisterActivity", "doInBackground = " + sourceFeatureUri + "," + secondImageUrl);
-
-            File sourceFeatureFile = new File(sourceFeatureUri);
-            File sourceImageFile = new File(secondImageUrl);
-
-            if (sourceFeatureFile.isFile() && sourceImageFile.isFile()) {
-                try {
-                    String charset = "UTF-8";
-                    MultipartUtility multipart = new MultipartUtility(Url.uploadFaceInfo, charset);
-                    multipart.addHeaderField("User-Agent", "CodeJava");
-                    multipart.addHeaderField("Test-Header", "Header-Value");
-
-                    multipart.addFormField("mobile", Global.mobile);
-                    multipart.addFilePart("image", sourceImageFile);
-                    multipart.addFilePart("feature", sourceFeatureFile);
-
-                    // response data is determined by server's response code.
-                    List<String> response = multipart.finish();
-
-                    if (response.get(0).contains("success")) {
-                        return "success";
-
-                    } else {
-                        return "fail";
+                        } else {
+                            Toast.makeText(FaceRegisterActivity.this, "面部注册失败", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } catch (IOException e2) {
-                    Log.i("FaceRegisterActivity", "error = " + e2.toString());
-                    return "fail";
-                }
-            }
-
-            Log.i("FaceRegisterActivity", "File not found");
-
-            return "fail";
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (s.equals("success")) {
-                isFeatureFileUploaded = "yes";
-                Log.i("FaceRegisterActivity", "feature data upload success");
-                Global.faceState = getResources().getString(R.string.identify_success);
-                Toast.makeText(FaceRegisterActivity.this, "面部注册成功", Toast.LENGTH_SHORT).show();
-
-                FaceRegisterActivity.super.onBackPressed();
-
-            } else {
-                Toast.makeText(FaceRegisterActivity.this, "面部注册失败", Toast.LENGTH_SHORT).show();
-            }
-        }
+                });
     }
+
 
 }

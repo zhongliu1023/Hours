@@ -8,6 +8,10 @@
 
     <dimen name="back_btn_height">20dp</dimen>
 
+    <dimen name="navigation_title_size">20sp</dimen>
+    <dimen name="content_normal_size">16sp</dimen>
+    <dimen name="tab_layout_height">30dp</dimen>
+
     <!-- Tab Main Activity-->
     <dimen name="tab_height">40dp</dimen>
     <dimen name="tab_image_size">20dp</dimen>

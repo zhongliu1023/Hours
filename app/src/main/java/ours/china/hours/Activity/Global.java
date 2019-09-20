@@ -30,13 +30,11 @@ public class Global {
     public static String identify = "";
 
     /** when login , return key-> value*/
-    public static String token = "";
+    public static String access_token = "";
     public static String refresh_token = "";
 
     public static String KEY_token = "access_token";
     public static String KEY_refresh_token = "";
-
-    public static String access_token = "";
 
     public static String expires_in = "";
     public static String token_type = "";
@@ -60,6 +58,7 @@ public class Global {
 
     public static String faceFeatureSavedUrl = "";
     public static String faceFeatureSavedImageUrl = "";
+    public static String faceHash = "";
 
     public static String bookImageLocalUrl = "";
     public static String bookUrl = "";
@@ -99,8 +98,20 @@ public class Global {
     {
         String strPleaseWaitAwhile = "请秒后";
         mProgressDialog = new ProgressDialog(context, R.style.DialogTheme);
-////        mProgressDialog.setContentView(R.layout.diaolog_loading);
-//        mProgressDialog.setMessage(strPleaseWaitAwhile);1305074012413
+        mProgressDialog.setMessage(strPleaseWaitAwhile);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+        mProgressDialog.show();
+        mProgressDialog.setContentView(R.layout.diaolog_loading);
+        TextView tvLoadingMsg = (TextView) mProgressDialog.findViewById(R.id.loading_msg);
+        tvLoadingMsg.setText(strPleaseWaitAwhile);
+//        mProgressDialog.setContentView(R.layout.diaolog_loading);
+//        mProgressDialog.setMessage(strPleaseWaitAwhile);
 //        mProgressDialog.setCancelable(false);
 //        mProgressDialog.setCanceledOnTouchOutside(false);
 //
@@ -112,8 +123,8 @@ public class Global {
 //            public void onCancel(DialogInterface dialog) {
 //            }
 //        });
-
-        mProgressDialog.show();
+//
+//        mProgressDialog.show();
 
     }
 

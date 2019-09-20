@@ -41,4 +41,13 @@ public class SessionManager {
         editor.commit();
     }
 
+    public void setString(String str, String key){
+        editor.putString(key, str);
+        editor.commit();
+    }
+    public String getString(String key){
+        String str = pref.getString(key, "");
+        return str;
+    }
+
 }

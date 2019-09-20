@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/update_mobile"
-                android:textSize="@dimen/font_size_24"
+                android:textSize="@dimen/navigation_title_size"
                 android:textColor="@android:color/black"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
@@ -182,6 +182,7 @@
             android:layout_marginBottom="@dimen/margin_30"
             android:background="@drawable/button_back"
             android:text="@string/confirm"
+            android:textSize="@dimen/content_normal_size"
             android:visibility="invisible"
             android:layout_alignParentBottom="true"
             android:textAppearance="?android:attr/textAppearanceLarge"

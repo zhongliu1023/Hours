@@ -189,4 +189,8 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
+    <style name="TabLayoutText" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/content_normal_size</item>
+    </style>
+
 </resources>

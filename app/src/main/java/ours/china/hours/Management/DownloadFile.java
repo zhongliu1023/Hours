@@ -164,7 +164,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
 
         Ion.with(context)
                 .load(Url.notifyServerBookDownLoaded)
-                .setBodyParameter(Global.KEY_token, Global.token)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
                 .setBodyParameter("bookID", Global.bookID)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {

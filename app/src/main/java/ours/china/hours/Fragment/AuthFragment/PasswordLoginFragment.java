@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,10 +38,15 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
+import ours.china.hours.Activity.Auth.PerfectInforActivity;
 import ours.china.hours.Activity.Auth.RegisterActivity;
+import ours.china.hours.Activity.Auth.Splash;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
 
@@ -62,7 +68,8 @@ public class PasswordLoginFragment extends Fragment {
     private Button btnFrLogin;
     private TextView tvFrForgot, tvFrRegister;
 
-    SessionManager sessionManager;
+    User currentUser = new User();
+    SharedPreferencesManager sessionManager;
 
 
     public PasswordLoginFragment() {
@@ -78,7 +85,7 @@ public class PasswordLoginFragment extends Fragment {
     @Override public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sessionManager = new SessionManager(getContext());
+        sessionManager = new SharedPreferencesManager(getContext());
     }
 
     @Override
@@ -141,10 +148,6 @@ public class PasswordLoginFragment extends Fragment {
             @Override public void onClick(View view) {
                 final String mobile = edFrMobile.getText().toString();
                 final String password = edFrPassword.getText().toString();
-                final String grant_type = "password";
-                final String client_id = "testclient";
-                final String client_secret = "testpass";
-                final String scope = "userinfo cloud file node";
 
                 if (mobile.equals("")){
                     Global.alert(getContext(), getResources().getString(R.string.register), getResources().getString(R.string.login_mobile), getResources().getString(R.string.confirm));
@@ -163,16 +166,16 @@ public class PasswordLoginFragment extends Fragment {
                         .load(Url.loginUrl)
                         .setTimeout(10000)
                         .setBodyParameter("grant_type", "password")
-                        .setBodyParameter("client_id", "testclient")
-                        .setBodyParameter("client_secret", "testpass")
-                        .setBodyParameter("scope", "userinfo cloud file node")
+                        .setBodyParameter("client_id", Url.CLIENT_ID)
+                        .setBodyParameter("client_secret", Url.CLIENT_SECRET)
+                        .setBodyParameter("scope", Url.SCOPE)
                         .setBodyParameter("username", mobile)
                         .setBodyParameter("password", password)
                         .asJsonObject()
                         .setCallback(new FutureCallback<JsonObject>() {
                             @Override
                             public void onCompleted(Exception e, JsonObject result) {
-                                Global.hideLoading();
+
                                 Log.i(TAG, "result => " + result);
                                 if (e == null) {
                                     JSONObject resObj = null;
@@ -180,16 +183,17 @@ public class PasswordLoginFragment extends Fragment {
                                         resObj = new JSONObject(result.toString());
 
                                         // save token and refresh token.
-                                        Global.token = resObj.getString("access_token");
+                                        Global.access_token = resObj.getString("access_token");
                                         Global.refresh_token = resObj.getString("refresh_token");
 
                                         // save session data.
-                                        sessionManager.setPassword(password);
-                                        sessionManager.setMobileNumber(mobile);
+                                        currentUser.mobile = mobile;
+                                        currentUser.password = password;
+                                        UsersManagement.saveCurrentUser(currentUser, sessionManager);
 
-                                        if (Global.token != null && !Global.token.equals("")) {
+                                        if (Global.access_token != null && !Global.access_token.equals("")) {
                                             tempMobileNumber = mobile;
-                                            getFeatureFileUrl();
+                                            getUserInfo();
                                         } else {
                                             Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
                                             Global.hideLoading();
@@ -200,6 +204,7 @@ public class PasswordLoginFragment extends Fragment {
                                     }
 
                                 } else {
+                                    Global.hideLoading();
                                     Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -227,50 +232,47 @@ public class PasswordLoginFragment extends Fragment {
         Log.i(TAG, "featureImageDir deleted");
 
     }
-
-    public void getFeatureFileUrl() {
-        Log.i(TAG, "Url => " + Url.getFaceInfoUrl);
-
-        Ion.with(getContext())
-                .load(Url.getFaceInfoUrl)
+    void getUserInfo(){
+        Ion.with(getActivity())
+                .load(Url.get_profile)
                 .setTimeout(10000)
-                .setBodyParameter("access_token", Global.token)
-                .asString()
-                .setCallback(new FutureCallback<String>() {
+                .setBodyParameter("access_token", Global.access_token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
                     @Override
-                    public void onCompleted(Exception e, String result) {
-                        Log.i(TAG, "result = >" + result);
-
+                    public void onCompleted(Exception e, JsonObject result) {
                         if (e == null) {
+                            JSONObject resObj = null;
                             try {
-                                JSONObject resObj = new JSONObject(result.toString());
-                                if (resObj.getString("res").equals("success")) {
+                                resObj = new JSONObject(result.toString());
+                                User user = new UsersManagement().mapFetchProfileResponse(resObj);
+                                user.password = currentUser.password;
+                                featureImageUrl = user.faceImageUrl;
+                                featureFileUrl = user.faceInfoUrl;
+                                UsersManagement.saveCurrentUser(user, sessionManager);
 
-                                    JSONObject tempJsonObject = new JSONObject(resObj.getString("data"));
-                                    featureFileUrl = Url.baseUrl + tempJsonObject.getString("faceInfoUrl");
-                                    featureImageUrl = Url.baseUrl + tempJsonObject.getString("faceImageUrl");
-
-                                    Log.i(TAG, "featureFileUrl => " + featureFileUrl);
-                                    Log.i(TAG, "featureImageUrl => " + featureImageUrl);
-
+                                if (user.faceInfoUrl.isEmpty()){
+                                    Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+                                    startActivity(intent);
+                                }else{
                                     deleteAlreadyExistFiles();
-                                    new DownloadFeatureFile(getContext()).execute(featureFileUrl);
-
-                                } else {
-                                    Global.hideLoading();
+                                    new DownloadFeatureFile(getContext()).execute(user.faceInfoUrl);
                                 }
-                            } catch (Exception error) {
+                            } catch (JSONException ex) {
                                 Global.hideLoading();
+                                ex.printStackTrace();
+                                Toast.makeText(getActivity(), ex.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                             }
+
                         } else {
-                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                             Global.hideLoading();
+                            Toast.makeText(getActivity(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-    public class DownloadFeatureFile extends AsyncTask<String, String, String> {
+    public static class DownloadFeatureFile extends AsyncTask<String, String, String> {
 
         private Context context;
         private String fileName;
@@ -290,7 +292,7 @@ public class PasswordLoginFragment extends Fragment {
         protected String doInBackground(String... f_url) {
             int count;
             try {
-                URL url = new URL(f_url[0]);
+                URL url = new URL(Url.domainUrl + f_url[0]);
                 URLConnection connection = url.openConnection();
                 connection.connect();
                 // getting file length
@@ -339,7 +341,6 @@ public class PasswordLoginFragment extends Fragment {
         @Override
         protected void onPostExecute(String message) {
             super.onPostExecute(message);
-
             if (message.equals("success") && isImage.equals("no")) {
                 Log.i(TAG, "feautre file download end");
 
@@ -357,6 +358,9 @@ public class PasswordLoginFragment extends Fragment {
 
                 Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
             } else {
+
+                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+                startActivity(intent);
                 Global.hideLoading();
                 Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
             }

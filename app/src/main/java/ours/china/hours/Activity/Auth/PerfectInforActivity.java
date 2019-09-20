@@ -64,7 +64,7 @@ public class PerfectInforActivity extends AppCompatActivity{
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         initUI();
-
+        gotoBack();
         gotoIdentify();
         gotoRegister();
         goFaceRegister();
@@ -178,12 +178,12 @@ public class PerfectInforActivity extends AppCompatActivity{
 
         Global.showLoading(PerfectInforActivity.this,"generate_report");
         Ion.with(PerfectInforActivity.this)
-                .load(Url.register)
+                .load(Url.update_profile)
                 .setTimeout(10000)
+                .setBodyParameter("access_token", Global.access_token)
                 .setBodyParameter("name", name)
-                .setBodyParameter("mobile", mobile)
                 .setBodyParameter("school", school)
-                .setBodyParameter("classs", classs)
+                .setBodyParameter("class", classs)
                 .setBodyParameter("studId", studId)
                 .asString()
                 .setCallback(new FutureCallback<String>() {
@@ -198,7 +198,9 @@ public class PerfectInforActivity extends AppCompatActivity{
                                 resObj = new JSONObject(result.toString());
 
                                 if (resObj.getString("res").equals("success")) {
-                                    getTokenFromServer();
+
+                                    Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
+                                    startActivity(intent);
                                 } else {
                                     Toast.makeText(PerfectInforActivity.this, "发生错误", Toast.LENGTH_SHORT).show();
                                 }
@@ -212,52 +214,6 @@ public class PerfectInforActivity extends AppCompatActivity{
                     }
                 });
     }
-
-    public void getTokenFromServer() {
-        Log.i(TAG, "mobile number => " + Global.mobile);
-        Log.i(TAG, "password => " + Global.password);
-
-        Ion.with(this)
-                .load(Url.loginUrl)
-                .setTimeout(10000)
-                .setBodyParameter("grant_type", "password")
-                .setBodyParameter("client_id", "testclient")
-                .setBodyParameter("client_secret", "testpass")
-                .setBodyParameter("scope", "userinfo cloud file node")
-                .setBodyParameter("username", Global.mobile)
-                .setBodyParameter("password", Global.password)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        Log.i(TAG, "result => " + result);
-                        Global.hideLoading();
-
-                        if (e == null) {
-                            try {
-                                JSONObject resObj = new JSONObject(result.toString());
-                                Global.token = resObj.getString("access_token");
-                                Global.refresh_token = resObj.getString("refresh_token");
-
-                                Log.i(TAG, "token => " + Global.token);
-                                Log.i(TAG, "refresh token => " + Global.refresh_token);
-
-                                if (Global.token != null && !Global.token.equals("")) {
-                                    Toast.makeText(PerfectInforActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-
-                                    Intent intent = new Intent(PerfectInforActivity.this, MainActivity.class);
-                                    startActivity(intent);
-                                }
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        } else {
-                            Toast.makeText(PerfectInforActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
 
 
 

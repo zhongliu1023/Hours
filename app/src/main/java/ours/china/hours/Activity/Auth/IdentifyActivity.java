@@ -27,11 +27,17 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.gson.JsonObject;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,14 +49,19 @@ import java.util.List;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import ours.china.hours.Activity.Camera.CameraCrop;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.BuildConfig;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.Common.Utils.ActivityCodes;
 import ours.china.hours.Common.Utils.FileCompressor;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.UploadIdentify;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.MultipartUtility;
 import retrofit2.Call;
@@ -76,6 +87,9 @@ public class IdentifyActivity extends AppCompatActivity {
     FileCompressor mCompressor;
 
     APIInterface apiInterface;
+    int type = 0;
+    SharedPreferencesManager sessionManager;
+    User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +123,27 @@ public class IdentifyActivity extends AppCompatActivity {
         imgIdentyBack = (ImageView)findViewById(R.id.imgIdentyBack);
         imgIdentiBack = (ImageView)findViewById(R.id.imgIdentiBack);
         linIdentifyBack = (LinearLayout)findViewById(R.id.linIdentifyBack);
+        sessionManager = new SharedPreferencesManager(this);
+
+        currentUser = UsersManagement.getCurrentUser(sessionManager);
+        if (!currentUser.idCardFront.isEmpty())
+        {
+            Ion.with(IdentifyActivity.this)
+                    .load(Url.domainUrl + currentUser.idCardFront)
+                    .withBitmap()
+                    .placeholder(R.drawable.id_prompt1_icon)
+                    .intoImageView(imgIdentyFace);
+
+        }
+        if (!currentUser.idCardBack.isEmpty())
+        {
+            Ion.with(IdentifyActivity.this)
+                    .load(Url.domainUrl + currentUser.idCardBack)
+                    .withBitmap()
+                    .placeholder(R.drawable.id_prompt2_icon)
+                    .intoImageView(imgIdentyBack);
+
+        }
     }
 
 
@@ -221,11 +256,18 @@ public class IdentifyActivity extends AppCompatActivity {
 
 
     private void uploadIdentify(){
-
         btnIdentifySubmit.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                new UploadFileAsync(IdentifyActivity.this).execute();
+                if (mPhotoFile == null){
+                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "please set a image", getResources().getString(R.string.confirm));
+                    return;
+                }
+                if (mPhotoBackFile == null){
+                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "please set a image", getResources().getString(R.string.confirm));
+                    return;
+                }
+                uploadIdCardImages();
 
             }
         });
@@ -237,49 +279,17 @@ public class IdentifyActivity extends AppCompatActivity {
      * Capture image from camera
      */
     private void dispatchTakePictureIntent(int i) {
+        type = i;
+        bottom_photo.setVisibility(View.INVISIBLE);
+        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        btnIdentifySubmit.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(IdentifyActivity.this, CameraCrop.class);
         if (i == 0){
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                // Create the File where the photo should go
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    // Error occurred while creating the File
-                }
-                if (photoFile != null) {
-                    Uri photoURI = FileProvider.getUriForFile(this,
-                            BuildConfig.APPLICATION_ID + ".provider",
-                            photoFile);
-
-                    mPhotoFile = photoFile;
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO_FACE);
-                }
-            }
+            intent.putExtra("type", 0);
         }else if (i == 1){
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                // Create the File where the photo should go
-                File photoFile = null;
-                try {
-                    photoFile = createImageFile();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    // Error occurred while creating the File
-                }
-                if (photoFile != null) {
-                    Uri photoURI = FileProvider.getUriForFile(this,
-                            BuildConfig.APPLICATION_ID + ".provider",
-                            photoFile);
-
-                    mPhotoBackFile = photoFile;
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                    startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO_BACK);
-                }
-            }
+            intent.putExtra("type", 1);
         }
+        startActivityForResult(intent, ActivityCodes.CROP_IMAGE);
 
     }
 
@@ -289,6 +299,9 @@ public class IdentifyActivity extends AppCompatActivity {
      */
     private void dispatchGalleryIntent(int i) {
 
+        bottom_photo.setVisibility(View.INVISIBLE);
+        sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        btnIdentifySubmit.setVisibility(View.VISIBLE);
         if (i == 0){
             Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -378,67 +391,65 @@ public class IdentifyActivity extends AppCompatActivity {
                     }
                     imgBtnIdentifyBack.setVisibility(View.INVISIBLE);
                     Glide.with(IdentifyActivity.this).load(mPhotoBackFile).apply(new RequestOptions().placeholder(R.drawable.id_back_icon)).into(imgIdentyBack);
-                }
-        }
-    }
+                }else if (requestCode == ActivityCodes.CROP_IMAGE){
+                    if (data.getStringExtra("cropImagePath") != null) {
+//
 
-    private class UploadFileAsync extends AsyncTask<String, Void, String> {
-
-        private Context context;
-        private String serverResponseCode = "";
-
-        public UploadFileAsync(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-
-//            File sourceFeatureFile = mPhotoFile;
-//            File sourceImageFile = mPhotoBackFile;
-
-            if (mPhotoFile.isFile() && mPhotoBackFile.isFile()) {
-                try {
-                    String charset = "UTF-8";
-                    MultipartUtility multipart = new MultipartUtility(Url.uploadFaceInfo, charset);
-                    multipart.addHeaderField("User-Agent", "CodeJava");
-                    multipart.addHeaderField("Test-Header", "Header-Value");
-
-                    multipart.addFormField("mobile", Global.mobile);
-                    multipart.addFilePart("front", mPhotoFile);
-                    multipart.addFilePart("back", mPhotoBackFile);
-
-                    // response data is determined by server's response code.
-                    List<String> response = multipart.finish();
-
-                    if (response.get(0).contains("success")) {
-                        return "success";
-
-                    } else {
-                        return "fail";
+                        String imagePath = data.getStringExtra("cropImagePath");
+                        File imgFile = new File(imagePath);
+                        if (type == 0){
+                            mPhotoFile = imgFile;
+                            imgIdentyFace.setImageURI(Uri.fromFile(imgFile));
+                        }else{
+                            mPhotoBackFile = imgFile;
+                            imgIdentyBack.setImageURI(Uri.fromFile(imgFile));
+                        }
                     }
-                } catch (IOException e2) {
-                    Log.i("FaceRegisterActivity", "error = " + e2.toString());
-                    return "fail";
                 }
-            }
-
-            Log.i("FaceRegisterActivity", "File not found");
-
-            return "fail";
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            if (s.equals("success")) {
-                Global.identify = getResources().getString(R.string.identify_success);
-                Toast.makeText(IdentifyActivity.this, "认证成功", Toast.LENGTH_LONG).show();
-
-                IdentifyActivity.super.onBackPressed();
-
-            } else {
-                Toast.makeText(IdentifyActivity.this, "面部注册失败", Toast.LENGTH_SHORT).show();
-            }
         }
     }
+
+    private void uploadIdCardImages(){
+        Global.showLoading(IdentifyActivity.this,"generate_report");
+        String header = "Bearer " + Global.access_token;
+        Ion.with(IdentifyActivity.this)
+                .load(Url.uploadIdCard)
+                .setTimeout(10000)
+                .setHeader("Authorization", header)
+                .setMultipartFile("front", "application/form-data", mPhotoFile)
+                .setMultipartFile("back", "application/form-data", mPhotoBackFile)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+
+                                    Global.identify = getResources().getString(R.string.identify_success);
+                                    Toast.makeText(IdentifyActivity.this, "认证成功", Toast.LENGTH_LONG).show();
+
+                                    currentUser.idCardFront = resObj.getString("idCardFront");
+                                    currentUser.idCardBack = resObj.getString("idCardBack");
+                                    UsersManagement.saveCurrentUser(currentUser, sessionManager);
+                                    IdentifyActivity.super.onBackPressed();
+
+                                } else {
+                                    Toast.makeText(IdentifyActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(IdentifyActivity.this, "面部注册失败", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
 }

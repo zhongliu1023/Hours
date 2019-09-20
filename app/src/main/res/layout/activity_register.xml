@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".Activity.Auth.RegisterActivity">
 
@@ -14,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login_register"
-            android:textSize="@dimen/font_size_24"
+            android:textSize="@dimen/navigation_title_size"
             android:textColor="@android:color/black"
             android:layout_centerInParent="true"/>
     </RelativeLayout>
@@ -54,55 +55,40 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
                 android:paddingBottom="@dimen/margin_10"
-                android:textSize="@dimen/font_size_18"
+                android:textSize="@dimen/content_normal_size"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:hint="@string/login_mobile"/>
 
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
-                android:orientation="vertical">
+                android:paddingBottom="@dimen/margin_10">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingBottom="@dimen/padding_10"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/edReVerification"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="7"
-                        android:background="@android:color/transparent"
-                        android:textSize="@dimen/font_size_18"
-                        android:hint="@string/register_identy"/>
-
-                    <TextView
-                        android:id="@+id/tvRegOtp"
-                        android:layout_width="0dp"
-                        android:layout_weight="3"
-                        android:layout_height="wrap_content"
-                        android:gravity="end|center_vertical"
-                        android:textColor="@color/default_shadow_color"
-                        android:textSize="@dimen/font_size_18"
-                        android:text="@string/login_verify_code"/>
-
-
-                </LinearLayout>
-                <TextView
+                <EditText
+                    android:id="@+id/edReVerification"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:height="1px"
-                    android:background="@color/default_shadow_color"
-                    android:layout_alignParentBottom="true"
-                    android:text="" />
+                    android:textSize="@dimen/content_normal_size"
+                    android:focusable="true"
+                    android:inputType="number"
+                    android:focusableInTouchMode="true"
+                    android:hint="@string/register_identy"/>
+
+                <TextView
+                    android:id="@+id/tvRegOtp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="end|center_vertical"
+                    android:text="@string/login_verify_code"
+                    android:textColor="@color/default_shadow_color"
+                    android:textSize="@dimen/content_normal_size" />
 
 
-            </LinearLayout>
+            </RelativeLayout>
 
 
             <EditText
@@ -111,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
                 android:paddingBottom="@dimen/padding_10"
-                android:textSize="@dimen/font_size_18"
+                android:textSize="@dimen/content_normal_size"
                 android:focusable="true"
                 android:inputType="textPassword"
                 android:focusableInTouchMode="true"
@@ -129,6 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/confirm"
+                android:textSize="@dimen/content_normal_size"
                 android:textColor="@color/white"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:gravity="center"
@@ -140,70 +127,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_20"
+            android:layout_marginStart="@dimen/margin_20"
+            android:layout_marginEnd="@dimen/margin_20"
             android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvReForgot"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:gravity="start"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tvReForgot"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/font_size_18"
-                        android:text="@string/login_forgot_password"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="4"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
+                android:textSize="@dimen/content_normal_size"
+                android:text="@string/login_forgot_password"/>
+            <TextView
+                android:id="@+id/tvReLogin"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="4"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tvReLogin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="@dimen/font_size_18"
-                        android:text="@string/register_login"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content">
-                </LinearLayout>
-            </LinearLayout>
-
+                android:gravity="end"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/content_normal_size"
+                android:text="@string/register_login"/>
         </LinearLayout>
     </LinearLayout>
 

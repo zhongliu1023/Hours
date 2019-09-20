@@ -2641,7 +2641,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         if (ConnectivityHelper.isConnectedToNetwork(HorizontalBookReadingActivity.this)) {
 
             Log.e("horizontalbookreading", "HHHHHHHH");
-            Log.i("horizontalbookreading", Global.KEY_token + ":" + Global.token);
+            Log.i("horizontalbookreading", Global.KEY_token + ":" + Global.access_token);
             Log.i("horizontalbookreading", "bookId" + ":" + Global.bookID);
             Log.i("horizontalbookreading", "page" + ":" + db.getBookStateData(Global.bookID).getPagesArray());
             Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(Global.bookID).getReadTime());
@@ -2650,7 +2650,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             Ion.with(HorizontalBookReadingActivity.this)
                     .load(Url.bookStateChangeOperation)
                     .setTimeout(10000)
-                    .setBodyParameter("access_token", Global.token)
+                    .setBodyParameter("access_token", Global.access_token)
                     .setBodyParameter("bookId", Global.bookID)
                     .setBodyParameter("page", db.getBookStateData(Global.bookID).getPagesArray())
                     .setBodyParameter("time", db.getBookStateData(Global.bookID).getReadTime())

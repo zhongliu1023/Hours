@@ -2,6 +2,7 @@ package ours.china.hours.Activity.Auth;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +18,16 @@ import androidx.core.content.ContextCompat;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -37,9 +42,13 @@ import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.util.ConfigUtil;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
 
@@ -52,14 +61,15 @@ public class Splash extends AppCompatActivity {
     private static final String TAG = "Splash";
     private final int SPLASH_DISPLAY_LENGTH = 1000;
 
-    SessionManager sessionManager;
+    User currentUser = new User();
+    SharedPreferencesManager sessionManager;
 
     private Toast toast = null;
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final String[] NEEDED_PERMISSIONS = new String[]{
             Manifest.permission.READ_PHONE_STATE
     };
-    private FaceEngine faceEngine = new FaceEngine();
+    private FaceEngine faceEngine = null;
 
 
     @Override
@@ -67,7 +77,7 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Log.i(TAG, "Here is start point");
+        faceEngine = new FaceEngine();
         ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
 
         activeEngine();
@@ -98,10 +108,10 @@ public class Splash extends AppCompatActivity {
                     public void onNext(Integer activeCode) {
                         if (activeCode == ErrorInfo.MOK) {
                             Log.i(TAG, "active engine completed");
-                            showToast(getString(R.string.active_success));
+//                            showToast(getString(R.string.active_success));
                             init();
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
-                            showToast(getString(R.string.already_activated));
+//                            showToast(getString(R.string.already_activated));
                             init();
                         } else {
                             showToast(getString(R.string.active_failed, activeCode));
@@ -166,18 +176,17 @@ public class Splash extends AppCompatActivity {
     }
 
     public void init() {
-        sessionManager = new SessionManager(Splash.this);
+        sessionManager = new SharedPreferencesManager(Splash.this);
+        currentUser = UsersManagement.getCurrentUser(sessionManager);
 
-        if (!sessionManager.getMobileNumber().equals("") && !sessionManager.getPassword().equals("")) {
+        if (!currentUser.userId.isEmpty()) {
 
             getDataFromServer();
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(Splash.this, LoginOptionActivity.class);
-                    startActivity(intent);
-                    Splash.this.finish();
+                    gotoLoginView();
                 }
             }, SPLASH_DISPLAY_LENGTH);
         }
@@ -193,44 +202,96 @@ public class Splash extends AppCompatActivity {
 
     }
 
+    void gotoLoginView(){
+        Intent intent = new Intent(Splash.this, LoginOptionActivity.class);
+        startActivity(intent);
+        Splash.this.finish();
+    }
     public void getDataFromServer() {
+        Global.showLoading(Splash.this,"generate_report");
         Ion.with(Splash.this)
                 .load(Url.loginUrl)
                 .setTimeout(10000)
                 .setBodyParameter("grant_type", "password")
-                .setBodyParameter("client_id", "testclient")
-                .setBodyParameter("client_secret", "testpass")
-                .setBodyParameter("scope", "userinfo cloud file node")
-                .setBodyParameter("username", sessionManager.getMobileNumber())
-                .setBodyParameter("password", sessionManager.getPassword())
+                .setBodyParameter("client_id", "hours_reader")
+                .setBodyParameter("client_secret", "a55b8ca1-c6b5-4867-b0dc-766dfb41d073")
+                .setBodyParameter("scope", "userinfo bookinfo readinfo")
+                .setBodyParameter("username", currentUser.mobile)
+                .setBodyParameter("password", currentUser.password)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        Global.hideLoading();
                         if (e == null) {
                             JSONObject resObj = null;
                             try {
                                 resObj = new JSONObject(result.toString());
 
                                 // save token and refresh token.
-                                Global.token = resObj.getString("access_token");
+                                Global.access_token = resObj.getString("access_token");
                                 Global.refresh_token = resObj.getString("refresh_token");
 
-                                // go to main activity
-                                Intent intent = new Intent(Splash.this, MainActivity.class);
-                                startActivity(intent);
+                                getUserInfo();
 
                             } catch (JSONException ex) {
+                                Global.hideLoading();
                                 ex.printStackTrace();
+                                gotoLoginView();
+                                Toast.makeText(Splash.this, ex.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
+                            Global.hideLoading();
+                            gotoLoginView();
                             Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
 
+    }
+
+    void getUserInfo(){
+        Ion.with(Splash.this)
+                .load(Url.get_profile)
+                .setTimeout(10000)
+                .setBodyParameter("access_token", Global.access_token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+                                User user = new UsersManagement().mapFetchProfileResponse(resObj);
+                                user.password = Global.password;
+                                if (user.name.isEmpty()){
+                                    Intent intent = new Intent(Splash.this, PerfectInforActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }else{
+                                    Global.hideLoading();
+                                    UsersManagement.saveCurrentUser(currentUser, sessionManager);
+                                    // go to main activity
+                                    Intent intent = new Intent(Splash.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+
+                            } catch (JSONException ex) {
+                                Global.hideLoading();
+                                gotoLoginView();
+                                ex.printStackTrace();
+                                Toast.makeText(Splash.this, ex.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            }
+
+                        } else {
+                            Global.hideLoading();
+                            gotoLoginView();
+                            Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 }
