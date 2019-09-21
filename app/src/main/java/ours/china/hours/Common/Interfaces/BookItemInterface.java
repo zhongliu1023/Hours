@@ -1,5 +1,7 @@
 package ours.china.hours.Common.Interfaces;
 
+import ours.china.hours.Model.Book;
+
 public interface BookItemInterface {
-    void onClickBookItem(String uri);
+    void onClickBookItem(Book selectedBook, int position);
 }

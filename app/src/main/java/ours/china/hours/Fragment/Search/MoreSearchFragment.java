@@ -1,10 +1,12 @@
 package ours.china.hours.Fragment.Search;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,19 +14,41 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import ours.china.hours.Activity.Global;
 import ours.china.hours.Adapter.MoreBookAdapter;
+import ours.china.hours.Management.Url;
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
 import ours.china.hours.R;
 
 public class MoreSearchFragment extends Fragment {
 
-    ArrayList<MoreBook> moreBooks;
+    ArrayList<Book> moreBooks;
     MoreBookAdapter adapter;
     RecyclerView moreSearchRecyclerView;
 
     TextView txtBack;
+    String keyWords = "";
+    public MoreSearchFragment(String key){
+        this.keyWords = key;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +63,7 @@ public class MoreSearchFragment extends Fragment {
         recyclerViewInit(view);
         event(view);
 
+        getAllLibraryBooksFromServer();
         return view;
     }
 
@@ -46,13 +71,6 @@ public class MoreSearchFragment extends Fragment {
         moreSearchRecyclerView = view.findViewById(R.id.more_search_result);
 
         moreBooks = new ArrayList<>();
-        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
-        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
-        moreBooks.add(new MoreBook("hello", "已下载", "已阅", "长安十二时辰", "新龙"));
-        moreBooks.add(new MoreBook("hello", "未下载", "未阅", "马尔克斯", "新龙"));
-
         adapter = new MoreBookAdapter(getActivity(), moreBooks);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity());
         moreSearchRecyclerView.setLayoutManager(manager);
@@ -71,5 +89,49 @@ public class MoreSearchFragment extends Fragment {
             }
         });
     }
+    private void getAllLibraryBooksFromServer() {
+        moreBooks = new ArrayList<>();
 
+        Global.showLoading(getContext(),"generate_report");
+        Map<String, List<String>> params = new HashMap<String, List<String>>();
+        params.put("keyword", Collections.singletonList(keyWords));
+
+        Ion.with(getActivity())
+                .load(Url.searchAllBookwithMobile)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameters(params)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        Log.i("HomeFragment", "result => " + result);
+                        Global.hideLoading();
+
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+
+                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                    Gson gson = new Gson();
+                                    Type type = new TypeToken<ArrayList<Book>>() {}.getType();
+                                    moreBooks = gson.fromJson(dataArray.toString(), type);
+                                    adapter.reloadBookList(moreBooks);
+                                } else {
+                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
 }

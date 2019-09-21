@@ -13,9 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -41,23 +44,23 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Book one = bookList.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
+        holder.bookName.setText(one.bookName);
+        if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
 
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
-                    .load(one.getBookImageLocalUrl())
+                    .load(one.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         } else {
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
-                    .load(one.getBookImageUrl())
+                    .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
@@ -70,6 +73,10 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         return bookList.size();
     }
 
+    public void reloadBookList(ArrayList<Book> updatedBooks){
+        bookList = updatedBooks;
+        notifyDataSetChanged();
+    }
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView bookImage;

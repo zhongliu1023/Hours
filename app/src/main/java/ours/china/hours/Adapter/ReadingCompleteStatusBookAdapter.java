@@ -40,12 +40,12 @@ public class ReadingCompleteStatusBookAdapter extends RecyclerView.Adapter<Readi
     public void onBindViewHolder(@NonNull ReadingStatusBookViewHolder holder, int position) {
         Book one = bookList.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        holder.txtReadTime.setText(one.getReadTime());
-        holder.txtSpecifiedTime.setText(one.getSpecifiedTime());
+        holder.bookName.setText(one.bookName);
+        holder.txtReadTime.setText(one.bookStatus.time);
+        holder.txtSpecifiedTime.setText(one.demandTime);
 
         Glide.with(context)
-                .load(one.getBookImageUrl())
+                .load(one.coverUrl)
                 .placeholder(R.drawable.book_image)
                 .into(holder.bookImage);
     }

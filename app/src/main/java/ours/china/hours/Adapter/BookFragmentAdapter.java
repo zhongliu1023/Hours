@@ -42,13 +42,13 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
         final FragmentBookModel parent = bookList.get(position);
         final Book one = bookList.get(position).getBook();
 
-        holder.bookName.setText(one.getBookName());
-        if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
+        holder.bookName.setText(one.bookName);
+        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
 
             // for downloaded book
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
-                    .load(one.getBookImageLocalUrl())
+                    .load(one.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         } else {
@@ -56,12 +56,12 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
             // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
-                    .load(one.getBookImageUrl())
+                    .load(one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);

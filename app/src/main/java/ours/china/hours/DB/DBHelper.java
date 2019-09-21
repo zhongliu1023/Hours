@@ -47,10 +47,10 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 Book row = new Book();
 
-                row.setBookID(cursor.getString(1));
-                row.setPagesArray(cursor.getString(2));
-                row.setReadTime(cursor.getString(3));
-                row.setLastTime(cursor.getString(4));
+                row.bookId = cursor.getString(1);
+                row.bookStatus.pages = cursor.getString(2);
+                row.bookStatus.time = cursor.getString(3);
+                row.bookStatus.lastRead = cursor.getString(4);
 
                 results.add(row);
             } while (cursor.moveToNext());
@@ -92,11 +92,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean updateData(Book book) {
         ContentValues cv = new ContentValues();
-        cv.put(COL_2, book.getBookID());
-        cv.put(COL_3, book.getPagesArray());
-        cv.put(COL_4, book.getReadTime());
-        cv.put(COL_5, book.getLastTime());
-        int cnt = db.update(TABLE_NAME, cv, "BOOK_ID = " + book.getBookID(), null);
+        cv.put(COL_2, book.bookId);
+        cv.put(COL_3, book.bookStatus.pages);
+        cv.put(COL_4, book.bookStatus.time);
+        cv.put(COL_5, book.bookStatus.lastRead);
+        int cnt = db.update(TABLE_NAME, cv, "BOOK_ID = " + book.bookId, null);
         if (cnt > 0)
             return true;
         else

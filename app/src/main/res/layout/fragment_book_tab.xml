@@ -32,7 +32,7 @@
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="5dp"
                         android:layout_alignParentStart="true"/>
-                    <EditText
+                    <TextView
                         android:layout_toEndOf="@+id/search_image"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -40,6 +40,7 @@
                         android:layout_marginEnd="5dp"
                         android:paddingStart="5dp"
                         android:paddingEnd="5dp"
+                        android:gravity="center_vertical"
                         android:textColorHint="@color/alpa_40"
                         android:background="@color/history_stroke"
                         android:hint="搜索书名、作者、出版社"
@@ -73,7 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="全都(9)"
-                android:textSize="16sp"
+                android:textSize="@dimen/content_normal_size"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="10dp"
                 android:layout_centerVertical="true"/>
@@ -96,7 +97,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="我的书架"
-                android:textSize="24sp"
+                android:textSize="@dimen/navigation_title_size"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
         <ImageView

@@ -272,7 +272,7 @@ public class PasswordLoginFragment extends Fragment {
                 });
     }
 
-    public static class DownloadFeatureFile extends AsyncTask<String, String, String> {
+    class DownloadFeatureFile extends AsyncTask<String, String, String> {
 
         private Context context;
         private String fileName;

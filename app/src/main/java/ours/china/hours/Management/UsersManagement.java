@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
@@ -58,5 +59,22 @@ public class UsersManagement {
         }
         return currentUser;
     }
-
+    public static ArrayList<String> getFlexStrings(SharedPreferencesManager sharedPreferencesManager){
+        ArrayList<String> flexStrings = new ArrayList<String>(){};
+        String userInfoStr = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.FLEX_STRINGS);
+        if (!userInfoStr.equals("")) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<ArrayList<String>>() {
+            }.getType();
+            flexStrings = gson.fromJson(userInfoStr, type);
+        }
+        return flexStrings;
+    }
+    public static void setFlexStrings(ArrayList<String> flexStrings, SharedPreferencesManager sharedPreferencesManager){
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<String>>() {
+        }.getType();
+        String json = gson.toJson(flexStrings, type);
+        sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.FLEX_STRINGS, json);
+    }
 }

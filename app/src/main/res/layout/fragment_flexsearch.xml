@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="搜索记录"
-            android:textSize="@dimen/sw360_standard_fontsize_18"
+            android:textSize="@dimen/content_normal_size"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/clearSearchHistory"
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:text="清空搜索记录"
             android:textColor="@color/pink"
-            android:textSize="@dimen/sw360_standard_fontsize_18"
+            android:textSize="@dimen/content_normal_size"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="5dp"/>

@@ -1,8 +1,10 @@
 package ours.china.hours.Activity;
 
 import android.os.Bundle;
+import android.os.UserManager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -18,17 +20,24 @@ import com.google.android.flexbox.JustifyContent;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 import ours.china.hours.Adapter.FlexboxAdapter;
+import ours.china.hours.BookLib.artifex.mupdf.fitz.Image;
+import ours.china.hours.Common.Interfaces.SearchItemInterface;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Fragment.FragmentUtil;
 import ours.china.hours.Fragment.Search.FlexSearchFragment;
 import ours.china.hours.Fragment.Search.SearchResultFragment;
+import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.R;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements SearchItemInterface {
 
-    public ImageView imgBack;
+    public SearchView searchBook;
     public TextView txtSearch;
-
+    SharedPreferencesManager sessionManager;
+    ImageView imgBack;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,46 +48,65 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void init(){
-        FlexSearchFragment flexSearchFragment = new FlexSearchFragment();
+        sessionManager = new SharedPreferencesManager(this);
+        FlexSearchFragment flexSearchFragment = new FlexSearchFragment(new SearchItemInterface() {
+            @Override
+            public void onClickSearchItem(String keyword) {
+                replaceSearchBook(keyword);
+            }
+        });
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame, flexSearchFragment, "flexSearchFragment");
         transaction.commit();
     }
 
     public void event() {
-        imgBack = findViewById(R.id.imgBack);
-        imgBack.setOnClickListener(new View.OnClickListener() {
+        searchBook = findViewById(R.id.searchBook);
+        searchBook.setQueryHint("搜索书名、作者、出版社");
+        searchBook.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onClick(View view) {
-                if(getFragmentManager().getBackStackEntryCount() == 0) {
-                    SearchActivity.super.onBackPressed();
-                }
-                else {
-                    getFragmentManager().popBackStack();
-                }
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Global.SearchQuery = s;
+                return false;
             }
         });
-
         txtSearch = findViewById(R.id.txtSearch);
         txtSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // when we go from fragment to fragment or go back from fragment to fragment, we use "stack" using FragmentUtil to solve relationship between them correctly.
-                // In Fragment Stack, we use "Tag"
-                Fragment searchResultFragment = FragmentUtil.getFragmentByTagName(getSupportFragmentManager(), "searchResultFragment");
-                if (searchResultFragment == null) {
-                    searchResultFragment = new SearchResultFragment();
-                }
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.frame, searchResultFragment, "searchResultFragment");
-                transaction.addToBackStack(null);
-                transaction.commit();
-
-                FragmentUtil.printActivityFragmentList(getSupportFragmentManager());
+                replaceSearchBook(searchBook.getQuery().toString());
+            }
+        });
+        imgBack = findViewById(R.id.imgBack);
+        imgBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
             }
         });
     }
 
+    void replaceSearchBook(String keywords){
+        Fragment searchResultFragment = FragmentUtil.getFragmentByTagName(getSupportFragmentManager(), "searchResultFragment");
+        if (searchResultFragment == null) {
+            searchResultFragment = new SearchResultFragment(keywords);
+        }
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame, searchResultFragment, "searchResultFragment");
+        transaction.addToBackStack(null);
+        transaction.commit();
+
+        FragmentUtil.printActivityFragmentList(getSupportFragmentManager());
+    }
+
+    @Override
+    public void onClickSearchItem(String keyword) {
+
+    }
 }

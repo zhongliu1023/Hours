@@ -28,6 +28,7 @@ import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -59,14 +60,14 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
     public void onBindViewHolder(@NonNull HomeBookViewHolder holder, int position) {
         Book one = bookList.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
+        holder.bookName.setText(one.bookName);
+        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
 
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
-                    .load(one.getBookImageLocalUrl())
+                    .load(one.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         } else {
@@ -74,12 +75,12 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
-                    .load(one.getBookImageUrl())
+                    .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
@@ -90,23 +91,8 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             @Override
             public void onClick(View view) {
 
-                Global.bookID = one.getBookID();
-                Global.bookName = one.getBookName();
-                Global.bookSpecifiedTime = one.getSpecifiedTime();
-                Global.bookUrl = one.getBookUrl();
-                Global.bookDownloadedPosition = position;
+                bookItemInterface.onClickBookItem(one, position);
 
-                if (!one.getBookLocalUrl().equals("") && !one.getBookImageLocalUrl().equals("")) {
-
-                    List<FileMeta> localBooks = AppDB.get().getAll();
-                    int tempLibraryPosition = Integer.parseInt(one.getLibraryPosition());
-
-                    Log.i(TAG, "library book position" + one.getLibraryPosition());
-                    ExtUtils.openFile(activity, localBooks.get(tempLibraryPosition));
-
-                } else {
-                    bookItemInterface.onClickBookItem(one.getBookImageUrl());
-                }
 
             }
         });
@@ -121,6 +107,11 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
     @Override
     public int getItemCount() {
         return bookList.size();
+    }
+
+    public void reloadBookList(List<Book> updatedBooklist){
+        bookList = updatedBooklist;
+        notifyDataSetChanged();
     }
 
     public class HomeBookViewHolder extends RecyclerView.ViewHolder {
@@ -154,10 +145,10 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         fileMeta.setIsSearchBook(true);
         fileMeta.setIsStar(false);
         fileMeta.setIsStarTime(System.currentTimeMillis());
-        fileMeta.setIsbn(one.getBookLocalUrl());
+        fileMeta.setIsbn(one.bookLocalUrl);
         fileMeta.setLang("en");
         fileMeta.setPages(20);
-        fileMeta.setPath(one.getBookLocalUrl());
+        fileMeta.setPath(one.bookLocalUrl);
         fileMeta.setPathTxt("test");
         fileMeta.setPublisher("");
         fileMeta.setSequence("");

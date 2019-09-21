@@ -36,26 +36,11 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/search_back">
-                    <ImageView
-                        android:id="@+id/search_image"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/search_icon"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="5dp"
-                        android:layout_alignParentStart="true"/>
-                    <EditText
-                        android:layout_toEndOf="@+id/search_image"
+
+                    <SearchView
+                        android:id="@+id/searchBook"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:textSize="16sp"
-                        android:layout_marginEnd="5dp"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:textColorHint="@color/alpa_40"
-                        android:background="@color/history_stroke"
-                        android:hint="搜索书名、作者、出版社"
-                        android:textColor="@color/home_background_color"/>
+                        android:layout_height="match_parent"/>
                 </RelativeLayout>
                 <TextView
                     android:id="@+id/txtSearch"
@@ -63,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:textSize="@dimen/sw360_standard_fontsize_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:layout_marginEnd="@dimen/getneral_padding_16"
                     android:layout_marginStart="8dp"
                     android:text="搜索" />

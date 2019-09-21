@@ -20,13 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -35,24 +38,40 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.foobnix.android.utils.LOG;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
+import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -61,27 +80,27 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by liujie on 1/12/18.
  */
 
-public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, UpdateDisplayInterface {
+public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface {
 
-    String tempPopupWindow2String = "默认";
+    private String tempPopupWindow2String = "默认";
 
-    ArrayList<Book> mBookList;
-    HomeBookAdapter adapter;
-    RelativeLayout maskLayer;
+    private ArrayList<Book> mBookList = new ArrayList<Book>(){};
+    private HomeBookAdapter adapter;
+    private RelativeLayout maskLayer;
 
-    SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView recyclerBooksView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RelativeLayout relTypeBook;
-    ImageView imgSort;
-    ImageView imgSearch;
-    ImageView imgArrow;
-    TextView txtTypeBook;
+    private ImageView imgSort;
+    private ImageView imgArrow;
+    private TextView txtTypeBook;
 
-    ImageView newsImage;
+    private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
+    private QueryBook.Order order = QueryBook.Order.ASC;
+    private QueryBook.Category category = QueryBook.Category.ALL;
+    private int currentPage = 0;
 
-    DBController db;
-    SessionManager sessionManager;
-
+    SharedPreferencesManager sessionManager;
+    DBController db = null;
     public HomeFragment() {
         Log.v("Hello", "This is DB controller part.");
     }
@@ -90,26 +109,28 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        sessionManager = new SessionManager(getContext());
         getAllDataFromLocal();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
-        getAllDataFromServer(rootView, inflater);
-//        getAllDataFromServer();
+        init(rootView);
+        popupWindowWork(inflater);
+        event(rootView);
+
+        getAllDataFromServer();
 
         return rootView;
     }
 
     public void init(View view) {
 
-        Global.updateDisplayInterface = this;
+        db = new DBController(getActivity());
+        sessionManager = new SharedPreferencesManager(getActivity());
 
         // recyclerViewWork.
-        recyclerBooksView = view.findViewById(R.id.recycler_books);
+        RecyclerView recyclerBooksView = view.findViewById(R.id.recycler_books);
         adapter = new HomeBookAdapter(mBookList, getActivity(), this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
 
@@ -136,14 +157,25 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         Log.v("localBooks count", String.valueOf(localBooks.size()));
     }
 
-    public void getAllDataFromServer(View rootView, LayoutInflater inflater) {
+    public void getAllDataFromServer() {
         mBookList = new ArrayList<>();
 
         Global.showLoading(getContext(),"generate_report");
+        Map<String, List<String>> params = new HashMap<String, List<String>>();
+        params.put("order_by", Collections.singletonList(orderBy.toString()));
+        params.put("order", Collections.singletonList(order.toString()));
+        params.put("page", Collections.singletonList(Integer.toString(currentPage)));
+        String keywords = "";
+        if (!keywords.isEmpty()){
+            params.put("keyword", Collections.singletonList(keywords));
+        }
+        params.put("category", Collections.singletonList(category.toString()));
+
         Ion.with(getActivity())
                 .load(Url.searchAllBookwithMobile)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameters(params)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -158,26 +190,13 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
                                 if (resObj.getString("res").toLowerCase().equals("success")) {
 
-                                    JSONArray dataArray = new JSONArray(resObj.getString("data"));
-                                    for (int i = 0; i < dataArray.length(); i++) {
-                                        JSONObject oneObject = dataArray.getJSONObject(i);
-
-                                        Book one = new Book();
-                                        one.setBookID(oneObject.getString(Global.receive_json_key_bookId));
-                                        one.setBookImageUrl(Url.baseUrl + oneObject.getString(Global.receive_json_key_imageUrl));
-                                        one.setBookAuthor(oneObject.getString(Global.receive_json_key_author));
-                                        one.setBookName(oneObject.getString(Global.receive_json_key_bookName));
-                                        one.setBookUrl(Url.baseUrl + oneObject.getString(Global.receive_json_key_bookUrl));
-                                        one.setReadState(oneObject.getString(Global.receive_json_key_readState));
-
-                                        mBookList.add(one);
-                                    }
+                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                    Gson gson = new Gson();
+                                    Type type = new TypeToken<ArrayList<Book>>() {}.getType();
+                                    mBookList = gson.fromJson(dataArray.toString(), type);
 
                                     getTotalData();
 
-                                    init(rootView);
-                                    popupWindowWork(inflater);
-                                    event(rootView);
 
                                 } else {
                                     Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
@@ -196,9 +215,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     // combine with local db data and make total data.
     public void getTotalData() {
-        db = new DBController(getActivity());
         ArrayList<Book> books = db.getAllData();
         if (books == null) {
+            adapter.reloadBook(mBookList);
             return;
         }
 
@@ -207,15 +226,15 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 Book one = mBookList.get(i);
                 Book oneLocal = books.get(j);
 
-                if (one.getBookID().equals(oneLocal.getBookID())) {
-                    one.setBookLocalUrl(oneLocal.getBookLocalUrl());
-                    one.setBookImageLocalUrl(oneLocal.getBookImageLocalUrl());
-                    one.setLibraryPosition(oneLocal.getLibraryPosition());
-
+                if (one.bookId != null && oneLocal.bookId != null && one.bookId.equals(oneLocal.bookId)) {
+                    one.bookLocalUrl = oneLocal.bookLocalUrl;
+                    one.bookImageLocalUrl = oneLocal.bookImageLocalUrl;
+                    one.libraryPosition = oneLocal.libraryPosition;
                     break;
                 }
             }
         }
+        adapter.reloadBook(mBookList);
     }
 
 
@@ -292,6 +311,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             @Override
             public void onClick(View view) {
                 txtTypeBook.setText("全都(1000)");
+                category= QueryBook.Category.ALL;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -300,6 +321,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             @Override
             public void onClick(View view) {
                 txtTypeBook.setText("推荐(5)");
+                category= QueryBook.Category.RECOMMEND;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -308,6 +331,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             @Override
             public void onClick(View view) {
                 txtTypeBook.setText("自然科学(9)");
+                category= QueryBook.Category.ZHIREN;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -316,6 +341,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             @Override
             public void onClick(View view) {
                 txtTypeBook.setText("人文社科(2)");
+                category= QueryBook.Category.RENWEN;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -324,6 +351,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             @Override
             public void onClick(View view) {
                 txtTypeBook.setText("文学艺术(7)");
+                category= QueryBook.Category.WENXIE;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -333,6 +362,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             public void onClick(View view) {
                 txtTypeBook.setText("关注(5)");
                 maskLayer.setVisibility(View.GONE);
+                category= QueryBook.Category.ATEENTION;
+                getAllDataFromServer();
                 dismissPopupWindow1();
             }
         });
@@ -342,6 +373,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             public void onClick(View view) {
                 tempPopupWindow2String = "默认";
                 maskLayer.setVisibility(View.GONE);
+                orderBy= QueryBook.OrderBy.PUBLISHDATE;
+                getAllDataFromServer();
                 popupWindow2.dismiss();
             }
         });
@@ -351,6 +384,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             public void onClick(View view) {
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
+                orderBy= QueryBook.OrderBy.PUBLISHDATE;
+                getAllDataFromServer();
                 popupWindow2.dismiss();
             }
         });
@@ -360,6 +395,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             public void onClick(View view) {
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
+                orderBy= QueryBook.OrderBy.BOOKNAME;
+                getAllDataFromServer();
                 popupWindow2.dismiss();
             }
         });
@@ -369,6 +406,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             public void onClick(View view) {
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
+                orderBy= QueryBook.OrderBy.AUTH0R;
+                getAllDataFromServer();
                 popupWindow2.dismiss();
             }
         });
@@ -494,8 +533,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     public void event(View rootView) {
 
-        imgSearch = rootView.findViewById(R.id.search_image);
-        imgSearch.setOnClickListener(new View.OnClickListener() {
+        RelativeLayout searchLayout = rootView.findViewById(R.id.searchLayout);
+        searchLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), SearchActivity.class);
@@ -516,7 +555,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             }
         });
 
-        newsImage = rootView.findViewById(R.id.imageNews);
+        ImageView newsImage = rootView.findViewById(R.id.imageNews);
         newsImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -533,25 +572,95 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     }
 
     @Override
-    public void onClickBookItem(String uri) {
+    public void onClickBookItem(Book selectedBook, int position) {
+        if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+            BookManagement.saveFocuseBook(selectedBook, sessionManager);
+            gotoReadingViewFile();
+            return;
+        }
+        BookManagement.saveFocuseBook(selectedBook, sessionManager);
         if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            new DownloadImage(getActivity()).execute(uri);
+            new DownloadImage(getActivity(), new ImageListener() {
+                @Override
+                public void onImagePath(String path) {
+                    selectedBook.bookImageLocalUrl = path;
+                    BookManagement.saveFocuseBook(selectedBook, sessionManager);
+                    downloadFile(selectedBook, position);
+                }
+            }).execute(Url.domainUrl + "/" + selectedBook.coverUrl);
         }else{
             EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
 
+    void downloadFile(Book book, int position){
+        new DownloadFile(getActivity(), new ImageListener() {
+            @Override
+            public void onImagePath(String path) {
+                if (path.equals("")) {
+                    Toast.makeText(getActivity(), "下载错误", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                book.bookLocalUrl = path;
+                BookManagement.saveFocuseBook(book, sessionManager);
+                resetBookInfoAfterDownloading(position);
+            }
+        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
+    }
 
-    @Override
-    public void insertLocalDB(int libraryPosition) {
-        Log.i("HomeBookAdapter", "bookDownloadedPosition => " + Global.bookDownloadedPosition);
-        Log.i("HomeBookAdapter", "bookLocalUrl => " + Global.bookLocalUrl);
-        Log.i("HomeBookAdapter", "bookImageLocalUrl => " + Global.bookImageLocalUrl);
+    void resetBookInfoAfterDownloading(int position){
+        Book focuseBook = BookManagement.getFocuseBook(sessionManager);
 
-        mBookList.get(Global.bookDownloadedPosition).setBookLocalUrl(Global.bookLocalUrl);
-        mBookList.get(Global.bookDownloadedPosition).setBookImageLocalUrl(Global.bookImageLocalUrl);
-        mBookList.get(Global.bookDownloadedPosition).setLibraryPosition(String.valueOf(libraryPosition));
+        int tempPosition;
+        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+            tempPosition = 0;
+        } else {
+            tempPosition = AppDB.get().getAll().size();
+        }
+        focuseBook.libraryPosition = String.valueOf(tempPosition);
 
-        adapter.notifyItemChanged(Global.bookDownloadedPosition);
+        DBController db;
+        db = new DBController(getActivity());
+        db.insertData(focuseBook);
+        BookManagement.saveFocuseBook(focuseBook, sessionManager);
+
+        mBookList.remove(position);
+        mBookList.add(position, focuseBook);
+        adapter.notifyItemChanged(position);
+
+        if (!ExtUtils.isExteralSD(focuseBook.bookLocalUrl)) {
+            FileMeta meta = AppDB.get().getOrCreate(focuseBook.bookLocalUrl);
+            AppDB.get().updateOrSave(meta);
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+        }
+        TempHolder.listHash++;
+        Ion.with(getActivity())
+                .load(Url.addToMybooks)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("bookId", focuseBook.bookId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+
+                        if (error == null) {
+                            try {
+                                JSONObject resObject = new JSONObject(result.toString());
+                                if (resObject.getString("res").equals("success")) {
+                                    gotoReadingViewFile();
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
+    }
+    void gotoReadingViewFile(){
+        Book focuseBook = BookManagement.getFocuseBook(sessionManager);
+        List<FileMeta> localBooks = AppDB.get().getAll();
+        int tempLibraryPosition = Integer.parseInt(focuseBook.libraryPosition);
+
+        ExtUtils.openFile(getActivity(), localBooks.get(tempLibraryPosition));
     }
 }

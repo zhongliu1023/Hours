@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import ours.china.hours.Adapter.ReadingStatusBookAdapter;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 
 public class ReadingNowBookActivity extends AppCompatActivity {
@@ -67,11 +68,9 @@ public class ReadingNowBookActivity extends AppCompatActivity {
         bookArrayList = db.getAllData();
         for (int i = 0; i < bookArrayList.size(); i++) {
             Book one = (Book) bookArrayList.get(i);
-            Book tempBook = db.getBookStateData(one.getBookID());
+            BookStatus tempBook = db.getBookStateData(one.bookId);
             if (tempBook != null) {
-                one.setPagesArray(tempBook.getPagesArray());
-                one.setReadTime(tempBook.getReadTime());
-                one.setLastTime(tempBook.getLastTime());
+                one.bookStatus  = tempBook;
             }
         }
     }

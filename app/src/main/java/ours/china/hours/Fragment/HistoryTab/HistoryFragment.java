@@ -26,6 +26,7 @@ import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;
 import ours.china.hours.Adapter.ReadingStatusBookAdapter;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 
 /**
@@ -94,13 +95,11 @@ public class HistoryFragment extends Fragment {
             bookArrayList.clear();
             for (int i = 0; i < tempBookArrayList.size(); i++) {
                 Book one = (Book) tempBookArrayList.get(i);
-                Book tempBook = db.getBookStateData(one.getBookID());
+                BookStatus tempBook = db.getBookStateData(one.bookId);
                 if (tempBook != null) {
-                    one.setPagesArray(tempBook.getPagesArray());
-                    one.setReadTime(tempBook.getReadTime());
-                    one.setLastTime(tempBook.getLastTime());
+                    one.bookStatus = tempBook;
                 }
-                if (one.getTotalPage().equals(String.valueOf(one.getPagesArray().split(",").length))) {
+                if (one.bookStatus != null && one.pageCount.equals(String.valueOf(one.bookStatus.pages.split(",").length))) {
                     completeStatusBooks.add(one);
                 } else {
                     bookArrayList.add(one);

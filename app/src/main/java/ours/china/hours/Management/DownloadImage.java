@@ -23,6 +23,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
 
@@ -31,9 +32,11 @@ public class DownloadImage extends AsyncTask<String, String, String> {
     private String fileName;
     private String folder;
     private Context context;
+    private ImageListener imageListener;
 
-    public DownloadImage(Context context) {
+    public DownloadImage(Context context, ImageListener imageListener) {
         this.context = context;
+        this.imageListener = imageListener;
     }
     /**
      * Before starting background thread
@@ -100,12 +103,7 @@ public class DownloadImage extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String message) {
-        Global.bookImageLocalUrl = message;
-
-        Log.i("HomeBookAdapter", "downloaded image url => " + message);
-        Log.i("HomeBookAdapter", "downloaded book url => " + Global.bookUrl);
-
-        new DownloadFile(context).execute(Global.bookUrl);
+        imageListener.onImagePath(message);
 
     }
 }

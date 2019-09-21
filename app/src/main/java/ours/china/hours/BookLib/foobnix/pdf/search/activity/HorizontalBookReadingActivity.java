@@ -150,6 +150,7 @@ import ours.china.hours.BookLib.foobnix.tts.TtsStatus;
 import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
@@ -164,8 +165,10 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
+import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
 
@@ -301,12 +304,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     //-----------------------------------------------
 
 
+    private Book focusBook = null;
+    SharedPreferencesManager sessionManager;
+
 
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
-        Log.i("horizontalbookreading", "onNewIntent => start");
-
         if (TTSNotification.ACTION_TTS.equals(intent.getAction())) {
             return;
         }
@@ -315,17 +319,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             finish();
             startActivity(intent);
         }
-
-        Log.i("horizontalbookreading", "onNewIntent => end");
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.i("horizontalbookreading", "onCreate => start");
-
         quickBookmark = getString(R.string.fast_bookmark);
-        LOG.d("getRequestedOrientation", AppState.get().orientation, getRequestedOrientation());
-
         flippingTimer = 0;
 
         long crateBegin = System.currentTimeMillis();
@@ -356,6 +354,17 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             Android6.checkPermissions(this, true);
             return;
         }
+
+
+        db = new DBController(HorizontalBookReadingActivity.this);
+        sessionManager = new SharedPreferencesManager(this);
+        focusBook = BookManagement.getFocuseBook(sessionManager);
+        if (focusBook.bookStatus == null || db.getBookStateData(focusBook.bookId) == null){
+            db.insertBookStateData(new BookStatus(), focusBook.bookId);
+        }
+        focusBook.bookStatus = db.getBookStateData(focusBook.bookId);
+
+
 
         // for read time
         topReadTime = findViewById(R.id.topReadTime);
@@ -714,14 +723,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         uiInit();
         event();
 
-        db = new DBController(HorizontalBookReadingActivity.this);
 
         FaceServer.getInstance().init(this);
         faceInitView();
 
-        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("")) {
+        if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("")) {
 
-            displayedTime = Long.parseLong(db.getBookStateData(Global.bookID).getReadTime());
+            displayedTime = Long.parseLong(db.getBookStateData(focusBook.bookId).time);
             tempDisplayedTime = displayedTime;
 
         } else {
@@ -813,10 +821,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
         maxPage = info.textPage;
 
-        Book one = new Book();
-        one.setBookID(Global.bookID);
-        one.setTotalPage(maxPage);
-        db.updateBookTotalPage(one);
+        focusBook.pageCount = maxPage;
+        db.updateBookTotalPage(focusBook);
 
         Log.i("horizontalbookreading", "initAsync => end");
     }
@@ -900,27 +906,27 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         }
 
         // for top read time
-        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("") && db.getBookStateData(Global.bookID).getReadTime() != null) {
-            int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+        if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("") && db.getBookStateData(focusBook.bookId).time != null) {
+            int seconds = Integer.parseInt(db.getBookStateData(focusBook.bookId).time) / 1000;
             int minutes = seconds / 60;
             int hours = minutes / 60;
             seconds = seconds % 60;
             topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
 
             topReadTime.setTextColor(getResources().getColor(R.color.black));
-            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
         }
 
 
         // for percent
 //        int pageCount;
-//        if (db.getBookStateData(Global.bookID).getTotalPage() != null && !db.getBookStateData(Global.bookID).getTotalPage().equals("")) {
-//            if (db.getBookStateData(Global.bookID).getPagesArray().equals("") || db.getBookStateData(Global.bookID).getPagesArray() == null) {
+//        if (db.getBookStateData(focuse.bookId).getTotalPage() != null && !db.getBookStateData(focuse.bookId).getTotalPage().equals("")) {
+//            if (db.getBookStateData(focuse.bookId).getPagesArray().equals("") || db.getBookStateData(focuse.bookId).getPagesArray() == null) {
 //                pageCount = 0;
 //            } else {
-//                pageCount = db.getBookStateData(Global.bookID).getPagesArray().split(",").length;
+//                pageCount = db.getBookStateData(focuse.bookId).getPagesArray().split(",").length;
 //            }
-//            int percent = (int) (pageCount / Integer.parseInt(db.getBookStateData(Global.bookID).getTotalPage()) * 100);
+//            int percent = (int) (pageCount / Integer.parseInt(db.getBookStateData(focuse.bookId).getTotalPage()) * 100);
 //            pageReadingPercent.setText(getString(R.string.percentBook, String.valueOf(percent)));
 //            Log.i("HorizontalBookReading", "percent => " + String.valueOf(percent));
 //        }
@@ -1499,9 +1505,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         countTime = System.currentTimeMillis();       // this part is my definition for real time communication with api.
         faceDetectStartTime = 0;
 
-        if (db.getBookStateData(Global.bookID) != null && !db.getBookStateData(Global.bookID).getReadTime().equals("")) {
+        if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("")) {
 
-            displayedTime = Long.parseLong(db.getBookStateData(Global.bookID).getReadTime());
+            displayedTime = Long.parseLong(db.getBookStateData(focusBook.bookId).time);
             tempDisplayedTime = displayedTime;
 
         } else {
@@ -1636,11 +1642,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             faceDetectStartTime = 0;
             updateBookReadTimeState(String.valueOf(readTime));
 //
-//            int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+//            int seconds = Integer.parseInt(db.getBookStateData(focuse.bookId).getReadTime()) / 1000;
 //            int minutes = seconds / 60;
 //            topReadTime.setText(getString(R.string.readTime, String.valueOf(minutes), String.valueOf(seconds)));
 //            topReadTime.setTextColor(getResources().getColor(R.color.black));
-            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+            Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
         }
 
     }
@@ -1911,7 +1917,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             if (pageChangedTime > faceDetectStartTime && faceDetectStartTime != 0) {
                 updateBookPageNumbersState(currentPage);
 //
-//                int percent = (int) (db.getBookStateData(Global.bookID).getPagesArray().split(",").length / Integer.parseInt(db.getBookStateData(Global.bookID).getTotalPage()) * 100);
+//                int percent = (int) (db.getBookStateData(focuse.bookId).getPagesArray().split(",").length / Integer.parseInt(db.getBookStateData(focuse.bookId).getTotalPage()) * 100);
 //                pageReadingPercent.setText(getString(R.string.percentBook, String.valueOf(percent)));
 //                Log.i("HorizontalBookReading", "percent => " + String.valueOf(percent));
             }
@@ -2490,11 +2496,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                         topReadTime.setTextColor(getResources().getColor(R.color.black));
 
 //                        // for r
-//                        int seconds = Integer.parseInt(db.getBookStateData(Global.bookID).getReadTime()) / 1000;
+//                        int seconds = Integer.parseInt(db.getBookStateData(focuse.bookId).getReadTime()) / 1000;
 //                        int minutes = seconds / 60;
 //                        topReadTime.setText(getString(R.string.readTime, String.valueOf(minutes), String.valueOf(seconds)));
 //                        topReadTime.setTextColor(getResources().getColor(R.color.black));
-                        Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(Global.bookID).getReadTime());
+                        Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
                     } else {
 //                        Toast.makeText(this, "Here, detected face is removed. faceDetectStartTime=" + faceDetectStartTime, Toast.LENGTH_SHORT).show();
                     }
@@ -2642,19 +2648,19 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
             Log.e("horizontalbookreading", "HHHHHHHH");
             Log.i("horizontalbookreading", Global.KEY_token + ":" + Global.access_token);
-            Log.i("horizontalbookreading", "bookId" + ":" + Global.bookID);
-            Log.i("horizontalbookreading", "page" + ":" + db.getBookStateData(Global.bookID).getPagesArray());
-            Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(Global.bookID).getReadTime());
-            Log.i("horizontalbookreading", "endPoint" + ":" + db.getBookStateData(Global.bookID).getLastTime());
+            Log.i("horizontalbookreading", "bookId" + ":" + focusBook.bookId);
+            Log.i("horizontalbookreading", "page" + ":" + db.getBookStateData(focusBook.bookId).pages);
+            Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(focusBook.bookId).time);
+            Log.i("horizontalbookreading", "endPoint" + ":" + db.getBookStateData(focusBook.bookId).lastRead);
 
             Ion.with(HorizontalBookReadingActivity.this)
                     .load(Url.bookStateChangeOperation)
                     .setTimeout(10000)
                     .setBodyParameter("access_token", Global.access_token)
-                    .setBodyParameter("bookId", Global.bookID)
-                    .setBodyParameter("page", db.getBookStateData(Global.bookID).getPagesArray())
-                    .setBodyParameter("time", db.getBookStateData(Global.bookID).getReadTime())
-                    .setBodyParameter("endPoint", db.getBookStateData(Global.bookID).getLastTime())
+                    .setBodyParameter("bookId", focusBook.bookId)
+                    .setBodyParameter("page", db.getBookStateData(focusBook.bookId).pages)
+                    .setBodyParameter("time", db.getBookStateData(focusBook.bookId).time)
+                    .setBodyParameter("endPoint", db.getBookStateData(focusBook.bookId).lastRead)
                     .asString()
                     .setCallback(new FutureCallback<String>() {
                         @Override
@@ -2684,33 +2690,21 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     }
 
     public void updateBookPageNumbersState(String pageNumber) {
-        Book tempBook = db.getBookStateData(Global.bookID);
-
-        Book one = new Book();
-        one.setBookID(Global.bookID);
-
-        if (tempBook == null) {
-            one.setPagesArray(pageNumber);
-            db.insertBookStateData(one);
+        String pages = focusBook.bookStatus.pages;
+        if (pages.equals("")) {
+            focusBook.bookStatus.pages = pageNumber;
+            db.updateBookPageNumbersState(focusBook.bookStatus, focusBook.bookId);
 
             stateChangFlag = true;
         } else {
-            String pages = tempBook.getPagesArray();
-            if (pages.equals("")) {
-                one.setPagesArray(pageNumber);
-                db.updateBookPageNumbersState(one);
+
+            if (pages.contains(pageNumber)) {
+//                    one.setPagesArray(pages);
+            } else {
+                focusBook.bookStatus.pages = pages + "," + pageNumber;
+                db.updateBookPageNumbersState(focusBook.bookStatus, focusBook.bookId);
 
                 stateChangFlag = true;
-            } else {
-
-                if (pages.contains(pageNumber)) {
-//                    one.setPagesArray(pages);
-                } else {
-                    one.setPagesArray(pages + "," + pageNumber);
-                    db.updateBookPageNumbersState(one);
-
-                    stateChangFlag = true;
-                }
             }
         }
 
@@ -2719,27 +2713,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     }
 
     public void updateBookReadTimeState(String readTime) {
-        Book tempBook = db.getBookStateData(Global.bookID);
-
-        Book one = new Book();
-        one.setBookID(Global.bookID);
-
-        if (tempBook == null) {
-            one.setReadTime(readTime);
-            db.insertBookStateData(one);
+        String tempReadTime = focusBook.bookStatus.time;
+        if (tempReadTime.equals("")) {
+            focusBook.bookStatus.time = readTime;
 
         } else {
-            String tempReadTime = tempBook.getReadTime();
-            if (tempReadTime.equals("")) {
-                one.setReadTime(readTime);
-
-            } else {
-                long saveReadTime = Long.valueOf(tempReadTime) + Long.valueOf(readTime);
-                one.setReadTime(String.valueOf(saveReadTime));
-            }
-            db.updateBookReadTimeState(one);
-
+            long saveReadTime = Long.valueOf(tempReadTime) + Long.valueOf(readTime);
+            focusBook.bookStatus.time = String.valueOf(saveReadTime);
         }
+        db.updateBookReadTimeState(focusBook.bookStatus, focusBook.bookId);
         stateChangFlag = true;
 
         Log.i("horizontalbookreading", "updateBookReadTimeState" + stateChangFlag);
@@ -2752,15 +2734,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         SimpleDateFormat mdformat = new SimpleDateFormat("yy-MM-dd ");
         String lastTime = mdformat.format(calendar.getTime());
 
-        Book one = new Book();
-        one.setBookID(Global.bookID);
-        one.setLastTime(lastTime);
-        if (db.getBookStateData(Global.bookID) == null) {
-            db.insertBookStateData(one);
-
-        } else {
-            db.updateBookLastTimeState(one);
-        }
+        focusBook.bookStatus.lastRead = lastTime;
+        db.updateBookLastTimeState(focusBook.bookStatus, focusBook.bookId);
     }
 
 

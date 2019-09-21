@@ -23,7 +23,8 @@ public static String domainUrl = "http://Hours.worldwardmobi.com";
     public static String imageUpload = baseUrl + "bookUserFaceInfo";
 
     // for search book
-    public static String searchAllBookwithMobile = baseUrl + "searchAllBookwithMobile";
+    public static String searchAllBookwithMobile = baseUrl + "query_books";
+    public static String searchMyBookwithMobile = baseUrl + "query_mybooks";
     public static String bookStateChangeOperation = baseUrl + "updateParamWithMobile";
 
     // login
@@ -34,6 +35,7 @@ public static String domainUrl = "http://Hours.worldwardmobi.com";
     public static String uploadFaceInfo = baseUrl + "upload_faceinfo";
 
 
+    public static String addToMybooks = baseUrl + "add_to_mybooks";
     public static String notifyServerBookDownLoaded = baseUrl + "notifyServerBookDownLoaded";
 
     public static final String CLIENT_ID = "hours_reader";

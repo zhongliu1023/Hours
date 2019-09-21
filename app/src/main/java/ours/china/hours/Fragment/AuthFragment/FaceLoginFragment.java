@@ -173,7 +173,9 @@ public class FaceLoginFragment extends Fragment {
 
         featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "features" + File.separator;
         featureImageFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "imgs" + File.separator;
-
+        if (!checkPermissions(NEEDED_PERMISSIONS)) {
+            ActivityCompat.requestPermissions(getActivity(), NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
+        }
 
     }
 
@@ -517,7 +519,6 @@ public class FaceLoginFragment extends Fragment {
                 .setBodyParameter("client_secret", Url.CLIENT_SECRET)
                 .setBodyParameter("scope", Url.SCOPE)
                 .setBodyParameter("face_hash", Global.faceHash)
-                .setBodyParameter("username", "")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -577,7 +578,7 @@ public class FaceLoginFragment extends Fragment {
                                     startActivity(intent);
                                 }else{
                                     deleteAlreadyExistFiles();
-                                    new PasswordLoginFragment.DownloadFeatureFile(getContext()).execute(user.faceInfoUrl);
+                                    new DownloadFeatureFile(getContext()).execute(user.faceInfoUrl);
                                 }
                             } catch (JSONException ex) {
                                 Global.hideLoading();
@@ -608,5 +609,98 @@ public class FaceLoginFragment extends Fragment {
         Log.i(TAG, "featureImageDir deleted");
 
     }
+    class DownloadFeatureFile extends AsyncTask<String, String, String> {
 
+        private Context context;
+        private String fileName;
+        private String folder;
+
+        public DownloadFeatureFile(Context context) {
+            this.context = context;
+        }
+
+        /* Access modifiers changed, original: protected */
+        public void onPreExecute() {
+            super.onPreExecute();
+        }
+
+
+        @Override
+        protected String doInBackground(String... f_url) {
+            int count;
+            try {
+                URL url = new URL(Url.domainUrl + f_url[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                // getting file length
+                int lengthOfFile = connection.getContentLength();
+
+                fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
+
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+                String dir = "";
+
+                if (isImage.equals("no")) {
+                    dir = featureFileDownloadDir;
+                } else if (isImage.equals("yes")) {
+                    dir = featureImageFileDownloadDir;
+                }
+
+                File directory = new File(dir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                OutputStream output = new FileOutputStream(featureFileDownloadDir + fileName);
+                Log.i(TAG, "featureDownloadFileUrl => " + featureFileDownloadDir + fileName);
+
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress("" + (int) ((total * 100) / lengthOfFile));
+                    output.write(data, 0, count);
+                }
+                output.flush();
+                output.close();
+                input.close();
+
+                return "success";
+
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+
+            return "fail";
+        }
+
+        @Override
+        protected void onPostExecute(String message) {
+            super.onPostExecute(message);
+            if (message.equals("success") && isImage.equals("no")) {
+                Log.i(TAG, "feautre file download end");
+
+                isImage = "yes";
+                new DownloadFeatureFile(getContext()).execute(featureImageUrl);
+
+            } else if (message.equals("success") && isImage.equals("yes")) {
+
+                Global.hideLoading();
+                Log.i(TAG, "feature image file download end");
+
+                isImage = "no";
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                startActivity(intent);
+
+                Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
+            } else {
+
+                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+                startActivity(intent);
+                Global.hideLoading();
+                Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

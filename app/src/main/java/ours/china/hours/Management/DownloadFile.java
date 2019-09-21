@@ -30,6 +30,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
 
@@ -42,9 +43,11 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private Context context;
 
     DBController db;
+    ImageListener imageListener;
 
-    public DownloadFile(Context context) {
+    public DownloadFile(Context context, ImageListener imageListener) {
         this.context = context;
+        this.imageListener = imageListener;
 
         db = new DBController(context);
     }
@@ -75,7 +78,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
             int lengthOfFile = connection.getContentLength();
 
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
-            String timestamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+            String timestamp = Long.toString(System.currentTimeMillis());
 
             fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
             fileName = timestamp + "_" + fileName;
@@ -118,71 +121,6 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String message) {
         this.progressDialog.dismiss();
-
-        Book tempBook = new Book();
-        tempBook.setBookID(Global.bookID);
-        tempBook.setBookName(Global.bookName);
-        tempBook.setBookLocalUrl(message);
-        tempBook.setBookImageLocalUrl(Global.bookImageLocalUrl);
-        tempBook.setSpecifiedTime(Global.bookSpecifiedTime);
-
-        if (message.equals("")) {
-            Toast.makeText(this.context, "下载错误", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int tempPosition;
-        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
-            tempPosition = 0;
-        } else {
-            tempPosition = AppDB.get().getAll().size();
-        }
-
-        Log.i("HomeBookAdapter => ", "LibraryPosition =>" + tempPosition);
-        tempBook.setLibraryPosition(String.valueOf(tempPosition));
-        db.insertData(tempBook);
-
-        Log.i("HomeBookAdapter => ", "message => " + message);
-
-        Global.bookLocalUrl = message;
-        Global.updateDisplayInterface.insertLocalDB(tempPosition);
-
-        LOG.d("message == >>", message);
-        if (!ExtUtils.isExteralSD(message)) {
-
-//          message == >> |/storage/emulated/0/Librera/Downloads/William Shakespeare -  Romeo and Juliet.epub|
-            FileMeta meta = AppDB.get().getOrCreate(message);
-            Log.i("FileMeta", "fileMeta => " + meta);
-
-//            meta.setIsSearchBook(true);
-            AppDB.get().updateOrSave(meta);
-            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
-        }
-        TempHolder.listHash++;
-
-        Log.i("HomeBookAdapter", "Book id => " + Global.bookID);
-
-        Ion.with(context)
-                .load(Url.notifyServerBookDownLoaded)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .setBodyParameter("bookID", Global.bookID)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-
-                        if (error == null) {
-                            try {
-                                JSONObject resObject = new JSONObject(result.toString());
-                                if (resObject.getString("res").equals("success")) {
-
-                                }
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                });
+        imageListener.onImagePath(message);
     }
 }

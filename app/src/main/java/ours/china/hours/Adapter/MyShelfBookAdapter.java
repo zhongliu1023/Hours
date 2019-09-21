@@ -15,8 +15,10 @@ import com.bumptech.glide.Glide;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
@@ -44,31 +46,31 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
         Book one = myShelfBooks.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        if (!one.getBookImageLocalUrl().equals("") && !one.getBookLocalUrl().equals("")) {
+        holder.bookName.setText(one.bookName);
+        if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
 
             holder.imgDownState.setImageResource(R.drawable.download);
             holder.txtDownState.setText("已下载");
             Glide.with(context)
-                    .load(one.getBookImageLocalUrl())
+                    .load(one.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         } else {
             holder.imgDownState.setVisibility(View.INVISIBLE);
             holder.txtDownState.setText("未下载");
             Glide.with(context)
-                    .load(one.getBookImageUrl())
+                    .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
             holder.imgReadState.setImageResource(R.drawable.read);
         } else {
             holder.imgReadState.setVisibility(View.INVISIBLE);
         }
 
-        holder.bookAuthor.setText(one.getBookAuthor());
+        holder.bookAuthor.setText(one.author);
 
     }
 
@@ -77,6 +79,10 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
         return myShelfBooks.size();
     }
 
+    public void reloadBookList(ArrayList<Book> updatedBooks){
+        myShelfBooks = updatedBooks;
+        notifyDataSetChanged();
+    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 

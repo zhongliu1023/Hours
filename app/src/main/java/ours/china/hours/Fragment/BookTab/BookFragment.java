@@ -22,16 +22,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Common.Utils.ItemOffsetDecoration;
 import ours.china.hours.DB.DBController;
+import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
 /**
@@ -54,7 +61,13 @@ public class BookFragment extends Fragment implements BookItemInterface {
     ImageView imgArrow;
     TextView txtTypeBook;
 
-    DBController db;
+    private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
+    private QueryBook.Order order = QueryBook.Order.ASC;
+    private QueryBook.Category category = QueryBook.Category.ALL;
+    private int currentPage = 0;
+
+    SharedPreferencesManager sessionManager;
+    DBController db = null;
 
     @Nullable
     @Override
@@ -75,6 +88,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
     public void init(View view) {
 
+        sessionManager = new SharedPreferencesManager(getActivity());
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
@@ -360,7 +374,17 @@ public class BookFragment extends Fragment implements BookItemInterface {
     }
 
     @Override
-    public void onClickBookItem(String uri) {
+    public void onClickBookItem(Book selectedBook, int position) {
+        if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+            BookManagement.saveFocuseBook(selectedBook, sessionManager);
+            gotoReadingViewFile();
+        }
+    }
+    void gotoReadingViewFile(){
+        Book focuseBook = BookManagement.getFocuseBook(sessionManager);
+        List<FileMeta> localBooks = AppDB.get().getAll();
+        int tempLibraryPosition = Integer.parseInt(focuseBook.libraryPosition);
 
+        ExtUtils.openFile(getActivity(), localBooks.get(tempLibraryPosition));
     }
 }

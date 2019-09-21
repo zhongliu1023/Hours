@@ -5,5 +5,5 @@ package ours.china.hours.Common.Interfaces;
  */
 
 public interface ImageListener {
-    void onImageResize(String path, String uri);
+    void onImagePath(String path);
 }

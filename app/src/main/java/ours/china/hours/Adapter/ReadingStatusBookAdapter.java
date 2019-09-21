@@ -64,33 +64,33 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
 
         Book one = bookList.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        holder.txtReadTime.setText(one.getReadTime());
+        holder.bookName.setText(one.bookName);
+        holder.txtReadTime.setText(one.bookStatus.time);
 
-        Log.i("ReadingStatusBook", "reagTime = >>>>>" + one.getReadTime());
-        if (one.getReadTime().equals("")) {
+        Log.i("ReadingStatusBook", "reagTime = >>>>>" + one.bookStatus.time);
+        if (one.bookStatus.time.equals("")) {
             holder.txtReadTime.setText("0.0");
         } else {
-            float hours = ((float) (Integer.parseInt(one.getReadTime()) / 1000)) / 3600;
+            float hours = ((float) (Integer.parseInt(one.bookStatus.time) / 1000)) / 3600;
             Log.i(TAG, "hours => " + String.format("%.2f", hours));
 
             holder.txtReadTime.setText(String.format("%.2f", hours));
         }
-        holder.txtSpecifiedTime.setText(one.getSpecifiedTime());
-        holder.txtLastDate.setText(one.getLastTime());
+        holder.txtSpecifiedTime.setText(one.demandTime);
+        holder.txtLastDate.setText(one.bookStatus.lastRead);
 
         Glide.with(context)
-                .load(one.getBookImageLocalUrl())
+                .load(one.bookImageLocalUrl)
                 .placeholder(R.drawable.book_image)
                 .into(holder.bookImage);
 
-        String[] pages = one.getPagesArray().split(",");
-        int percent = (one.getPagesArray().split(",")).length / Integer.parseInt(one.getTotalPage());
-        holder.txtReadPercent.setText(String.valueOf((pages.length * 100 / Integer.parseInt(one.getTotalPage()))));
+        String[] pages = one.bookStatus.pages.split(",");
+        int percent = (one.bookStatus.pages.split(",")).length / Integer.parseInt(one.pageCount);
+        holder.txtReadPercent.setText(String.valueOf((pages.length * 100 / Integer.parseInt(one.pageCount))));
 
         Log.i(TAG, "book read percent => " + percent);
-        Log.i(TAG, "pages => " + one.getPagesArray());
-        Log.i(TAG, "total page => " + one.getTotalPage());
+        Log.i(TAG, "pages => " + one.bookStatus.pages);
+        Log.i(TAG, "total page => " + one.pageCount);
         // we can use getWidth(), getHeight(), getX(), getY() after the layout was created really.
         // so we must use getViewTreeObeserver().addOnGlobalLayoutListener().
         holder.container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -102,7 +102,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                 int paramWidth = (int) holder.txtStateBar.getWidth();
                 int paramHeight = (int) holder.txtStateBar.getHeight();
 
-                float paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.getTotalPage());
+                float paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.pageCount);
                 holder.recycleTextViews();
 
                 if (pages.length !=0 && !pages[0].equals("")) {

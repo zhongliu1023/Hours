@@ -26,6 +26,8 @@ public class Global {
     public static String mobile = "";
     public static String password = "";
 
+    public static String SearchQuery = "";
+
     public static String faceState = "";
     public static String identify = "";
 
@@ -53,25 +55,12 @@ public class Global {
     public static String receive_json_key_introduce = "introduce";
     public static String receive_json_key_readState = "isRead";
 
-    public static String bookID = "";
-    public static String bookName = "";
-
     public static String faceFeatureSavedUrl = "";
     public static String faceFeatureSavedImageUrl = "";
     public static String faceHash = "";
 
-    public static String bookImageLocalUrl = "";
-    public static String bookUrl = "";
-    public static String bookLocalUrl = "";
-    public static String bookSpecifiedTime = "";
-
     public static int bookDownloadedPosition = 0;
     public static String readingNowOrHistory = "";
-
-
-    public static UpdateDisplayInterface updateDisplayInterface;
-
-
 
     public static void alert(Context context, String title, String message, String btnTitle) {
 
@@ -110,21 +99,6 @@ public class Global {
         mProgressDialog.setContentView(R.layout.diaolog_loading);
         TextView tvLoadingMsg = (TextView) mProgressDialog.findViewById(R.id.loading_msg);
         tvLoadingMsg.setText(strPleaseWaitAwhile);
-//        mProgressDialog.setContentView(R.layout.diaolog_loading);
-//        mProgressDialog.setMessage(strPleaseWaitAwhile);
-//        mProgressDialog.setCancelable(false);
-//        mProgressDialog.setCanceledOnTouchOutside(false);
-//
-//        TextView tvLoadingMsg = (TextView) mProgressDialog.findViewById(R.id.loading_msg);
-//        tvLoadingMsg.setText(strPleaseWaitAwhile);
-//
-//        mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-//            @Override
-//            public void onCancel(DialogInterface dialog) {
-//            }
-//        });
-//
-//        mProgressDialog.show();
 
     }
 

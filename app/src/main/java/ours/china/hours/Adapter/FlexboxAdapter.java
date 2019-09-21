@@ -16,16 +16,19 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.Common.Interfaces.SearchItemInterface;
 import ours.china.hours.R;
 
 public class FlexboxAdapter extends RecyclerView.Adapter<FlexboxAdapter.ViewHolder> {
 
     public List<String> listStr;
     public Context context;
+    SearchItemInterface mInterface;
 
-    public FlexboxAdapter(ArrayList<String> listStr, Context context) {
+    public FlexboxAdapter(ArrayList<String> listStr, Context context, SearchItemInterface searchItemInterface) {
         this.listStr = listStr;
         this.context = context;
+        this.mInterface = searchItemInterface;
     }
 
     @NonNull
@@ -44,7 +47,7 @@ public class FlexboxAdapter extends RecyclerView.Adapter<FlexboxAdapter.ViewHold
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context, one, Toast.LENGTH_SHORT).show();
+                mInterface.onClickSearchItem(one);
             }
         });
     }
