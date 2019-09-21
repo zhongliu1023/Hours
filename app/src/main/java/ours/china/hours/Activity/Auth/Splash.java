@@ -24,6 +24,8 @@ import com.koushikdutta.ion.Ion;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -33,12 +35,17 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.model.AppState;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.Constants.URLConstant;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.util.ConfigUtil;
+import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.Url;
 import ours.china.hours.R;
 import ours.china.hours.Utility.SessionManager;
@@ -67,10 +74,14 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        Log.i(TAG, "Here is start point");
-        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
+//        Log.i(TAG, "Here is start point");
+//        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
+//
+//        activeEngine();
+        List<FileMeta> localBooks = AppDB.get().getAll();
+        ExtUtils.openFile(Splash.this, localBooks.get(0));
 
-        activeEngine();
+//        new DownloadFile(Splash.this).execute(Url.baseUrl + "assets/upload/book/mimetype.epub");
 
     }
 
@@ -168,6 +179,9 @@ public class Splash extends AppCompatActivity {
     public void init() {
         sessionManager = new SessionManager(Splash.this);
 
+        Log.i(TAG, "mobile number =>" + sessionManager.getMobileNumber());
+        Log.i(TAG, "password => " + sessionManager.getPassword());
+
         if (!sessionManager.getMobileNumber().equals("") && !sessionManager.getPassword().equals("")) {
 
             getDataFromServer();
@@ -207,6 +221,7 @@ public class Splash extends AppCompatActivity {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
+                        Log.i(TAG, "result => " + result);
                         Global.hideLoading();
                         if (e == null) {
                             JSONObject resObj = null;

@@ -8,6 +8,9 @@
     <color name="yellow">#FFC107</color>
     <color name="pink">#7D1886</color>
     <color name="red">#ff0000</color>
+    <color name="brown">#E9D9BD</color>
+    <color name="green">#CDDDBB</color>
+    <color name="black">#000000</color>
 
     <color name="history_color1">#3398FE</color>
     <color name="history_color2">#7D1886</color>
@@ -26,7 +29,6 @@
     <color name="alpa_ee">#ee000000</color>
     <color name="foobnix_dark_blue">#000080</color>
     <color name="foobnix_light_blue">#0000ff</color>
-    <color name="black">#000000</color>
     <color name="white_alpha">#bbffffff</color>
     <color name="transparent">#00000000</color>
     <color name="grey_800">#424242</color>
@@ -49,6 +51,12 @@
     <color name="link_color">#07c</color>
     <color name="ic_color">#478c53</color>
     <color name="orange">#DE6014</color>
+    
+    <!--  for green theme  -->
+    <color name="white_theme">#FFFFFF</color>
+    <color name="brown_theme">#E9D9BD</color>
+    <color name="green_theme">#CDDDBB</color>
+    <color name="black_theme">#000000</color>
 
 
     <!--  statusbar color  -->

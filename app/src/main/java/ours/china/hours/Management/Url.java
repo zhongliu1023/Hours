@@ -4,7 +4,7 @@ public class Url {
 //    public static String baseUrl = "http://192.168.6.222/Hour/";
     public static String baseUrl = "http://Hours.worldwardmobi.com/";
 
-    public static String loginUrl = baseUrl + "login";
+    public static String loginUrl = baseUrl + "login_by_oauth";
     public static String faceLogin = baseUrl + "";
 
     public static String verifyCode = baseUrl + "verifyCode";
@@ -15,7 +15,7 @@ public class Url {
     public static String imageUpload = baseUrl + "bookUserFaceInfo";
 
     // for search book
-    public static String searchAllBookwithMobile = baseUrl + "searchAllBookwithMobile";
+    public static String query_books = baseUrl + "query_books";
     public static String bookStateChangeOperation = baseUrl + "updateParamWithMobile";
 
     // login

@@ -1,5 +1,6 @@
 package ours.china.hours.Management;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -22,6 +23,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
@@ -39,11 +41,11 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private String fileName;
     private String folder;
     private boolean isDownloaded;
-    private Context context;
+    private Activity context;
 
     DBController db;
 
-    public DownloadFile(Context context) {
+    public DownloadFile(Activity context) {
         this.context = context;
 
         db = new DBController(context);
@@ -80,6 +82,8 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
             fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
             fileName = timestamp + "_" + fileName;
             folder = Environment.getExternalStorageDirectory() + File.separator + "book/";
+
+            Log.i("DownloadFile", "folder + fileName => " + folder + fileName);
 
             File directory = new File(folder);
 
@@ -118,34 +122,38 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String message) {
         this.progressDialog.dismiss();
+        Log.i("DownloadFile", "Local Url => " + message);
+
+//        List<FileMeta> localBooks = AppDB.get().getAll();
+//        ExtUtils.openFile(context, localBooks.get(0));
 
         Book tempBook = new Book();
-        tempBook.setBookID(Global.bookID);
-        tempBook.setBookName(Global.bookName);
+        tempBook.setBookID("1");
+        tempBook.setBookName("austen");
         tempBook.setBookLocalUrl(message);
-        tempBook.setBookImageLocalUrl(Global.bookImageLocalUrl);
-        tempBook.setSpecifiedTime(Global.bookSpecifiedTime);
+        tempBook.setBookImageLocalUrl("Hello");
+        tempBook.setSpecifiedTime("hello");
 
         if (message.equals("")) {
             Toast.makeText(this.context, "下载错误", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int tempPosition;
-        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
-            tempPosition = 0;
-        } else {
-            tempPosition = AppDB.get().getAll().size();
-        }
+//        int tempPosition;
+//        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+//            tempPosition = 0;
+//        } else {
+//            tempPosition = AppDB.get().getAll().size();
+//        }
 
-        Log.i("HomeBookAdapter => ", "LibraryPosition =>" + tempPosition);
-        tempBook.setLibraryPosition(String.valueOf(tempPosition));
+//        Log.i("HomeBookAdapter => ", "LibraryPosition =>" + tempPosition);
+//        tempBook.setLibraryPosition(String.valueOf(tempPosition));
         db.insertData(tempBook);
 
         Log.i("HomeBookAdapter => ", "message => " + message);
 
-        Global.bookLocalUrl = message;
-        Global.updateDisplayInterface.insertLocalDB(tempPosition);
+//        Global.bookLocalUrl = message;
+//        Global.updateDisplayInterface.insertLocalDB(tempPosition);
 
         LOG.d("message == >>", message);
         if (!ExtUtils.isExteralSD(message)) {
@@ -157,32 +165,34 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
 //            meta.setIsSearchBook(true);
             AppDB.get().updateOrSave(meta);
             IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+
+            ExtUtils.openFile(context, meta);
         }
         TempHolder.listHash++;
-
-        Log.i("HomeBookAdapter", "Book id => " + Global.bookID);
-
-        Ion.with(context)
-                .load(Url.notifyServerBookDownLoaded)
-                .setBodyParameter(Global.KEY_token, Global.token)
-                .setBodyParameter("bookID", Global.bookID)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-
-                        if (error == null) {
-                            try {
-                                JSONObject resObject = new JSONObject(result.toString());
-                                if (resObject.getString("res").equals("success")) {
-
-                                }
-
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                });
+//
+//        Log.i("HomeBookAdapter", "Book id => " + Global.bookID);
+//
+//        Ion.with(context)
+//                .load(Url.notifyServerBookDownLoaded)
+//                .setBodyParameter(Global.KEY_token, Global.token)
+//                .setBodyParameter("bookID", Global.bookID)
+//                .asJsonObject()
+//                .setCallback(new FutureCallback<JsonObject>() {
+//                    @Override
+//                    public void onCompleted(Exception error, JsonObject result) {
+//
+//                        if (error == null) {
+//                            try {
+//                                JSONObject resObject = new JSONObject(result.toString());
+//                                if (resObject.getString("res").equals("success")) {
+//
+//                                }
+//
+//                            } catch (Exception ex) {
+//                                ex.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                });
     }
 }

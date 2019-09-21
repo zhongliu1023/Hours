@@ -1,6 +1,5 @@
 package ours.china.hours.Management;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -17,14 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ours.china.hours.Activity.Global;
-import ours.china.hours.BookLib.foobnix.android.utils.LOG;
-import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
-import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
-import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
-import ours.china.hours.BookLib.foobnix.sys.TempHolder;
-import ours.china.hours.BookLib.foobnix.ui2.AppDB;
-import ours.china.hours.DB.DBController;
-import ours.china.hours.Model.Book;
 
 public class DownloadImage extends AsyncTask<String, String, String> {
 
@@ -105,7 +96,7 @@ public class DownloadImage extends AsyncTask<String, String, String> {
         Log.i("HomeBookAdapter", "downloaded image url => " + message);
         Log.i("HomeBookAdapter", "downloaded book url => " + Global.bookUrl);
 
-        new DownloadFile(context).execute(Global.bookUrl);
+//        new DownloadFile(context).execute(Global.bookUrl);
 
     }
 }

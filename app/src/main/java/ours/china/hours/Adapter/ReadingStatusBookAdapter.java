@@ -68,7 +68,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         holder.txtReadTime.setText(one.getReadTime());
 
         Log.i("ReadingStatusBook", "reagTime = >>>>>" + one.getReadTime());
-        if (one.getReadTime().equals("")) {
+        if (one.getReadTime().equals("") || one.getReadTime() == null) {
             holder.txtReadTime.setText("0.0");
         } else {
             float hours = ((float) (Integer.parseInt(one.getReadTime()) / 1000)) / 3600;

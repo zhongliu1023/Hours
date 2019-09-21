@@ -13,6 +13,7 @@
         android:layout_marginLeft="5dip"
         android:layout_marginRight="5dip"
         android:layout_weight="0"
+        android:visibility="gone"
         android:ellipsize="end"
         android:text="Size" />
 
@@ -40,6 +41,7 @@
         android:layout_height="35dip"
         android:layout_weight="0"
         android:padding="10dip"
+        android:visibility="gone"
         android:src="@drawable/glyphicons_434_minus"
         android:tint="@color/tint_gray" />
 
@@ -49,6 +51,7 @@
         android:layout_height="35dip"
         android:layout_marginRight="10dip"
         android:layout_weight="0"
+        android:visibility="gone"
         android:padding="10dip"
         android:src="@drawable/glyphicons_433_plus"
         android:tint="@color/tint_gray" />

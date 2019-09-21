@@ -47,7 +47,8 @@
 
     </FrameLayout>
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/docBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"/>
@@ -56,6 +57,7 @@
         android:id="@+id/topLayout"
         android:layout_width="match_parent"
         android:layout_height="30dp"
+        android:background="@color/transparent"
         android:visibility="visible">
         <TextView
             android:id="@+id/topReadTime"
@@ -83,6 +85,7 @@
         android:paddingStart="@dimen/getneral_padding_8"
         android:paddingEnd="@dimen/getneral_padding_8"
         android:paddingTop="@dimen/getneral_padding_4"
+        android:background="@color/transparent"
         android:paddingBottom="4dp">
         <TextView
             android:id="@+id/pagesReadingPercent"
@@ -295,6 +298,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:text="字号"
                     android:textSize="@dimen/sw360_standard_fontsize_18"/>
                 <ImageView
@@ -309,11 +313,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:text="28"
                     android:layout_toStartOf="@+id/imgFontSizePlus"
                     android:textSize="@dimen/sw360_standard_fontsize_18"
                     android:layout_marginEnd="@dimen/getneral_padding_16"/>
                 <ImageView
+                    android:id="@+id/imgFontSizeMinus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/text_subtraction_icon"
@@ -338,23 +342,33 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
                     android:text="字体"
                     android:textSize="@dimen/sw360_standard_fontsize_18"/>
-                <ImageView
-                    android:id="@+id/imgTypeFaceNextIcon"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:id="@+id/relFontType"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/text_next_icon"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="默认"
-                    android:layout_marginEnd="@dimen/getneral_padding_16"
-                    android:layout_toStartOf="@id/imgTypeFaceNextIcon"
-                    android:textSize="@dimen/sw360_standard_fontsize_18"
-                    android:layout_centerVertical="true"/>
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true">
+
+                    <ImageView
+                        android:id="@+id/imgTypeFaceNextIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/text_next_icon"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"/>
+                    <TextView
+                        android:id="@+id/txtFontType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="默认"
+                        android:layout_marginEnd="@dimen/getneral_padding_16"
+                        android:layout_toStartOf="@id/imgTypeFaceNextIcon"
+                        android:textSize="@dimen/sw360_standard_fontsize_18"
+                        android:layout_centerVertical="true"/>
+                </RelativeLayout>
             </RelativeLayout>
 
             <TextView
@@ -418,28 +432,28 @@
                     android:text="行距距"
                     android:textSize="@dimen/sw360_standard_fontsize_18"/>
                 <ImageView
-                    android:id="@+id/imgBigSpacing"
+                    android:id="@+id/imgBigLineHeight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/spacing_big_icon"
                     android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"/>
                 <ImageView
-                    android:id="@+id/imgMiddleSpacing"
+                    android:id="@+id/imgMiddleLineHeight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/spacing_middle_icon"
                     android:layout_centerVertical="true"
-                    android:layout_toStartOf="@id/imgBigSpacing"
+                    android:layout_toStartOf="@id/imgBigLineHeight"
                     android:layout_marginEnd="@dimen/getneral_padding_16"/>
                 <ImageView
-                    android:id="@+id/imgSmallSpacing"
+                    android:id="@+id/imgSmallLineHeight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/getneral_padding_16"
                     android:src="@drawable/spacing_small_icon"
-                    android:layout_toStartOf="@id/imgMiddleSpacing"/>
+                    android:layout_toStartOf="@id/imgMiddleLineHeight"/>
             </RelativeLayout>
 
         </LinearLayout>
@@ -448,7 +462,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:id="@+id/brightnessBottomBar"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_height="wrap_content">
 
             <TextView
@@ -466,17 +480,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/brightness_small_icon"/>
-                <SeekBar
+                <ours.china.hours.BookLib.foobnix.pdf.info.view.CustomSeek
                     android:id="@+id/seekbarBrightness"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_marginLeft="5dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    android:max="100"
-                    android:progressDrawable="@drawable/seekbar_bg"
-                    android:maxHeight="3dp"
-                    android:minHeight="3dp"/>
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"/>
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -502,6 +512,7 @@
                     android:textSize="@dimen/sw360_standard_fontsize_18"
                     android:text="使用系统亮度"/>
                 <CheckBox
+                    android:id="@+id/brightnessAutoSetting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
@@ -541,7 +552,7 @@
                             android:id="@+id/imgWhiteBrightness"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/brightness_white2_icon"/>
+                            android:src="@drawable/brightness_white_icon"/>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="0dp"

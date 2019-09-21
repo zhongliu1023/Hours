@@ -163,9 +163,9 @@ public class PasswordLoginFragment extends Fragment {
                         .load(Url.loginUrl)
                         .setTimeout(10000)
                         .setBodyParameter("grant_type", "password")
-                        .setBodyParameter("client_id", "testclient")
-                        .setBodyParameter("client_secret", "testpass")
-                        .setBodyParameter("scope", "userinfo cloud file node")
+                        .setBodyParameter("client_id", "hours_reader")
+                        .setBodyParameter("client_secret", "a55b8ca1-c6b5-4867-b0dc-766dfb41d073")
+                        .setBodyParameter("scope", "bookinfo")
                         .setBodyParameter("username", mobile)
                         .setBodyParameter("password", password)
                         .asJsonObject()
@@ -188,8 +188,11 @@ public class PasswordLoginFragment extends Fragment {
                                         sessionManager.setMobileNumber(mobile);
 
                                         if (Global.token != null && !Global.token.equals("")) {
-                                            tempMobileNumber = mobile;
-                                            getFeatureFileUrl();
+//                                            tempMobileNumber = mobile;
+//                                            getFeatureFileUrl();
+                                            Intent intent = new Intent(getActivity(), MainActivity.class);
+                                            startActivity(intent);
+
                                         } else {
                                             Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
                                             Global.hideLoading();

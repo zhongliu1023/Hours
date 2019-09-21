@@ -141,9 +141,16 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
         Global.showLoading(getContext(),"generate_report");
         Ion.with(getActivity())
-                .load(Url.searchAllBookwithMobile)
+                .load(Url.query_books)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.token)
+                .setBodyParameter("order_by", "bookName")
+                .setBodyParameter("order", "asc")
+                .setBodyParameter("page", "0")
+                .setBodyParameter("perPage", "15")
+                .setBodyParameter("keyword", "a")
+                .setBodyParameter("category", "all")
+                .setBodyParameter("attention", "")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
@@ -158,7 +165,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
                                 if (resObj.getString("res").toLowerCase().equals("success")) {
 
-                                    JSONArray dataArray = new JSONArray(resObj.getString("data"));
+                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
                                     for (int i = 0; i < dataArray.length(); i++) {
                                         JSONObject oneObject = dataArray.getJSONObject(i);
 
@@ -173,7 +180,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                         mBookList.add(one);
                                     }
 
-                                    getTotalData();
+//                                    getTotalData();
 
                                     init(rootView);
                                     popupWindowWork(inflater);

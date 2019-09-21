@@ -48,12 +48,12 @@ public class Global {
     public static final int REQUEST_GALLERY_PHOTO_BACK = 4;
 
     public static String receive_json_key_bookId = "bookId";
-    public static String receive_json_key_imageUrl = "cover";
+    public static String receive_json_key_imageUrl = "coverUrl";
     public static String receive_json_key_bookName = "bookName";
     public static String receive_json_key_bookUrl = "bookNameUrl";
     public static String receive_json_key_author = "publisher";
     public static String receive_json_key_introduce = "introduce";
-    public static String receive_json_key_readState = "isRead";
+    public static String receive_json_key_readState = "isbn";
 
     public static String bookID = "";
     public static String bookName = "";
