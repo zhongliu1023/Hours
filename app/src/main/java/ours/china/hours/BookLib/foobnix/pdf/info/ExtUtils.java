@@ -925,13 +925,13 @@ public class ExtUtils {
 
 
     public static void showDocument(final Context c, final Uri uri, final float percent, final String playList) {
-        Safe.run(new Runnable() {
-
-            @Override
-            public void run() {
+//        Safe.run(new Runnable() {
+//
+//            @Override
+//            public void run() {
                 showDocumentInner(c, uri, percent, playList);
-            }
-        });
+//            }
+//        });
 
     }
 

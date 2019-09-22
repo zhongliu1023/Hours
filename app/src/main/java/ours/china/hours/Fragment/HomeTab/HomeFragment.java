@@ -51,6 +51,7 @@ import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
@@ -675,11 +676,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             tempPosition = AppDB.get().getAll().size();
         }
         focuseBook.libraryPosition = String.valueOf(tempPosition);
-        if (db.getBookData(focuseBook.bookId) == null){
+//        if (db.getBookData(focuseBook.bookId) == null){
             db.insertData(focuseBook);
-        }else{
-            db.updateBookData(focuseBook);
-        }
+//        }else{
+//            db.updateBookData(focuseBook);
+//        }
         BookManagement.saveFocuseBook(focuseBook, sessionManager);
 
         mBookList.remove(position);
@@ -689,9 +690,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         if (!ExtUtils.isExteralSD(focuseBook.bookLocalUrl)) {
             FileMeta meta = AppDB.get().getOrCreate(focuseBook.bookLocalUrl);
             AppDB.get().updateOrSave(meta);
-//            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
         }
-
         Ion.with(getActivity())
                 .load(Url.addToMybooks)
                 .setBodyParameter(Global.KEY_token, Global.access_token)

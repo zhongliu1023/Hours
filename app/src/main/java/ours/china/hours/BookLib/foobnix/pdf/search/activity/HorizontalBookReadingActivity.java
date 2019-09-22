@@ -2653,34 +2653,34 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(focusBook.bookId).time);
             Log.i("horizontalbookreading", "endPoint" + ":" + db.getBookStateData(focusBook.bookId).lastRead);
 
-            Ion.with(HorizontalBookReadingActivity.this)
-                    .load(Url.bookStateChangeOperation)
-                    .setTimeout(10000)
-                    .setBodyParameter("access_token", Global.access_token)
-                    .setBodyParameter("bookId", focusBook.bookId)
-                    .setBodyParameter("pages", focusBook.bookStatus.pages)
-                    .setBodyParameter("time", focusBook.bookStatus.time)
-                    .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            Log.i("horizontalbookreading", "real time api result" + result);
-                            String temp;
-
-                            if (e == null) {
-                                JSONObject resObj = null;
-                                try {
-                                    resObj = new JSONObject(result.toString());
-                                    temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
-
-                                } catch (JSONException ex) {
-                                    ex.printStackTrace();
-                                }
-
-                            }
-                        }
-                    });
+//            Ion.with(HorizontalBookReadingActivity.this)
+//                    .load(Url.bookStateChangeOperation)
+//                    .setTimeout(10000)
+//                    .setBodyParameter("access_token", Global.access_token)
+//                    .setBodyParameter("bookId", focusBook.bookId)
+//                    .setBodyParameter("pages", focusBook.bookStatus.pages)
+//                    .setBodyParameter("time", focusBook.bookStatus.time)
+//                    .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
+//                    .asString()
+//                    .setCallback(new FutureCallback<String>() {
+//                        @Override
+//                        public void onCompleted(Exception e, String result) {
+//                            Log.i("horizontalbookreading", "real time api result" + result);
+//                            String temp;
+//
+//                            if (e == null) {
+//                                JSONObject resObj = null;
+//                                try {
+//                                    resObj = new JSONObject(result.toString());
+//                                    temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
+//
+//                                } catch (JSONException ex) {
+//                                    ex.printStackTrace();
+//                                }
+//
+//                            }
+//                        }
+//                    });
 
         } else {
 //            Toast.makeText(HorizontalBookReadingActivity.this, "Network is disconnected.", Toast.LENGTH_SHORT).show();

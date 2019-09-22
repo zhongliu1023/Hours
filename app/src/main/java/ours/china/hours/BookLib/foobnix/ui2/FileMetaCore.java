@@ -291,7 +291,7 @@ public class FileMetaCore {
         fileMeta.setPublisher(meta.getPublisher());
         fileMeta.setIsbn(meta.getIsbn());
 
-        fileMeta.setState(STATE_FULL);
+//        fileMeta.setState(STATE_FULL);
 
     }
 
