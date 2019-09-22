@@ -1,6 +1,7 @@
 package ours.china.hours.BookLib.foobnix.pdf.info;
 
 import android.content.Context;
+import android.util.Log;
 
 import ours.china.hours.BookLib.foobnix.android.utils.IO;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
@@ -43,6 +44,7 @@ public class BookmarksData {
             JSONObject obj = IO.readJsonObject(AppProfile.syncBookmarks);
             obj.put("" + bookmark.t, Objects.toJSONObject(bookmark));
             IO.writeObjAsync(AppProfile.syncBookmarks, obj);
+            Log.i("Bookmark", "Bookmark writed file => " + AppProfile.syncBookmarks.getPath());
         } catch (Exception e) {
             LOG.e(e);
         }

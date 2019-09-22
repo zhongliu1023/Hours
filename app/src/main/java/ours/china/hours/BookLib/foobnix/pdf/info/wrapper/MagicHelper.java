@@ -188,6 +188,8 @@ public class MagicHelper {
     public static final String IMAGE_BG_1 = "bg/bg1.jpg";
     public static final String IMAGE_BG_2 = "bg/bg2.jpg";
     public static final String IMAGE_BG_3 = "bg/bg3.jpg";
+    public static final String IMAGE_BROWN = "bg/brown.jpg";
+    public static final String IMAGE_GREEN = "bg/green.jpg";
 
     public static Bitmap updateTextViewBG(TextView textView, int transparency, String path) {
         textView.setDrawingCacheEnabled(true);

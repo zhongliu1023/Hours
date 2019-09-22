@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.TextView;
 
+import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
 import ours.china.hours.Dialog.OutDlg;
@@ -56,12 +57,12 @@ public class Global {
     public static final int REQUEST_GALLERY_PHOTO_BACK = 4;
 
     public static String receive_json_key_bookId = "bookId";
-    public static String receive_json_key_imageUrl = "cover";
+    public static String receive_json_key_imageUrl = "coverUrl";
     public static String receive_json_key_bookName = "bookName";
     public static String receive_json_key_bookUrl = "bookNameUrl";
     public static String receive_json_key_author = "publisher";
     public static String receive_json_key_introduce = "introduce";
-    public static String receive_json_key_readState = "isRead";
+    public static String receive_json_key_readState = "isbn";
 
     public static String faceFeatureSavedUrl = "";
     public static String faceFeatureSavedImageUrl = "";
@@ -69,6 +70,10 @@ public class Global {
 
     public static int bookDownloadedPosition = 0;
     public static String readingNowOrHistory = "";
+
+    public static UpdateDisplayInterface updateDisplayInterface;
+    public static DocumentController globalDC;
+
 
     public static void alert(Context context, String title, String message, String btnTitle) {
 

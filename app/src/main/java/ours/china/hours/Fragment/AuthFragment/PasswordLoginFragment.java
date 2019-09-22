@@ -169,6 +169,7 @@ public class PasswordLoginFragment extends Fragment {
                         .setBodyParameter("client_id", Url.CLIENT_ID)
                         .setBodyParameter("client_secret", Url.CLIENT_SECRET)
                         .setBodyParameter("scope", Url.SCOPE)
+
                         .setBodyParameter("username", mobile)
                         .setBodyParameter("password", password)
                         .asJsonObject()

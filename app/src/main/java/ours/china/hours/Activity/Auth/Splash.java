@@ -26,8 +26,8 @@ import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.lang.reflect.Type;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -38,14 +38,19 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.model.AppState;
+import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.Constants.URLConstant;
 import ours.china.hours.FaceDetect.common.Constants;
 import ours.china.hours.FaceDetect.util.ConfigUtil;
+import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.User;
@@ -80,7 +85,7 @@ public class Splash extends AppCompatActivity {
         faceEngine = new FaceEngine();
         ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
 
-        activeEngine();
+       activeEngine();
 
     }
 
@@ -180,7 +185,6 @@ public class Splash extends AppCompatActivity {
         currentUser = UsersManagement.getCurrentUser(sessionManager);
 
         if (!currentUser.userId.isEmpty()) {
-
             getDataFromServer();
         } else {
             new Handler().postDelayed(new Runnable() {

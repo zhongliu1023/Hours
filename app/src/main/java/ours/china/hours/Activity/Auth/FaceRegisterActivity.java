@@ -2,17 +2,13 @@ package ours.china.hours.Activity.Auth;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -35,12 +31,14 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +58,9 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Global;
+
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
 import ours.china.hours.FaceDetect.model.DrawInfo;
@@ -77,6 +77,7 @@ import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.User;
+
 import ours.china.hours.R;
 import ours.china.hours.Utility.MultipartUtility;
 

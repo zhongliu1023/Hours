@@ -129,4 +129,5 @@ dependencies {
     implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
 
     implementation 'com.bigkoo:alertview:1.0.3'
+    implementation 'cn.weidongjian.android:popupWindowHelper:0.5'
 }

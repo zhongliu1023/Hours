@@ -6,6 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
         <LinearLayout
+            android:id="@+id/lin_catalog_back"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
@@ -19,6 +20,7 @@
                 android:src="@drawable/return_icon"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/lin_catalog_catalog"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
@@ -32,6 +34,7 @@
                 android:src="@drawable/catalog_icon"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/lin_catalog_bookmark"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
@@ -45,6 +48,7 @@
                 android:src="@drawable/catalog_bookmark_icon"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/lin_catalog_refresh"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
@@ -62,7 +66,11 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/seperator"/>
-    <FrameLayout
+<!--    <FrameLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
+    <ListView
+        android:id="@+id/contentList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

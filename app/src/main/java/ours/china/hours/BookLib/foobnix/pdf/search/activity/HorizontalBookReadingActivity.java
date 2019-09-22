@@ -1,8 +1,11 @@
 package ours.china.hours.BookLib.foobnix.pdf.search.activity;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,17 +28,22 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -86,6 +94,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -97,13 +106,17 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Activity.NoteActivity;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
+import ours.china.hours.BookLib.foobnix.android.utils.IntegerResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.Keyboards;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
+import ours.china.hours.BookLib.foobnix.android.utils.Objects;
 import ours.china.hours.BookLib.foobnix.android.utils.ResultResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.TxtUtils;
 import ours.china.hours.BookLib.foobnix.android.utils.Views;
 import ours.china.hours.BookLib.foobnix.ext.CacheZipUtils;
+import ours.china.hours.BookLib.foobnix.model.AppBook;
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.model.AppState;
@@ -116,20 +129,26 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.UiSystemUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
+import ours.china.hours.BookLib.foobnix.pdf.info.presentation.BookmarksAdapter;
+import ours.china.hours.BookLib.foobnix.pdf.info.presentation.OutlineAdapter;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.AlertDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.AnchorHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BookmarkPanel;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BrightnessHelper;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.CustomSeek;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.Dialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.DialogsPlaylist;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.DragingDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.HorizontallSeekTouchEventListener;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.HypenPanelHelper;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.MyPopupMenu;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.DraggbleTouchListener;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.FileInformationDialog;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.RecentUpates;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.MagicHelper;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStart;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.FlippingStop;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.InvalidateMessage;
@@ -137,6 +156,7 @@ import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageAutoFit;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageEvent;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessagePageXY;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessegeBrightness;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MsgChangePaintWordsColor;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.CloseAppDialog;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.VerticalViewPager;
 import ours.china.hours.BookLib.foobnix.sys.ClickUtils;
@@ -151,6 +171,8 @@ import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
+import ours.china.hours.Common.ColorCollection;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
@@ -203,10 +225,55 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     private DrawerLayout mDrawerLayout;
 
     ImageView catalogMenu, imgFont, imgBrightness, imgNote, imgShare;
+    RelativeLayout relCatalogMenu, relFont, relBrightness, relNote, relShare;
     LinearLayout mainBottomBar, fontBottomBar, brightnessBottomBar;
 
     public static String fontImageClicked = "no";
     public static String brightnessImageClicked = "no";
+
+    // for brightness
+    CustomSeek seekBarBrightness;
+    CheckBox brightnessAutoSetting;
+    int brightnessValue;
+
+    // for font
+    ImageView imgFontSizePlus, imgFontSizeMinus;
+    TextView txtFontSize;
+    int fontSizeValue;
+    RelativeLayout relFontType;
+    TextView txtFontType;
+    static int max_fontSize = 70;
+    static int min_fontSize = 10;
+
+    // for hide camera
+    TextView docBackground;
+    RelativeLayout topLayout, bottomLayout;
+
+    // for margin
+    ImageView imgSmallMargin, imgMiddleMargin, imgBigMargin;
+
+    // for lineHeight
+    ImageView imgBigLineHeight, imgMiddleLineHeight, imgSmallLineHeight;
+
+    // for doc background
+    ImageView imgWhiteBrightness, imgBrownBrightness, imgGreenBrightness, imgBlackBrightness;
+
+    // for drawerlayout.
+    LinearLayout linCatalogBack, linCatalogCatalog, linCatalogBookmark, linCatalogRefresh;
+    ListView contentList;
+
+    // for popupWindow
+    RelativeLayout popupBack, popupYellow, popupOrange, popupBlue, popupPink, popupErase;
+    RelativeLayout popupCopy, popupNote, popupSearch, popupTranslate, popupShare, popupColorPick;
+    RelativeLayout popupSearchBook, popupSearchNet, popupSearchEncyclopedia;
+
+    LinearLayout popupDefaultShow, popupSearchPart, popupColorPart;
+    ImageView popupColorPickImage;
+    RelativeLayout copyView;
+//    int popupColorPickValue, tempColorPickValue;
+
+    ColorCollection colorPickValue, tempColorPickValue;
+
 
     ClickUtils clickUtils;
     int flippingTimer = 0;
@@ -298,6 +365,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     private static final String[] NEEDED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
             Manifest.permission.READ_PHONE_STATE
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//            Manifest.permission.ACCESS_NETWORK_STATE
 
     };
 
@@ -456,7 +525,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 if (AppState.get().isRememberDictionary) {
                     DictsHelper.runIntent(dc.getActivity(), AppState.get().selectedText);
                 } else {
-                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.myPopup(anchor, dc);
+                    showPopupWindow();
                 }
 
             }
@@ -484,23 +555,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         pagesBookmark.setOnLongClickListener(onBookmarksLong);
 
         // for full screen
-
-
-        // for day or night.
-        ImageView dayNightButton = findViewById(R.id.imgBlackBrightness);
-        dayNightButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (dc == null) {
-                    return;
-                }
-
-                view.setEnabled(false);
-                AppState.get().isDayNotInvert = !AppState.get().isDayNotInvert;
-                nullAdapter();
-                dc.restartActivity();
-            }
-        });
 
         Keyboards.hideNavigationOnCreate(HorizontalBookReadingActivity.this);
 
@@ -718,10 +772,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         });
 
-        // my definition.
+        // -- my definition. --
+        colorPickValue = ColorCollection.yellow;
+        tempColorPickValue = colorPickValue;
+
 
         uiInit();
         event();
+        drawerLayoutWork();
 
 
         FaceServer.getInstance().init(this);
@@ -753,11 +811,281 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         imgNote = findViewById(R.id.imgNote);
         imgShare = findViewById(R.id.imgShare);
 
+        relFont = findViewById(R.id.relFont);
+        relBrightness = findViewById(R.id.relBrightness);
+        relNote = findViewById(R.id.relNote);
+        relShare = findViewById(R.id.relShare);
+
         mainBottomBar = findViewById(R.id.mainBottomBar);
         fontBottomBar = findViewById(R.id.fontBottomBar);
         brightnessBottomBar = findViewById(R.id.brightnessBottomBar);
 
+        // for drawerLayout
+        linCatalogBack = findViewById(R.id.lin_catalog_back);
+        linCatalogCatalog = findViewById(R.id.lin_catalog_catalog);
+        linCatalogBookmark = findViewById(R.id.lin_catalog_bookmark);
+        linCatalogRefresh = findViewById(R.id.lin_catalog_refresh);
+
+        contentList = findViewById(R.id.contentList);
+
+
         Log.i("horizontalbookreading", "uiInit => end");
+    }
+
+    public void drawerLayoutWork() {
+        linCatalogCatalog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayContentList();
+            }
+        });
+    }
+
+    public void displayContentList() {
+        final Runnable showOutline = new Runnable() {
+            @Override
+            public void run() {
+                if (dc != null) {
+                    dc.getOutline(new ResultResponse<List<OutlineLinkWrapper>>() {
+                        @Override
+                        public boolean onResultRecive(List<OutlineLinkWrapper> outline) {
+
+                            contentList.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (outline != null && outline.size() > 0) {
+                                        contentList.clearChoices();
+                                        OutlineLinkWrapper currentByPageNumber = OutlineHelper.getCurrentChapter(dc);
+                                        final OutlineAdapter adapter = new OutlineAdapter(dc.getActivity(), outline, currentByPageNumber, dc.getPageCount());
+                                        contentList.setAdapter(adapter);
+                                        contentList.setOnItemClickListener(onClickContent);
+                                        contentList.setSelection(adapter.getItemPosition(currentByPageNumber) - 3);
+                                    }
+                                 }
+                            });
+
+                            return false;
+                        }
+                    }, true);
+                }
+            }
+        };
+
+        contentList.postDelayed(showOutline, 50);
+    }
+
+    final AdapterView.OnItemClickListener onClickContent = new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+            final OutlineLinkWrapper link = (OutlineLinkWrapper) parent.getItemAtPosition(position);
+
+            if (link.targetPage != -1) {
+                int pageCount = dc.getPageCount();
+                if (link.targetPage < 1 || link.targetPage > pageCount) {
+                    Toast.makeText(anchor.getContext(), "no", Toast.LENGTH_SHORT).show();
+                } else {
+                    dc.onGoToPage(link.targetPage);
+                    // ((ListView) parent).requestFocusFromTouch();
+                    // ((ListView) parent).setSelection(position);
+
+                }
+
+                mDrawerLayout.closeDrawers();
+                return;
+            }
+
+        }
+    };
+
+    public void showPopupWindow() {
+        PopupWindowHelper popupWindowHelper;
+        View popView;
+        popView = LayoutInflater.from(HorizontalBookReadingActivity.this).inflate(R.layout.dragging_popup, null);
+
+        // for popupWindow
+        popupBack = popView.findViewById(R.id.popupBack);
+        popupColorPickImage = popView.findViewById(R.id.popupColorPickImage);
+
+        popupColorPart = popView.findViewById(R.id.popupColorPart);
+        popupDefaultShow = popView.findViewById(R.id.popupDefaultShow);
+        popupSearchPart = popView.findViewById(R.id.popupSearchPart);
+
+        popupBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupBack.setVisibility(View.GONE);
+                popupErase.setVisibility(View.GONE);
+
+                if (colorPickValue == ColorCollection.yellow) {
+                    popupColorPickImage.setImageResource(R.drawable.read_yellow_icon);
+                }
+
+                if (colorPickValue == ColorCollection.orange) {
+                    popupColorPickImage.setImageResource(R.drawable.read_orange_icon);
+                }
+                if (colorPickValue == ColorCollection.blue) {
+                    popupColorPickImage.setImageResource(R.drawable.read_blue_icon);
+                }
+                if (colorPickValue == ColorCollection.pink) {
+                    popupColorPickImage.setImageResource(R.drawable.read_pink_icon);
+                }
+
+                popupColorPart.setVisibility(View.GONE);
+                popupSearchPart.setVisibility(View.GONE);
+                popupDefaultShow.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+        popupColorPick = popView.findViewById(R.id.popupColorPick);
+        popupColorPick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupBack.setVisibility(View.VISIBLE);
+
+                popupColorPart.setVisibility(View.VISIBLE);
+                popupDefaultShow.setVisibility(View.GONE);
+                popupSearchPart.setVisibility(View.GONE);
+            }
+        });
+
+        popupErase = popView.findViewById(R.id.popupErase);
+        popupErase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                colorPickValue = tempColorPickValue;
+                popupErase.setVisibility(View.GONE);
+            }
+        });
+
+        popupYellow = popView.findViewById(R.id.popupYellow);
+        popupYellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.yellow;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+            }
+        });
+
+        popupOrange = popView.findViewById(R.id.popupOrange);
+        popupOrange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.orange;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupBlue = popView.findViewById(R.id.popupBlue);
+        popupBlue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.blue;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupPink = popView.findViewById(R.id.popupPink);
+        popupPink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.pink;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupErase = popView.findViewById(R.id.popupErase);
+        popupErase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.GONE);
+
+                colorPickValue = tempColorPickValue;
+
+                ColorCollection temp = ColorCollection.erase;
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(temp));
+            }
+        });
+
+        copyView = findViewById(R.id.copyView);
+        popupCopy = popView.findViewById(R.id.popupCopy);
+        popupCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String copiedText = AppState.get().selectedText;
+
+                dc.clearSelectedText();
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) HorizontalBookReadingActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(copiedText);
+                } else {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) HorizontalBookReadingActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copiedText);
+                    clipboard.setPrimaryClip(clip);
+                }
+
+                copyView.animate()
+                        .alpha(1.0f)
+                        .setDuration(1000)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                copyView.setVisibility(View.GONE);
+                            }
+                        });
+
+            }
+        });
+
+        // for note work
+//        final String selectedText = AppState.get().selectedText;
+//        Log.i("HorizontalBookReading", "selected text => " + selectedText);
+//        noteWork(selectedText);
+
+
+        popupWindowHelper = new PopupWindowHelper(popView);
+        popupWindowHelper.showAsPopUp(anchorX);
+    }
+
+    List<AppBookmark> objects;
+    BookmarksAdapter bookmarksAdapter;
+    public void noteWork(String selectedText) {
+
+        if (selectedText != null && !selectedText.trim().equals("")) {
+            final AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+            bookmark.isF = false;
+            BookmarksData.get().add(bookmark);
+
+            Log.i("HorizontalBookReading", "BookmarksData => " + BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+//            if (objects != null) {
+//                objects.add(0, bookmark);
+//            }
+//            if (bookmark != null) {
+//                bookmarksAdapter.notifyDataSetChanged();
+//            }
+
+        }
     }
 
     public void event() {
@@ -765,14 +1093,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         // to show navigation view.
         catalogMenu = findViewById(R.id.imgCatalogMenu);
-        catalogMenu.setOnClickListener(new View.OnClickListener() {
+        relCatalogMenu = findViewById(R.id.relCatalogMenu);
+        relCatalogMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrawerLayout.openDrawer(GravityCompat. START);
             }
         });
 
-        imgFont.setOnClickListener(new View.OnClickListener() {
+        relFont.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -782,7 +1111,164 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             }
         });
 
-        imgBrightness.setOnClickListener(new View.OnClickListener() {
+        // for font size adjustment.
+        imgFontSizePlus = findViewById(R.id.imgFontSizePlus);
+        imgFontSizeMinus = findViewById(R.id.imgFontSizeMinus);
+        txtFontSize = findViewById(R.id.txtFontSize);
+
+        Log.i("HorizontalBookReading", "primary fontsize value => " + BookCSS.get().fontSizeSp);
+        fontSizeValue = BookCSS.get().fontSizeSp;
+        txtFontSize.setText(String.valueOf(fontSizeValue));
+
+        imgFontSizePlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tempFontSizeValue = fontSizeValue;
+
+                if (fontSizeValue < max_fontSize) {
+                    fontSizeValue = fontSizeValue + 1;
+                }
+
+                txtFontSize.setText(String.valueOf(fontSizeValue));
+                BookCSS.get().fontSizeSp = fontSizeValue;
+
+                if (tempFontSizeValue != fontSizeValue) {
+
+                    if (onRefresh != null) {
+                        onRefresh.run();
+                    }
+
+                    Log.i("HorizontalBookReading", "Here operation is crashing.");
+                    dc.restartActivity();
+                }
+            }
+        });
+
+        imgFontSizeMinus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int tempFontSizeValue = fontSizeValue;
+
+                if (fontSizeValue > min_fontSize) {
+                    fontSizeValue = fontSizeValue - 1;
+                }
+
+                txtFontSize.setText(String.valueOf(fontSizeValue));
+                BookCSS.get().fontSizeSp = fontSizeValue;
+
+                if (tempFontSizeValue != fontSizeValue) {
+                    if (onRefresh != null) {
+                        onRefresh.run();
+                    }
+                    dc.restartActivity();
+                }
+            }
+        });
+
+        // for font type
+        relFontType = findViewById(R.id.relFontType);
+        txtFontType = findViewById(R.id.txtFontType);
+        relFontType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final List<BookCSS.FontPack> fontPacks = BookCSS.get().getAllFontsPacks();
+                MyPopupMenu popup = new MyPopupMenu(dc.getActivity(), view);
+                for (final BookCSS.FontPack pack : fontPacks) {
+                    LOG.d("pack.normalFont", pack.normalFont);
+                    popup.getMenu().add(pack.dispalyName, pack.normalFont).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            BookCSS.get().resetAll(pack);
+                            TxtUtils.underline(txtFontType, BookCSS.get().displayFontName);
+
+                            dc.restartActivity();
+                            return false;
+                        }
+                    });
+                }
+                popup.show();
+            }
+        });
+
+        TxtUtils.underline(txtFontType, BookCSS.get().displayFontName);
+
+        // for margin
+        imgBigMargin = findViewById(R.id.imgBigMargin);
+        imgBigMargin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().marginTop = 20;
+                BookCSS.get().marginBottom = 20;
+                BookCSS.get().marginLeft = 20;
+                BookCSS.get().marginRight = 20;
+
+                dc.restartActivity();
+            }
+        });
+
+        imgMiddleMargin = findViewById(R.id.imgMiddleMargin);
+        imgMiddleMargin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().marginTop = 15;
+                BookCSS.get().marginBottom = 15;
+                BookCSS.get().marginLeft = 15;
+                BookCSS.get().marginRight = 15;
+
+                dc.restartActivity();
+            }
+        });
+
+        imgSmallMargin = findViewById(R.id.imgSmallMargin);
+        imgSmallMargin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().marginTop = 10;
+                BookCSS.get().marginBottom = 10;
+                BookCSS.get().marginLeft = 10;
+                BookCSS.get().marginRight = 10;
+
+                dc.restartActivity();
+            }
+        });
+
+        // for lineHeight
+        imgBigLineHeight = findViewById(R.id.imgBigLineHeight);
+        imgBigLineHeight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().lineHeight = 20;
+
+                nullAdapter();
+                dc.restartActivity();
+            }
+        });
+
+        imgMiddleLineHeight = findViewById(R.id.imgMiddleLineHeight);
+        imgMiddleLineHeight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().lineHeight = 15;
+
+                nullAdapter();
+                dc.restartActivity();
+            }
+        });
+
+        imgSmallLineHeight = findViewById(R.id.imgSmallLineHeight);
+        imgSmallLineHeight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookCSS.get().lineHeight = 12;
+
+                nullAdapter();
+                dc.restartActivity();
+            }
+        });
+
+        // for brightness
+        relBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -792,7 +1278,262 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             }
         });
 
-        Log.i("horizontalbookreading", "event => end");
+        seekBarBrightness = (CustomSeek) findViewById(R.id.seekbarBrightness);
+        brightnessAutoSetting = (CheckBox) findViewById(R.id.brightnessAutoSetting);
+
+        brightnessValue = 0;
+        AppState.get().blueLightColor = Color.parseColor("#000000");
+        final int systemBrightnessInt = BrightnessHelper.getSystemBrigtnessInt(HorizontalBookReadingActivity.this);
+
+        if (AppState.get().appBrightness == AppState.AUTO_BRIGTNESS) {
+            brightnessValue = systemBrightnessInt;
+        } else {
+            brightnessValue = AppState.get().isEnableBlueFilter ? AppState.get().blueLightAlpha * -1 : AppState.get().appBrightness;
+        }
+
+        Log.i("HorizontalBookReading", "brightnessValue => " + brightnessValue);
+
+        seekBarBrightness.init(-100, 100, brightnessValue);
+        seekBarBrightness.setOnSeekChanged(new IntegerResponse() {
+            @Override
+            public boolean onResultRecive(int result) {
+                seekBarBrightness.setValueText("" + result);
+//                EventBus.getDefault().post(new MessegeBrightness(result));
+                brightnessOperation(result);
+                return false;
+            }
+        });
+        brightnessAutoSetting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (!buttonView.isPressed()) {
+                    return;
+                }
+                if (isChecked) { //auto
+                    seekBarBrightness.setEnabled(false);
+                    seekBarBrightness.reset(systemBrightnessInt);
+//                    EventBus.getDefault().post(new MessegeBrightness(AppState.AUTO_BRIGTNESS));
+                    brightnessOperation(AppState.AUTO_BRIGTNESS);
+
+                    Log.i("HorizontalBookReading", "enable : false ==>> systemBrightnessInt => " + systemBrightnessInt);
+                } else {
+                    seekBarBrightness.setEnabled(true);
+//                    EventBus.getDefault().post(new MessegeBrightness(systemBrightnessInt));
+                    brightnessOperation(systemBrightnessInt);
+
+                    Log.i("HorizontalBookReading", "enable : true ==>> systemBrightnessInt => " + systemBrightnessInt);
+                }
+
+            }
+        });
+        brightnessAutoSetting.setChecked(AppState.get().appBrightness == AppState.AUTO_BRIGTNESS);
+        seekBarBrightness.setEnabled(AppState.get().appBrightness != AppState.AUTO_BRIGTNESS);
+
+        // for background
+        docBackground = findViewById(R.id.docBackground);
+        topLayout = findViewById(R.id.topLayout);
+        bottomLayout = findViewById(R.id.bottomLayout);
+
+        // for doc background
+        imgWhiteBrightness = findViewById(R.id.imgWhiteBrightness);
+        imgWhiteBrightness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // for only doc background
+                AppState.get().isDayNotInvert = true;
+                AppState.get().isUseBGImageDay = false;
+
+//                AppState.get().bgImageDayTransparency = 100;
+//                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BG_3;
+
+                int colorTextChoose = Color.BLACK;
+                int colorBgChoose = AppState.COLOR_WHITE;
+
+                AppState.get().colorDayText = colorTextChoose;
+                AppState.get().colorDayBg = colorBgChoose;
+
+                ImageLoader.getInstance().clearDiskCache();
+                ImageLoader.getInstance().clearMemoryCache();
+
+                // for other component
+                docBackground.setBackgroundColor(getResources().getColor(R.color.white));
+                topLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                bottomLayout.setBackgroundColor(getResources().getColor(R.color.white));
+
+                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white2_icon));
+                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
+                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
+                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
+
+                updateUI(dc.currentPage);
+
+                // for only theme background.
+                TintUtil.color = getResources().getColor(R.color.white_theme);
+                AppState.get().tintColor = getResources().getColor(R.color.white);
+                TempHolder.listHash++;
+
+                AppProfile.save(HorizontalBookReadingActivity.this);
+
+                dc.restartActivity();
+            }
+        });
+
+        imgBrownBrightness = findViewById(R.id.imgBrownBrightness);
+        imgBrownBrightness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // for only doc background
+                AppState.get().isDayNotInvert = true;
+                AppState.get().isUseBGImageDay = true;
+
+                AppState.get().bgImageDayTransparency = 100;
+                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BROWN;
+
+                int colorTextChoose = Color.BLACK;
+                int colorBgChoose = AppState.COLOR_WHITE;
+
+                AppState.get().colorDayText = colorTextChoose;
+                AppState.get().colorDayBg = colorBgChoose;
+
+                ImageLoader.getInstance().clearDiskCache();
+                ImageLoader.getInstance().clearMemoryCache();
+
+                // for other component
+                docBackground.setBackgroundColor(getResources().getColor(R.color.brown));
+                topLayout.setBackgroundColor(getResources().getColor(R.color.brown));
+                bottomLayout.setBackgroundColor(getResources().getColor(R.color.brown));
+
+                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
+                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown2_icon));
+                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
+                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
+
+                // for only theme background.
+                TintUtil.color = getResources().getColor(R.color.brown_theme);
+                AppState.get().tintColor = getResources().getColor(R.color.brown);
+                TempHolder.listHash++;
+
+                AppProfile.save(HorizontalBookReadingActivity.this);
+
+                dc.restartActivity();
+            }
+        });
+
+        imgGreenBrightness = findViewById(R.id.imgGreenBrightness);
+        imgGreenBrightness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // for only doc background
+                AppState.get().isDayNotInvert = true;
+                AppState.get().isUseBGImageDay = true;
+
+                AppState.get().bgImageDayTransparency = 100;
+                AppState.get().bgImageDayPath = MagicHelper.IMAGE_GREEN;
+
+                int colorTextChoose = Color.BLACK;
+                int colorBgChoose = AppState.COLOR_WHITE;
+
+                AppState.get().colorDayText = colorTextChoose;
+                AppState.get().colorDayBg = colorBgChoose;
+
+                ImageLoader.getInstance().clearDiskCache();
+                ImageLoader.getInstance().clearMemoryCache();
+
+                // for other component
+                docBackground.setBackgroundColor(getResources().getColor(R.color.green));
+                topLayout.setBackground(getResources().getDrawable(R.drawable.green));
+                bottomLayout.setBackground(getResources().getDrawable(R.drawable.green));
+
+                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
+                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
+                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green2_icon));
+                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
+
+                // for only theme background.
+                TintUtil.color = getResources().getColor(R.color.green_theme);
+                AppState.get().tintColor = getResources().getColor(R.color.green);
+                TempHolder.listHash++;
+
+                AppProfile.save(HorizontalBookReadingActivity.this);
+
+                dc.restartActivity();
+            }
+        });
+
+        // for day or night.
+        imgBlackBrightness = findViewById(R.id.imgBlackBrightness);
+        imgBlackBrightness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // for only doc background
+                AppState.get().isDayNotInvert = false;
+//                AppState.get().isUseBGImageDay = false;
+//
+////                AppState.get().bgImageDayTransparency = 100;
+////                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BG_3;
+//
+//                int colorTextChoose = AppState.get().colorNigthText;
+//                int colorBgChoose = AppState.COLOR_BLACK;
+//
+//                AppState.get().colorDayText = colorTextChoose;
+//                AppState.get().colorDayBg = colorBgChoose;
+//
+//                ImageLoader.getInstance().clearDiskCache();
+//                ImageLoader.getInstance().clearMemoryCache();
+//
+//                // for other component
+//                docBackground.setBackgroundColor(getResources().getColor(R.color.black));
+//                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
+//                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
+//                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
+//                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black2_icon));
+//
+//                // for only theme background.
+//                TintUtil.color = getResources().getColor(R.color.black_theme);
+//                AppState.get().tintColor = getResources().getColor(R.color.black);
+//                TempHolder.listHash++;
+//
+//                AppProfile.save(HorizontalBookReadingActivity.this);
+
+                dc.restartActivity();
+            }
+        });
+
+        relNote = findViewById(R.id.relNote);
+        relNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HorizontalBookReadingActivity.this, NoteActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+    }
+
+    public void brightnessOperation(int value) {
+        if (value == AppState.AUTO_BRIGTNESS) {
+            AppState.get().isEnableBlueFilter = false;
+            // AppState.get().blueLightAlpha = 0;
+            AppState.get().appBrightness = AppState.AUTO_BRIGTNESS;
+
+        } else if (value < 0) {
+            AppState.get().isEnableBlueFilter = true;
+            AppState.get().blueLightAlpha = Math.abs(value);
+            AppState.get().appBrightness = 0;
+
+        } else {
+            AppState.get().isEnableBlueFilter = false;
+            // AppState.get().blueLightAlpha = 0;
+            AppState.get().appBrightness = value;
+        }
+
+        BrightnessHelper.applyBrigtness(HorizontalBookReadingActivity.this);
+        BrightnessHelper.updateOverlay(overlay);
     }
 
     public void initAsync(int w, int h) {
@@ -823,6 +1564,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         focusBook.pageCount = maxPage;
         db.updateBookTotalPage(focusBook);
+        Global.globalDC = dc;
 
         Log.i("horizontalbookreading", "initAsync => end");
     }
@@ -953,7 +1695,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         }
 
         if (getIntent().hasExtra("id4")) {
-            DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//            DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//            DragingDialogs.myPopup(anchor, dc);
+            showPopupWindow();
         }
 
         if (getIntent().hasExtra("id5")) {
@@ -2000,7 +2744,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
     @Subscribe
     public void onMessegeBrightness(MessegeBrightness msg) {
-//        BrightnessHelper.onMessegeBrightness(handler, msg, toastBrightnessText, overlay);
+        BrightnessHelper.applyBrigtness(HorizontalBookReadingActivity.this);
+        BrightnessHelper.updateOverlay(overlay);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -2149,7 +2894,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     DictsHelper.runIntent(dc.getActivity(), text);
                     dc.clearSelectedText();
                 } else {
-                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.myPopup(anchor, dc);
+                    showPopupWindow();
                 }
             }
         } else if (ev.getMessage().equals(MessageEvent.MESSAGE_GOTO_PAGE_BY_LINK)) {

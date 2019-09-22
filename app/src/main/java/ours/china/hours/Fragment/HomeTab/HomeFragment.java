@@ -194,7 +194,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         params.put("category", Collections.singletonList(category.toString()));
 
         Ion.with(getActivity())
-                .load(Url.searchAllBookwithMobile)
+                .load(Url.query_books)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
                 .setBodyParameters(params)
@@ -217,7 +217,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                     Type type = new TypeToken<ArrayList<Book>>() {}.getType();
                                     mBookList = gson.fromJson(dataArray.toString(), type);
 
-                                    getTotalData();
+
+//                                    getTotalData();
 
 
                                 } else {

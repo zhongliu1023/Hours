@@ -1,6 +1,5 @@
 package ours.china.hours.Management;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -26,6 +25,7 @@ import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Model.Book;
+
 
 public class DownloadImage extends AsyncTask<String, String, String> {
 
@@ -102,6 +102,5 @@ public class DownloadImage extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String message) {
         imageListener.onImagePath(message);
-
     }
 }

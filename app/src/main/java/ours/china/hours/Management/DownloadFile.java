@@ -1,5 +1,6 @@
 package ours.china.hours.Management;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -22,6 +23,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
@@ -40,11 +42,12 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private String fileName;
     private String folder;
     private boolean isDownloaded;
-    private Context context;
+    private Activity context;
 
     ImageListener imageListener;
 
     public DownloadFile(Context context, ImageListener imageListener) {
+
         this.context = context;
         this.imageListener = imageListener;
 
@@ -81,6 +84,8 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
             fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
             fileName = timestamp + "_" + fileName;
             folder = Environment.getExternalStorageDirectory() + File.separator + "book/";
+
+            Log.i("DownloadFile", "folder + fileName => " + folder + fileName);
 
             File directory = new File(folder);
 
