@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -45,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
@@ -58,6 +61,7 @@ import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
+import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.DownloadImage;
@@ -71,7 +75,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by liujie on 1/12/18.
  */
 
-public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface {
+public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
 
     private String tempPopupWindow2String = "默认";
 
@@ -93,6 +97,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     SharedPreferencesManager sessionManager;
     DBController db = null;
     JSONObject statistics = null;
+
+    BookDetailsDialog bookDetailsDialog;
+
     public HomeFragment() {
         Log.v("Hello", "This is DB controller part.");
     }
@@ -140,7 +147,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
         txtTypeBook.setText("全都");
         imgArrow = view.findViewById(R.id.imgArrow);
-
     }
 
     List<FileMeta> localBooks;
@@ -634,88 +640,42 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             return;
         }
         BookManagement.saveFocuseBook(selectedBook, sessionManager);
+
+
         if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            new DownloadImage(getActivity(), new ImageListener() {
-                @Override
-                public void onImagePath(String path) {
-                    selectedBook.bookImageLocalUrl = path;
-                    BookManagement.saveFocuseBook(selectedBook, sessionManager);
-                    downloadFile(selectedBook, position);
-                }
-            }).execute(Url.domainUrl + "/" + selectedBook.coverUrl);
+            bookDetailsDialog = new BookDetailsDialog(getActivity(), HomeFragment.this);
+            bookDetailsDialog.show();
+            Window rootWindow = getActivity().getWindow();
+            Rect displayRect = new Rect();
+            rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+            bookDetailsDialog.getWindow().setLayout(displayRect.width(), displayRect.height());
+            bookDetailsDialog.setCanceledOnTouchOutside(false);
         }else{
             EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
 
-    void downloadFile(Book book, int position){
-        new DownloadFile(getActivity(), new ImageListener() {
-            @Override
-            public void onImagePath(String path) {
-                if (path.equals("")) {
-                    Toast.makeText(getActivity(), "下载错误", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                book.bookLocalUrl = path;
-                BookManagement.saveFocuseBook(book, sessionManager);
-                resetBookInfoAfterDownloading(position);
-            }
-        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
-    }
-
-    void resetBookInfoAfterDownloading(int position){
-        Book focuseBook = BookManagement.getFocuseBook(sessionManager);
-
-        int tempPosition = 0;
-        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
-            tempPosition = 0;
-        } else {
-            tempPosition = AppDB.get().getAll().size();
-        }
-        focuseBook.libraryPosition = String.valueOf(tempPosition);
-        if (db.getBookData(focuseBook.bookId) == null){
-            db.insertData(focuseBook);
-        }else{
-            db.updateBookData(focuseBook);
-        }
-        BookManagement.saveFocuseBook(focuseBook, sessionManager);
-
-        mBookList.remove(position);
-        mBookList.add(position, focuseBook);
-        adapter.notifyItemChanged(position);
-
-        if (!ExtUtils.isExteralSD(focuseBook.bookLocalUrl)) {
-            FileMeta meta = AppDB.get().getOrCreate(focuseBook.bookLocalUrl);
-            AppDB.get().updateOrSave(meta);
-            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
-        }
-        Ion.with(getActivity())
-                .load(Url.addToMybooks)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .setBodyParameter("bookId", focuseBook.bookId)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-
-                        if (error == null) {
-                            try {
-                                JSONObject resObject = new JSONObject(result.toString());
-                                if (resObject.getString("res").equals("success")) {
-                                    gotoReadingViewFile();
-                                }
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                });
-    }
     void gotoReadingViewFile(){
         Book focuseBook = BookManagement.getFocuseBook(sessionManager);
         List<FileMeta> localBooks = AppDB.get().getAll();
         int tempLibraryPosition = Integer.parseInt(focuseBook.libraryPosition);
 
         ExtUtils.openFile(getActivity(), localBooks.get(tempLibraryPosition));
+    }
+
+    @Override
+    public void onFinishDownload(Book book, Boolean isSuccess) {
+
+        for (int i = 0; i < mBookList.size(); i++) {
+            Book one = mBookList.get(i);
+            if (one.bookId != null && book.bookId != null && one.bookId.equals(book.bookId)) {
+                one.bookLocalUrl = book.bookLocalUrl;
+                one.bookImageLocalUrl = book.bookImageLocalUrl;
+                one.libraryPosition = book.libraryPosition;
+                adapter.notifyItemChanged(i);
+                break;
+            }
+        }
+        gotoReadingViewFile();
     }
 }

@@ -1,5 +1,6 @@
 package ours.china.hours.Activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -63,7 +66,7 @@ import ours.china.hours.Fragment.PersonalTab.PersonalFragment;
 import ours.china.hours.Fragment.PersonalTab.PersonalFragmentRoot;
 import ours.china.hours.R;
 
-public class MainActivity  extends FragmentActivity {
+public class MainActivity  extends AppCompatActivity {
 
     Fragment activityFragment;
     private BookFragment bookFragment;
@@ -88,6 +91,8 @@ public class MainActivity  extends FragmentActivity {
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
             sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
 
@@ -281,6 +286,7 @@ public class MainActivity  extends FragmentActivity {
                     fragmentManager.beginTransaction().hide(activityFragment).show(historyFragment).commit();
                     activityFragment = historyFragment;
                     historyFragment.getDataFromLocalDB();
+                    historyFragment.fetchBooksStatistics();
 
                     break;
                 case 3:

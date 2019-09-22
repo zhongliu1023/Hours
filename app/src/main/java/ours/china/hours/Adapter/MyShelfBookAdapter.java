@@ -64,7 +64,7 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
                     .into(holder.bookImage);
         }
 
-        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals("1")) {
             holder.imgReadState.setImageResource(R.drawable.read);
         } else {
             holder.imgReadState.setVisibility(View.INVISIBLE);

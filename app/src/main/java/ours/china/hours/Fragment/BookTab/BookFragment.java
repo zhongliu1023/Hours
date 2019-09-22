@@ -1,5 +1,6 @@
 package ours.china.hours.Fragment.BookTab;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
@@ -42,9 +43,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.MainActivity;
+import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
@@ -64,6 +67,7 @@ import ours.china.hours.Model.BookStatus;
 import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by liujie on 1/12/18.
@@ -135,6 +139,15 @@ public class BookFragment extends Fragment implements BookItemInterface {
         txtTypeBook.setText(getString(R.string.popup3_all, "90"));
         imgArrow = view.findViewById(R.id.imgArrow);
         mFavorites = new ArrayList<Favorites>(){};
+
+        ImageView newsImage = view.findViewById(R.id.imageNews);
+        newsImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NewsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void getAllDataFromLocalDB() {
@@ -143,38 +156,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
         localBookList = db.getAllData();
 
     }
-    void fetchBooksStatistics(){
-        Ion.with(getActivity())
-                .load(Url.mybooksStatistics)
-                .setTimeout(10000)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-                        if (error == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
-                                if (resObj.getString("res").toLowerCase().equals("success")) {
-                                    statistics = new JSONObject(resObj.getString("statistics"));
-                                    reloadStatistics();
-                                } else {
-                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
-                                }
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-
-                        } else {
-                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
     public void getAllDataFromServer() {
-        fetchBooksStatistics();
         mBookList = new ArrayList<>();
         searchedBookList = new ArrayList<>();
 
@@ -233,13 +215,13 @@ public class BookFragment extends Fragment implements BookItemInterface {
                                         if (db.getBookData(mBookList.get(i).bookId) == null){
                                             db.insertData(mBookList.get(i));
                                         }else{
-//                                            db.updateBookData(mBookList.get(i));
+                                            db.updateBookData(mBookList.get(i));
                                         }
                                         BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
                                         if (localBookStatus == null){
                                             db.insertBookStateData(bookStatus, mBookList.get(i).bookId);
                                         }else{
-                                            if (Long.parseLong(localBookStatus.time) < Long.parseLong(bookStatus.time)){
+                                            if (Long.parseLong(localBookStatus.time.isEmpty()?"0":localBookStatus.time) < Long.parseLong(bookStatus.time.isEmpty()?"0":bookStatus.time)){
                                                 db.updateBookStateData(bookStatus, mBookList.get(i).bookId);
                                             }
                                         }
@@ -330,10 +312,6 @@ public class BookFragment extends Fragment implements BookItemInterface {
 //        adapter.notifyDataSetChanged();
     }
 
-
-    void reloadStatistics(){
-
-    }
     PopupWindow popupWindow1;
     PopupWindow popupWindow2;
     TextView txtAllBooks, txtRead, txtUnread, txtDownloaded, txtFavorites;
@@ -626,6 +604,17 @@ public class BookFragment extends Fragment implements BookItemInterface {
         if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
             BookManagement.saveFocuseBook(selectedBook, sessionManager);
             gotoReadingViewFile();
+            return;
+        }
+
+        BookManagement.saveFocuseBook(selectedBook, sessionManager);
+
+
+        if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+            Intent intent = new Intent(getActivity(), BookDetailActivity.class);
+            getActivity().startActivity(intent);
+        }else{
+            EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
     void gotoReadingViewFile(){

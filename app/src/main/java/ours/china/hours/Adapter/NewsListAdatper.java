@@ -55,15 +55,16 @@ public class NewsListAdatper extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        holder.newsType.setText(listData.get(position).getNewsType());
-        holder.newsTime.setText(listData.get(position).getNewsTime());
-        holder.newsContent.setText(listData.get(position).getNewsContent());
+        holder.newsType.setText(listData.get(position).title);
+        holder.newsTime.setText(listData.get(position).releaseTime);
+        holder.newsContent.setText(listData.get(position).content);
 
         holder.newsType.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, NewsDetailActivity.class);
-                intent.putExtra("time", listData.get(position).getNewsTime());
+                intent.putExtra("time", listData.get(position).releaseTime);
+                intent.putExtra("content", listData.get(position).content);
                 context.startActivity(intent);
             }
         });
@@ -71,6 +72,10 @@ public class NewsListAdatper extends BaseAdapter {
         return view;
     }
 
+    public void reloadNews(ArrayList<NewsItem> updatedNews){
+        listData = updatedNews;
+        notifyDataSetChanged();
+    }
     static class ViewHolder{
         TextView newsType;
         TextView newsTime;

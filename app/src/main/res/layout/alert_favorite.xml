@@ -22,7 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:textSize="@dimen/sw360_standard_fontsize_24"
+                android:textSize="@dimen/navigation_title_size"
                 android:text="添加至收藏夹"
                 android:textColor="@color/alpa_90"/>
             <RelativeLayout

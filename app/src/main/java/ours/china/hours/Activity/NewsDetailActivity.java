@@ -13,8 +13,8 @@ import ours.china.hours.R;
 public class NewsDetailActivity extends AppCompatActivity {
 
     ImageView imgBack;
-    TextView newsTime;
-    String strTime;
+    TextView newsTime, textContent;
+    String strTime, content;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,13 +22,16 @@ public class NewsDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_news_detail);
 
         strTime = getIntent().getStringExtra("time");
+        content = getIntent().getStringExtra("content");
         init();
         event();
     }
 
     public void init() {
         newsTime = findViewById(R.id.newsTime);
+        textContent = findViewById(R.id.textContent);
         newsTime.setText(strTime);
+        textContent.setText(content);
     }
 
     public void event() {

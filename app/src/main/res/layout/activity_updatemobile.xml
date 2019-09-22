@@ -65,7 +65,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:textSize="@dimen/font_size_20"
+                    android:paddingBottom="@dimen/margin_10"
+                    android:textSize="@dimen/content_normal_size"
                     android:text="@string/update_mobile_statement1"/>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -75,8 +76,15 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:textSize="@dimen/font_size_20"
+                        android:paddingRight="@dimen/margin_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/update_mobile_statement2"/>
+                    <TextView
+                        android:id="@+id/currentMobile"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:textSize="@dimen/font_size_20"/>
                     <TextView
                         android:id="@+id/tvUpdateMobileState"
                         android:layout_width="wrap_content"
@@ -113,7 +121,7 @@
                     android:layout_weight="7"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:textSize="@dimen/font_size_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:hint="@string/update_mobile_new"/>
             </LinearLayout>
             <TextView
@@ -145,7 +153,7 @@
                     android:layout_weight="7"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:textSize="@dimen/font_size_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:inputType="textPassword"
                     android:hint="@string/update_mobile_verify"/>
             </LinearLayout>

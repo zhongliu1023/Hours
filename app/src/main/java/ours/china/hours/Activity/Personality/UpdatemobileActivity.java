@@ -12,9 +12,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.User;
 import ours.china.hours.Model.VerifyCode;
 import ours.china.hours.R;
 import retrofit2.Call;
@@ -26,9 +36,11 @@ public class UpdatemobileActivity extends AppCompatActivity {
     private ImageView imgUpdateMobileBack;
     private EditText edUpdateMobileNew, edUpdateMobileVerify;
     private Button btnUpdateMobileConfirm, btnUpdateMobileComplete;
-    private TextView tvUpdateMobileState;
+    private TextView tvUpdateMobileState, currentMobile;
 
     APIInterface apiInterface;
+    SharedPreferencesManager sessionManager;
+    User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +59,16 @@ public class UpdatemobileActivity extends AppCompatActivity {
 
     private void initUI(){
 
+        sessionManager = new SharedPreferencesManager(this);
+        currentUser = UsersManagement.getCurrentUser(sessionManager);
         tvUpdateMobileState = (TextView)findViewById(R.id.tvUpdateMobileState);
         imgUpdateMobileBack = (ImageView) findViewById(R.id.imgUpdateMobileBack);
         edUpdateMobileNew = (EditText)findViewById(R.id.edUpdateMobileNew);
         edUpdateMobileVerify = (EditText)findViewById(R.id.edUpdateMobileVerify);
         btnUpdateMobileConfirm = (Button)findViewById(R.id.btnUpdateMobileConfirm);
         btnUpdateMobileComplete = (Button)findViewById(R.id.btnUpdateMobileComplete);
+        currentMobile = findViewById(R.id.currentMobile);
+        currentMobile.setText(currentUser.mobile);
     }
 
 
@@ -100,44 +116,39 @@ public class UpdatemobileActivity extends AppCompatActivity {
             edUpdateMobileNew.requestFocus();
             return;
         }
+        Global.showLoading(UpdatemobileActivity.this,"generate_report");
+        Ion.with(UpdatemobileActivity.this)
+                .load(Url.request_changemobile)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("mobile", newMobile)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
 
-        try {
-            Global.showLoading(UpdatemobileActivity.this,"generate_report");
-            Call<VerifyCode> call = apiInterface.updateMobile(access_token, oldMobile, newMobile);
-            call.enqueue(new Callback<VerifyCode>() {
-                @Override
-                public void onResponse(Call<VerifyCode> call, Response<VerifyCode> response) {
-                    Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
 
-                    if (response.code() == 404){
-                        Toast.makeText(UpdatemobileActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(UpdatemobileActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(UpdatemobileActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Log.i("Register", res);
-                        if (res.equals("success")){
-                            Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
-                            btnUpdateMobileComplete.setVisibility(View.INVISIBLE);
-                            btnUpdateMobileConfirm.setVisibility(View.VISIBLE);
-                        }else if (res.equals("fail")){
-                            Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                                if (resObj.getString("res").equals("success")) {
+                                    Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
+                                    btnUpdateMobileComplete.setVisibility(View.INVISIBLE);
+                                    btnUpdateMobileConfirm.setVisibility(View.VISIBLE);
+                                }else {
+                                    Toast.makeText(UpdatemobileActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(UpdatemobileActivity.this, "验证码成功失败", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<VerifyCode> call, Throwable t) {
-                    Global.hideLoading();
-                    Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-        catch (Exception e) {
-            Log.i("register" ,e.getMessage());
-            Toast.makeText(UpdatemobileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                });
     }
 
 
@@ -159,46 +170,43 @@ public class UpdatemobileActivity extends AppCompatActivity {
             edUpdateMobileVerify.requestFocus();
             return;
         }
+        Global.showLoading(UpdatemobileActivity.this,"generate_report");
+        Ion.with(UpdatemobileActivity.this)
+                .load(Url.confirm_changemobile)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("mobile", newMobile)
+                .setBodyParameter("otp", otp)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
 
-        try {
-            Global.showLoading(UpdatemobileActivity.this,"generate_report");
-            Call<VerifyCode> call = apiInterface.confirmUpdateMobile(access_token, oldMobile, newMobile, otp);
-            call.enqueue(new Callback<VerifyCode>() {
-                @Override
-                public void onResponse(Call<VerifyCode> call, Response<VerifyCode> response) {
-                    Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
 
-                    if (response.code() == 404){
-                        Toast.makeText(UpdatemobileActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(UpdatemobileActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(UpdatemobileActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Log.i("Register", res);
-                        if (res.equals("success")){
-                            Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
-                            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                                UpdatemobileActivity.this.finish();
-                            } else {
-                                UpdatemobileActivity.super.onBackPressed();
+                                if (resObj.getString("res").equals("success")) {
+
+                                    Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
+                                    if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                                        UpdatemobileActivity.this.finish();
+                                    } else {
+                                        UpdatemobileActivity.super.onBackPressed();
+                                    }
+                                }else {
+                                    Toast.makeText(UpdatemobileActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
                             }
-                        }else if (res.equals("fail")){
-                            Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            Toast.makeText(UpdatemobileActivity.this, "验证码成功失败", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<VerifyCode> call, Throwable t) {
-                    Global.hideLoading();
-                    Toast.makeText(UpdatemobileActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-        catch (Exception e) {
-            Log.i("register" ,e.getMessage());
-            Toast.makeText(UpdatemobileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                });
     }
 }

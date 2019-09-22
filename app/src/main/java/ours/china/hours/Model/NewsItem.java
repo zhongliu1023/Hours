@@ -1,40 +1,12 @@
 package ours.china.hours.Model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class NewsItem {
-    String newsType;
-    String newsTime;
-    String newsContent;
+    @SerializedName("releaseTime") @Expose
+    public String releaseTime = "";
+    @SerializedName("title") @Expose public String title = "";
+    @SerializedName("content") @Expose public String content = "";
 
-    public NewsItem(String newsType, String newsTime, String newsContent) {
-        this.newsType = newsType;
-        this.newsTime = newsTime;
-        this.newsContent = newsContent;
-    }
-
-    public NewsItem() {
-    }
-
-    public String getNewsType() {
-        return newsType;
-    }
-
-    public void setNewsType(String newsType) {
-        this.newsType = newsType;
-    }
-
-    public String getNewsTime() {
-        return newsTime;
-    }
-
-    public void setNewsTime(String newsTime) {
-        this.newsTime = newsTime;
-    }
-
-    public String getNewsContent() {
-        return newsContent;
-    }
-
-    public void setNewsContent(String newsContent) {
-        this.newsContent = newsContent;
-    }
 }

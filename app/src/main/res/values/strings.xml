@@ -696,7 +696,7 @@
     <string name="update_password_confirm_hint">请确认新密码</string>
     <string name="update_mobile">修改手机号</string>
     <string name="update_mobile_statement1">更换手机号后，下次登陆将使用新手机号</string>
-    <string name="update_mobile_statement2">当前手机号 13912341234</string>
+    <string name="update_mobile_statement2">当前手机号</string>
     <string name="update_mobile_new">新手机号码</string>
     <string name="update_mobile_verify">验证码</string>
     <string name="update_information">个人信息修改</string>

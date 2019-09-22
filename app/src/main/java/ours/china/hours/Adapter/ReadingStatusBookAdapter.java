@@ -93,14 +93,13 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         }
 
         String[] pages = one.bookStatus.pages.split(",");
-        int percent = (one.bookStatus.pages.split(",")).length / Integer.parseInt(one.pageCount);
-        holder.txtReadPercent.setText(String.valueOf((pages.length * 100 / Integer.parseInt(one.pageCount))));
-
-        Log.i(TAG, "book read percent => " + percent);
-        Log.i(TAG, "pages => " + one.bookStatus.pages);
-        Log.i(TAG, "total page => " + one.pageCount);
-        // we can use getWidth(), getHeight(), getX(), getY() after the layout was created really.
-        // so we must use getViewTreeObeserver().addOnGlobalLayoutListener().
+        int percent = 0;
+        if (one.pageCount.isEmpty() || one.pageCount.equals("0")){
+            percent = 0;
+        }else{
+            percent = pages.length / Integer.parseInt(one.pageCount);
+        }
+        holder.txtReadPercent.setText(one.bookStatus.progress);
         holder.container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -110,7 +109,12 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                 int paramWidth = (int) holder.txtStateBar.getWidth();
                 int paramHeight = (int) holder.txtStateBar.getHeight();
 
-                float paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.pageCount);
+                float paramWidthPerPage = 0;
+                if (one.pageCount.isEmpty() || one.pageCount.equals("0")){
+
+                }else{
+                    paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.pageCount);
+                }
                 holder.recycleTextViews();
 
                 if (pages.length !=0 && !pages[0].equals("")) {

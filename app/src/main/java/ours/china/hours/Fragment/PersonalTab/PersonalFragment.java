@@ -55,6 +55,7 @@ import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Profile;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
 /**
@@ -68,6 +69,7 @@ public class PersonalFragment extends Fragment {
     public Button btnFrPersonalOut;
 
     SharedPreferencesManager sessionManager;
+    User currentUser;
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,8 +95,9 @@ public class PersonalFragment extends Fragment {
 
 
     private void initUI(View view){
-
         sessionManager = new SharedPreferencesManager(getContext());
+        currentUser = UsersManagement.getCurrentUser(sessionManager);
+
         tvFrPersonalFav = (TextView)view.findViewById(R.id.tvfrPersonalFav);
         tvFrPersonalInfo = (TextView)view.findViewById(R.id.tvfrPersonalInfo);
         tvFrPersonalFeedback = (TextView)view.findViewById(R.id.tvfrPersonalFeedback);
@@ -102,6 +105,7 @@ public class PersonalFragment extends Fragment {
         tvFrPersonalStatement = (TextView)view.findViewById(R.id.tvfrPersonalStatement);
         tvFrPersonalAbout = (TextView)view.findViewById(R.id.tvfrPersonalAbout);
         tvFrPersonalMobile = (TextView)view.findViewById(R.id.tvfrPersonalMobile);
+        tvFrPersonalMobile.setText(currentUser.mobile);
         tvFrPersonalPass = (TextView)view.findViewById(R.id.tvfrPersonalPass);
         tvFrPersonalCheck = (TextView)view.findViewById(R.id.tvfrPersonalCheck);
         tvFrPersonalAccount = (TextView)view.findViewById(R.id.tvfrPersonalAccount);

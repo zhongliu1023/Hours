@@ -11,7 +11,6 @@
     <LinearLayout
         android:id="@+id/statusBarLayout"
         android:layout_width="match_parent"
-        android:background="@color/statusbar_black"
         android:layout_height="25dp"
         android:orientation="vertical"/>
 

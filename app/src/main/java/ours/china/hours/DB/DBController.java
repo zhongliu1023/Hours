@@ -77,6 +77,20 @@ public class DBController {
 
         database.insert(DatabaseManager.bookStateTable, null, values);
     }
+
+    public void updateBookDataWithDownloadData(Book data) {
+        ContentValues values = new ContentValues();
+
+        values.put(DatabaseManager.KEY_bookImageLocalUrl, data.bookImageLocalUrl);
+        values.put(DatabaseManager.KEY_bookLocalUrl, data.bookLocalUrl);
+        values.put(DatabaseManager.KEY_libraryPosition, data.libraryPosition);
+
+        String where = DatabaseManager.KEY_bookId + " = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookTable, values, where, new String[]{data.bookId});
+        database.close();
+    }
     public void updateBookData(Book data) {
         ContentValues values = new ContentValues();
 
@@ -101,7 +115,9 @@ public class DBController {
         values.put(DatabaseManager.KEY_summary, data.summary);
         values.put(DatabaseManager.KEY_category, data.category);
         values.put(DatabaseManager.KEY_publishingHouse, data.publishingHouse);
-        values.put(DatabaseManager.KEY_pageCount, data.pageCount);
+        if (!data.pageCount.isEmpty() && !data.pageCount.equals("0")){
+            values.put(DatabaseManager.KEY_pageCount, data.pageCount);
+        }
         values.put(DatabaseManager.KEY_isbn, data.isbn);
         values.put(DatabaseManager.KEY_edition, data.edition);
         values.put(DatabaseManager.KEY_fileName, data.fileName);
@@ -137,6 +153,16 @@ public class DBController {
         database.close();
     }
 
+    public void updateBookProgressState(BookStatus data, String bookID) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_progress, data.progress);
+
+        String where = DatabaseManager.KEY_bookId + " = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{bookID});
+        database.close();
+    }
     public void updateBookPageNumbersState(BookStatus data, String bookID) {
         ContentValues updateValues = new ContentValues();
         updateValues.put(DatabaseManager.KEY_pages, data.pages);

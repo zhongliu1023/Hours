@@ -1649,7 +1649,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         // for top read time
         if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("") && db.getBookStateData(focusBook.bookId).time != null) {
-            int seconds = Integer.parseInt(db.getBookStateData(focusBook.bookId).time) / 1000;
+            int seconds = Integer.parseInt(db.getBookStateData(focusBook.bookId).time)/1000;
             int minutes = seconds / 60;
             int hours = minutes / 60;
             seconds = seconds % 60;
@@ -3400,34 +3400,36 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             Log.i("horizontalbookreading", "time" + ":" + db.getBookStateData(focusBook.bookId).time);
             Log.i("horizontalbookreading", "endPoint" + ":" + db.getBookStateData(focusBook.bookId).lastRead);
 
-//            Ion.with(HorizontalBookReadingActivity.this)
-//                    .load(Url.bookStateChangeOperation)
-//                    .setTimeout(10000)
-//                    .setBodyParameter("access_token", Global.access_token)
-//                    .setBodyParameter("bookId", focusBook.bookId)
-//                    .setBodyParameter("pages", focusBook.bookStatus.pages)
-//                    .setBodyParameter("time", focusBook.bookStatus.time)
-//                    .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
-//                    .asString()
-//                    .setCallback(new FutureCallback<String>() {
-//                        @Override
-//                        public void onCompleted(Exception e, String result) {
-//                            Log.i("horizontalbookreading", "real time api result" + result);
-//                            String temp;
-//
-//                            if (e == null) {
-//                                JSONObject resObj = null;
-//                                try {
-//                                    resObj = new JSONObject(result.toString());
-//                                    temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
-//
-//                                } catch (JSONException ex) {
-//                                    ex.printStackTrace();
-//                                }
-//
-//                            }
-//                        }
-//                    });
+            focusBook.bookStatus = db.getBookStateData(focusBook.bookId);
+            Ion.with(HorizontalBookReadingActivity.this)
+                    .load(Url.bookStateChangeOperation)
+                    .setTimeout(10000)
+                    .setBodyParameter("access_token", Global.access_token)
+                    .setBodyParameter("bookId", focusBook.bookId)
+                    .setBodyParameter("pages", focusBook.bookStatus.pages)
+                    .setBodyParameter("time", focusBook.bookStatus.time)
+                    .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
+                    .setBodyParameter("progress", focusBook.bookStatus.progress)
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            Log.i("horizontalbookreading", "real time api result" + result);
+                            String temp;
+
+                            if (e == null) {
+                                JSONObject resObj = null;
+                                try {
+                                    resObj = new JSONObject(result.toString());
+                                    temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
+
+                                } catch (JSONException ex) {
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        }
+                    });
 
         } else {
 //            Toast.makeText(HorizontalBookReadingActivity.this, "Network is disconnected.", Toast.LENGTH_SHORT).show();
@@ -3455,6 +3457,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             }
         }
 
+        String[] pageArray = focusBook.bookStatus.pages.split(",");
+        int percent = 0;
+        if (focusBook.pageCount.isEmpty() || focusBook.pageCount.equals("0")){
+            percent = 0;
+        }else{
+            percent = pageArray.length * 100 / Integer.parseInt(focusBook.pageCount);
+        }
+        focusBook.bookStatus.progress = Integer.toString(percent);
+        db.updateBookProgressState(focusBook.bookStatus, focusBook.bookId);
         Log.i("horizontalbookreading", "pageNumberState flag=>" + stateChangFlag);
 
     }

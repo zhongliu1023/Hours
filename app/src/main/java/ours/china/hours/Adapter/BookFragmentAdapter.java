@@ -61,7 +61,7 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
                     .into(holder.bookImage);
         }
 
-        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus.isRead.equals("1")) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);

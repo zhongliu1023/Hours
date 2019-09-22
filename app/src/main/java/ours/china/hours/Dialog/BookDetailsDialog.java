@@ -1,14 +1,14 @@
-package ours.china.hours.Activity;
+package ours.china.hours.Dialog;
 
-import android.os.Bundle;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
@@ -17,6 +17,9 @@ import com.koushikdutta.ion.Ion;
 
 import org.json.JSONObject;
 
+import ours.china.hours.Activity.Auth.LoginOptionActivity;
+import ours.china.hours.Activity.BookDetailActivity;
+import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
@@ -30,9 +33,11 @@ import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
+import ours.china.hours.Utility.SessionManager;
 
-public class BookDetailActivity extends AppCompatActivity {
+public class BookDetailsDialog extends Dialog {
 
+    Context context;
     SharedPreferencesManager sessionManager;
     Book focusBook = new Book();
 
@@ -42,18 +47,22 @@ public class BookDetailActivity extends AppCompatActivity {
     TextView txtDownloadButton;
 
     DBController db = null;
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+
+    OnDownloadBookListenner onDownloadBookListner;
+
+
+    public BookDetailsDialog(Context context, OnDownloadBookListenner listenner) {
+        super(context);
+        this.context = context;
+        this.onDownloadBookListner = listenner;
         setContentView(R.layout.activity_bookdetail);
 
         initView();
         initListener();
     }
-
     private void initView() {
-        db = new DBController(BookDetailActivity.this);
-        sessionManager = new SharedPreferencesManager(this);
+        db = new DBController(context);
+        sessionManager = new SharedPreferencesManager(context);
         focusBook = BookManagement.getFocuseBook(sessionManager);
 
         imgBack = findViewById(R.id.imgBack);
@@ -68,17 +77,17 @@ public class BookDetailActivity extends AppCompatActivity {
         txtDownloadButton = findViewById(R.id.txtDownloadButton);
 
         if (focusBook.bookImageLocalUrl.isEmpty()){
-            Glide.with(BookDetailActivity.this)
+            Glide.with(context)
                     .load(Url.domainUrl + "/" + focusBook.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(bookCoverImg);
         }else{
-            Glide.with(BookDetailActivity.this)
+            Glide.with(context)
                     .load(focusBook.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(bookCoverImg);
         }
-        txtDownloadButton.setVisibility(focusBook.bookLocalUrl.isEmpty()?View.GONE:View.VISIBLE);
+        txtDownloadButton.setVisibility(focusBook.bookLocalUrl.isEmpty()?View.VISIBLE:View.GONE);
         bookName.setText(focusBook.bookName);
         bookAuthor.setText(focusBook.author);
         txtDeadlineDate.setText(focusBook.deadline);
@@ -91,17 +100,14 @@ public class BookDetailActivity extends AppCompatActivity {
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (getFragmentManager().getBackStackEntryCount() == 0) {
-                    BookDetailActivity.this.finish();
-                } else {
-                    getFragmentManager().popBackStack();
-                }
+                onDownloadBookListner.onFinishDownload(focusBook, false);
+                dismiss();
             }
         });
         txtDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new DownloadImage(BookDetailActivity.this, new ImageListener() {
+                new DownloadImage(context, new ImageListener() {
                     @Override
                     public void onImagePath(String path) {
                         focusBook.bookImageLocalUrl = path;
@@ -113,11 +119,11 @@ public class BookDetailActivity extends AppCompatActivity {
         });
     }
     void downloadFile(Book book){
-        new DownloadFile(BookDetailActivity.this, new ImageListener() {
+        new DownloadFile(context, new ImageListener() {
             @Override
             public void onImagePath(String path) {
                 if (path.equals("")) {
-                    Toast.makeText(BookDetailActivity.this, "下载错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "下载错误", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 book.bookLocalUrl = path;
@@ -151,7 +157,7 @@ public class BookDetailActivity extends AppCompatActivity {
             AppDB.get().updateOrSave(meta);
             IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
         }
-        Ion.with(BookDetailActivity.this)
+        Ion.with(context)
                 .load(Url.addToMybooks)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
                 .setBodyParameter("bookId", focuseBook.bookId)
@@ -159,16 +165,14 @@ public class BookDetailActivity extends AppCompatActivity {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception error, JsonObject result) {
-
                         if (error == null) {
                             try {
                                 JSONObject resObject = new JSONObject(result.toString());
-                                if (resObject.getString("res").equals("success")) {
-                                    if (getFragmentManager().getBackStackEntryCount() == 0) {
-                                        BookDetailActivity.this.finish();
-                                    } else {
-                                        getFragmentManager().popBackStack();
-                                    }
+                                if (resObject.getString("res").equals("success")||
+                                        (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
+
+                                    onDownloadBookListner.onFinishDownload(focusBook, true);
+                                    dismiss();
                                 }
                             } catch (Exception ex) {
                                 ex.printStackTrace();
@@ -176,5 +180,10 @@ public class BookDetailActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+
+    public interface OnDownloadBookListenner {
+        void onFinishDownload(Book book, Boolean isSuccess);
     }
 }

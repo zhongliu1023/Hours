@@ -3,6 +3,7 @@ package ours.china.hours.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -19,10 +20,26 @@ import com.baoyz.swipemenulistview.SwipeMenu;
 import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import ours.china.hours.Adapter.NewsListAdatper;
+import ours.china.hours.Management.Url;
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.R;
 import ours.china.hours.Utility.AlertDelete;
@@ -45,18 +62,14 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
 
         initControls();
         event();
+
+        getAllDataFromServer();
     }
 
     private void initControls() {
         // for listView
         mListView = findViewById(R.id.lstNewsContent);
         mListView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
-
-        mNewsData.add(new NewsItem("系统通知", "2019-09-05 15:30", "what are you going to do?"));
-        mNewsData.add(new NewsItem("系统通知", "2019-09-05 15:30", "what are you going to do?"));
-        mNewsData.add(new NewsItem("系统通知", "2019-09-05 15:30", "what are you going to do?"));
-        mNewsData.add(new NewsItem("系统通知", "2019-09-05 15:30", "what are you going to do?"));
-
         adatper = new NewsListAdatper(NewsActivity.this, mNewsData);
         mListView.setAdapter(adatper);
 
@@ -151,5 +164,51 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
         adatper.notifyDataSetChanged();
 
         noNews.setVisibility(View.VISIBLE);
+    }
+
+    public void getAllDataFromServer() {
+        mNewsData = new ArrayList<>();
+
+        Global.showLoading(NewsActivity.this,"generate_report");
+        Ion.with(NewsActivity.this)
+                .load(Url.get_notify)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        Global.hideLoading();
+
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+
+                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                    Gson gson = new Gson();
+                                    Type type = new TypeToken<ArrayList<NewsItem>>() {}.getType();
+                                    mNewsData = gson.fromJson(dataArray.toString(), type);
+                                    if (mNewsData == null || mNewsData.size() == 0) {
+                                        noNews.setVisibility(View.VISIBLE);
+                                    } else {
+                                        noNews.setVisibility(View.GONE);
+                                    }
+                                    adatper.reloadNews(mNewsData);
+                                } else {
+                                    Toast.makeText(NewsActivity.this, "错误", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(NewsActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

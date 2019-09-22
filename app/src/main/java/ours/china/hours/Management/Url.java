@@ -12,7 +12,13 @@ public static String domainUrl = "http://Hours.worldwardmobi.com";
     public static String confirmVerify = baseUrl + "register_account";
     public static String register = baseUrl + "register";
     public static String update_profile = baseUrl + "update_profile";
+    public static String change_password = baseUrl + "change_password";
 
+    public static String request_changemobile = baseUrl + "request_changemobile";
+    public static String confirm_changemobile = baseUrl + "confirm_changemobile";
+    public static String send_feedback = baseUrl + "send_feedback";
+
+    public static String get_notify = baseUrl + "get_notify";
     public static String request_forgot = baseUrl + "request_forgot";
     public static String confirm_forgot = baseUrl + "confirm_forgot";
 

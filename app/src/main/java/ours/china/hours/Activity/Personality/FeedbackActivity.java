@@ -19,10 +19,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ours.china.hours.Activity.Auth.RegisterActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.VerifyCode;
 import ours.china.hours.R;
 import retrofit2.Call;
@@ -91,9 +98,10 @@ public class FeedbackActivity extends AppCompatActivity {
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         Window window = alertDialog.getWindow();
         window.setLayout(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
-        tvOutDlgConfirm = (TextView)this.findViewById(R.id.tvOutFeedConfirm);
+        tvOutDlgConfirm = (TextView)dialogView.findViewById(R.id.tvOutFeedConfirm);
         tvOutDlgConfirm.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
+                alertDialog.dismiss();
                 feedbackProcess();
             }
         });
@@ -112,43 +120,38 @@ public class FeedbackActivity extends AppCompatActivity {
             edFeedbakck.requestFocus();
             return;
         }
+        Global.showLoading(FeedbackActivity.this,"generate_report");
+        Ion.with(FeedbackActivity.this)
+                .load(Url.send_feedback)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("content", feedBack)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
 
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
 
-        try {
-            Global.showLoading(FeedbackActivity.this,"generate_report");
-            Call<VerifyCode> call = apiInterface.feedback(access_token, mobile, feedBack);
-            call.enqueue(new Callback<VerifyCode>() {
-                @Override
-                public void onResponse(Call<VerifyCode> call, Response<VerifyCode> response) {
-                    Global.hideLoading();
+                                if (resObj.getString("res").equals("success")) {
+                                    edFeedbakck.setText("");
+                                    Toast.makeText(FeedbackActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(FeedbackActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
 
-                    if (response.code() == 404){
-                        Toast.makeText(FeedbackActivity.this, "404", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 422){
-                        Toast.makeText(FeedbackActivity.this, "422", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 500){
-                        Toast.makeText(FeedbackActivity.this, "500", Toast.LENGTH_SHORT).show();
-                    }else if (response.code() == 200){
-                        String res = response.body().res;
-                        Log.i("Register", res);
-                        if (res.equals("success")){
-                            Toast.makeText(FeedbackActivity.this, getResources().getString(R.string.login_verify_code), Toast.LENGTH_SHORT).show();
-                        }else if (res.equals("fail")){
-                                Toast.makeText(FeedbackActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(FeedbackActivity.this, "验证码成功失败", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
-
-                @Override public void onFailure(Call<VerifyCode> call, Throwable t) {
-                    Global.hideLoading();
-                    Toast.makeText(FeedbackActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-        catch (Exception e) {
-            Log.i("register" ,e.getMessage());
-            Toast.makeText(FeedbackActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                });
 
     }
 }

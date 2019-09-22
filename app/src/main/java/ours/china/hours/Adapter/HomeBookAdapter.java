@@ -80,7 +80,7 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
                     .into(holder.bookImage);
         }
 
-        if (one.bookStatus != null && one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
             holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {

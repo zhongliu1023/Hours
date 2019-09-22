@@ -1,5 +1,6 @@
 package ours.china.hours.Activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -131,7 +132,14 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     }
 
     public void event() {
-
+        ImageView newsImage = findViewById(R.id.imageNews);
+        newsImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FavoritesActivity.this, NewsActivity.class);
+                startActivity(intent);
+            }
+        });
         addFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

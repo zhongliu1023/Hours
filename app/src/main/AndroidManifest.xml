@@ -74,7 +74,6 @@
         </activity>
 
         <activity android:name=".Activity.Auth.LoginOptionActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".Activity.Auth.LoginActivity"
             android:theme="@style/AppTheme"
@@ -121,8 +120,8 @@
         <activity android:name=".Activity.Auth.RegisterActivity" />
         <activity
             android:name=".Activity.MainActivity"
-            android:screenOrientation="sensorPortrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".BookLib.foobnix.pdf.search.activity.HorizontalViewActivity"
             android:screenOrientation="sensorPortrait"

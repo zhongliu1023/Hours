@@ -13,9 +13,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONObject;
+
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.VerifyCode;
 import ours.china.hours.R;
 import retrofit2.Call;
@@ -103,46 +110,35 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         }
 
         if (isSamePass(newPass, confirPass)){
-            try {
-                Global.showLoading(UpdatePasswordActivity.this,"generate_report");
-                Call<VerifyCode> call = apiInterface.updatePassword(access_token, mobile, oldPass,newPass);
-                call.enqueue(new Callback<VerifyCode>() {
-                    @Override
-                    public void onResponse(Call<VerifyCode> call, Response<VerifyCode> response) {
-                        Global.hideLoading();
+            Global.showLoading(UpdatePasswordActivity.this,"generate_report");
+            Ion.with(UpdatePasswordActivity.this)
+                    .load(Url.change_password)
+                    .setBodyParameter(Global.KEY_token, Global.access_token)
+                    .setBodyParameter("old_password", oldPass)
+                    .setBodyParameter("new_password", newPass)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception error, JsonObject result) {
 
-                        if (response.code() == 404){
-                            Toast.makeText(UpdatePasswordActivity.this, "404", Toast.LENGTH_SHORT).show();
-                        }else if (response.code() == 422){
-                            Toast.makeText(UpdatePasswordActivity.this, "422", Toast.LENGTH_SHORT).show();
-                        }else if (response.code() == 500){
-                            Toast.makeText(UpdatePasswordActivity.this, "500", Toast.LENGTH_SHORT).show();
-                        }else if (response.code() == 200){
-                            String res = response.body().res;
-                            Log.i("Register", res);
-                            if (res.equals("success")){
-                                Toast.makeText(UpdatePasswordActivity.this, getResources().getString(R.string.succes), Toast.LENGTH_SHORT).show();
-                                if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                                    UpdatePasswordActivity.this.finish();
-                                } else {
-                                    UpdatePasswordActivity.super.onBackPressed();
+                            Global.hideLoading();
+                            if (error == null) {
+                                try {
+                                    JSONObject resObject = new JSONObject(result.toString());
+                                    if (resObject.getString("res").equals("success")) {
+                                        Toast.makeText(UpdatePasswordActivity.this, getResources().getString(R.string.succes), Toast.LENGTH_SHORT).show();
+                                        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                                            UpdatePasswordActivity.this.finish();
+                                        } else {
+                                            UpdatePasswordActivity.super.onBackPressed();
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
-                            }else if (res.equals("fail")){
-                                Toast.makeText(UpdatePasswordActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }
-
-                    @Override public void onFailure(Call<VerifyCode> call, Throwable t) {
-                        Global.hideLoading();
-                        Toast.makeText(UpdatePasswordActivity.this, getResources().getString(R.string.error), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            catch (Exception e) {
-                Log.i("register" ,e.getMessage());
-                Toast.makeText(UpdatePasswordActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+                    });
 
         }
         else {

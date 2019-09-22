@@ -23,7 +23,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="状态"
-                    android:textSize="@dimen/sw360_standard_fontsize_24"
+                    android:textSize="@dimen/navigation_title_size"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
 
@@ -69,11 +69,12 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/sw360_standard_fontsize_14"
-                            android:text="人均时长: "/>
+                            android:text="人均时长: "
+                            android:textSize="@dimen/sw360_standard_fontsize_14" />
                         <TextView
                             android:id="@+id/timePerPerson"
                             android:layout_width="wrap_content"
@@ -91,12 +92,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
                         <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/sw360_standard_fontsize_14"
+                            android:layout_marginTop="3dp"
+                            android:text="排名:"/>
+                        <TextView
                             android:id="@+id/txtRanking"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/sw360_standard_fontsize_14"
                             android:layout_marginTop="3dp"
-                            android:text="排名: 12/200"/>
+                            android:text="12/200"/>
                     </LinearLayout>
                 </LinearLayout>
                 <TextView
@@ -128,14 +135,15 @@
                                 android:layout_height="@dimen/color_rect"
                                 android:layout_centerVertical="true"
                                 android:background="@color/natural_color"/>
+
                             <TextView
                                 android:id="@+id/txtNaturalCount"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="自然科学 4"
                                 android:layout_marginStart="5dp"
                                 android:layout_toEndOf="@id/naturalColorRect"
-                                android:textSize="@dimen/sw360_standard_fontsize_14"/>
+                                android:text="自然科学 4"
+                                android:textSize="@dimen/sw360_standard_fontsize_14" />
                         </RelativeLayout>
 
                         <RelativeLayout

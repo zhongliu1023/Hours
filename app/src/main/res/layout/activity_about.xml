@@ -25,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/about"
-                android:textSize="@dimen/font_size_24"
+                android:textSize="@dimen/navigation_title_size"
                 android:textColor="@android:color/black"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
