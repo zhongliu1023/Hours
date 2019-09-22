@@ -243,6 +243,14 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
                 // for enable select item
                 Global.editStateOfFavoritesDetails = "yes";
+                ArrayList<Book> tmpBookList = db.getAllData();
+                bookListFromLocal.clear();
+                for (Book book : tmpBookList){
+                    if (book.bookStatus != null && !book.bookStatus.collection.contains(favorite)){
+                        bookListFromLocal.add(book);
+                    }
+                }
+
                 adatper.reloadBookList(bookListFromLocal);
             }
         });

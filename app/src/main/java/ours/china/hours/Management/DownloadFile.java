@@ -42,7 +42,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private String fileName;
     private String folder;
     private boolean isDownloaded;
-    private Activity context;
+    private Context context;
 
     ImageListener imageListener;
 

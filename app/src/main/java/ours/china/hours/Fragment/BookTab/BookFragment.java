@@ -230,11 +230,11 @@ public class BookFragment extends Fragment implements BookItemInterface {
                                         bookStatus.bookmarks = oneObject.getString("bookmarks");
                                         mBookList.get(i).bookStatus = bookStatus;
 
-//                                        if (db.getBookData(mBookList.get(i).bookId) == null){
-//                                            db.insertData(mBookList.get(i));
-//                                        }else{
-////                                            db.updateBookData(mBookList.get(i));
-//                                        }
+                                        if (db.getBookData(mBookList.get(i).bookId) == null){
+                                            db.insertData(mBookList.get(i));
+                                        }else{
+//                                            db.updateBookData(mBookList.get(i));
+                                        }
                                         BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
                                         if (localBookStatus == null){
                                             db.insertBookStateData(bookStatus, mBookList.get(i).bookId);

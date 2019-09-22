@@ -216,11 +216,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                     Gson gson = new Gson();
                                     Type type = new TypeToken<ArrayList<Book>>() {}.getType();
                                     mBookList = gson.fromJson(dataArray.toString(), type);
-
-
-//                                    getTotalData();
-
-
+                                    getTotalData();
                                 } else {
                                     Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
                                 }
@@ -677,11 +673,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             tempPosition = AppDB.get().getAll().size();
         }
         focuseBook.libraryPosition = String.valueOf(tempPosition);
-//        if (db.getBookData(focuseBook.bookId) == null){
+        if (db.getBookData(focuseBook.bookId) == null){
             db.insertData(focuseBook);
-//        }else{
-//            db.updateBookData(focuseBook);
-//        }
+        }else{
+            db.updateBookData(focuseBook);
+        }
         BookManagement.saveFocuseBook(focuseBook, sessionManager);
 
         mBookList.remove(position);
