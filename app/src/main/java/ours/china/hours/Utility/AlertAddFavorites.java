@@ -69,4 +69,7 @@ public class AlertAddFavorites extends Dialog {
     public interface addFavoriteListener {
         void addFavorite(String str);
     }
+    public void setEditText(String str){
+        edtStr.setText(str);
+    }
 }

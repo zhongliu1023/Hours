@@ -19,6 +19,7 @@ import java.util.List;
 
 import ours.china.hours.Activity.FavoritesDetailActivity;
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Favorites;
 import ours.china.hours.R;
 
@@ -47,44 +48,72 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     public void onBindViewHolder(@NonNull final FavoritesViewHolder holder, int position) {
         final Favorites one = favoritesList.get(position);
 
-        if (one.getImageUrl1() != null) {
-            if (!one.getImageUrl1().equals("")) {
+        holder.imageView1.setVisibility(View.INVISIBLE);
+        holder.imageView2.setVisibility(View.INVISIBLE);
+        holder.imageView3.setVisibility(View.INVISIBLE);
+        holder.imageView4.setVisibility(View.INVISIBLE);
+        if (one.bookList.size() > 0 && one.bookList.get(0) != null) {
+            holder.imageView1.setVisibility(View.VISIBLE);
+            if (!one.bookList.get(0).bookImageLocalUrl.equals("")) {
                 Glide.with(context)
-                        .load(one.getImageUrl1())
+                        .load(one.bookList.get(0).bookImageLocalUrl)
+                        .placeholder(R.drawable.book_image)
+                        .into(holder.imageView1);
+            }else{
+                Glide.with(context)
+                        .load(Url.domainUrl + "/" + one.bookList.get(0).coverUrl)
                         .placeholder(R.drawable.book_image)
                         .into(holder.imageView1);
             }
         }
-        if (one.getImageUrl2() != null) {
-            if (!one.getImageUrl2().equals("")) {
+        if (one.bookList.size() > 1 && one.bookList.get(1) != null) {
+            holder.imageView2.setVisibility(View.VISIBLE);
+            if (!one.bookList.get(1).bookImageLocalUrl.equals("")) {
                 Glide.with(context)
-                        .load(one.getImageUrl2())
+                        .load(one.bookList.get(1).bookImageLocalUrl)
+                        .placeholder(R.drawable.book_image)
+                        .into(holder.imageView2);
+            }else{
+                Glide.with(context)
+                        .load(Url.domainUrl + "/" + one.bookList.get(1).coverUrl)
                         .placeholder(R.drawable.book_image)
                         .into(holder.imageView2);
             }
         }
-        if (one.getImageUrl3() != null) {
-            if (!one.getImageUrl3().equals("")) {
+        if (one.bookList.size() > 2 && one.bookList.get(2) != null) {
+            holder.imageView3.setVisibility(View.VISIBLE);
+            if (!one.bookList.get(2).bookImageLocalUrl.equals("")) {
                 Glide.with(context)
-                        .load(one.getImageUrl3())
+                        .load(one.bookList.get(2).bookImageLocalUrl)
+                        .placeholder(R.drawable.book_image)
+                        .into(holder.imageView3);
+            }else{
+                Glide.with(context)
+                        .load(Url.domainUrl + "/" + one.bookList.get(2).coverUrl)
                         .placeholder(R.drawable.book_image)
                         .into(holder.imageView3);
             }
         }
-        if (one.getImageUrl4() != null) {
-            if (!one.getImageUrl4().equals("")) {
+        if (one.bookList.size() > 3 && one.bookList.get(3) != null) {
+            holder.imageView4.setVisibility(View.VISIBLE);
+            if (!one.bookList.get(3).bookImageLocalUrl.equals("")) {
                 Glide.with(context)
-                        .load(one.getImageUrl4())
+                        .load(one.bookList.get(3).bookImageLocalUrl)
+                        .placeholder(R.drawable.book_image)
+                        .into(holder.imageView4);
+            }else{
+                Glide.with(context)
+                        .load(Url.domainUrl + "/" + one.bookList.get(3).coverUrl)
                         .placeholder(R.drawable.book_image)
                         .into(holder.imageView4);
             }
         }
 
-        holder.txtType.setText(one.getFavoriteType());
+        holder.txtType.setText(one.favorite);
 
-        if (one.getStateClick().equals("noClicked")) {
+        if (!one.isChecked) {
             holder.linBound.setBackground(context.getResources().getDrawable(R.drawable.rect_favorites_noclicked));
-        } else if (one.getStateClick().equals("clicked")) {
+        } else {
             holder.linBound.setBackground(context.getResources().getDrawable(R.drawable.rect_favorites_clicked));
         }
 
@@ -94,17 +123,17 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
                 if (Global.editStateOfFavorite.equals("no")) {
                     Intent intent = new Intent(context, FavoritesDetailActivity.class);
-                    intent.putExtra("favoriteType", one.getFavoriteType());
+                    intent.putExtra("favoriteType", one.favorite);
                     context.startActivity(intent);
 
                 } else if (Global.editStateOfFavorite.equals("yes")) {
 
-                    if (one.getStateClick().equals("noClicked")) {
-                        one.setStateClick("clicked");
+                    if (!one.isChecked) {
+                        one.isChecked = true;
                         holder.linBound.setBackground(context.getResources().getDrawable(R.drawable.rect_favorites_clicked));
 
-                    } else if (one.getStateClick().equals("clicked")) {
-                        one.setStateClick("noClicked");
+                    } else if (one.isChecked) {
+                        one.isChecked = false;
                         holder.linBound.setBackground(context.getResources().getDrawable(R.drawable.rect_favorites_noclicked));
                     }
 
@@ -120,6 +149,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     public int getItemCount() {
         return favoritesList.size();
     }
+
+    public void reloadFavorites(ArrayList<Favorites> updatedFavorites){
+        favoritesList = updatedFavorites;
+        notifyDataSetChanged();
+    }
+
 
     public class FavoritesViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView1;

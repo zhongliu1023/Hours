@@ -185,6 +185,7 @@ public class PerfectInforActivity extends AppCompatActivity{
                 .setBodyParameter("school", school)
                 .setBodyParameter("class", classs)
                 .setBodyParameter("studId", studId)
+                .setBodyParameter("nickName", "")
                 .asString()
                 .setCallback(new FutureCallback<String>() {
                     @Override

@@ -12,24 +12,30 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.FavoriteDetailBook;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
 public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetailsAdatper.FavoritesDetailsViewHolder> {
 
-    public List<FavoriteDetailBook> bookList;
+    public List<Book> bookList;
+    public List<Book> selectedbookList;
     public Context context;
 
     public addActionListener listener;
 
-    public FavoritesDetailsAdatper(List<FavoriteDetailBook> bookList, Context context) {
+    public FavoritesDetailsAdatper(List<Book> bookList, Context context) {
         this.bookList = bookList;
         this.context = context;
         this.listener = (addActionListener) context;
+        this.selectedbookList = new ArrayList<Book>();
     }
 
     @NonNull
@@ -42,48 +48,39 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
 
     @Override
     public void onBindViewHolder(@NonNull final FavoritesDetailsViewHolder holder, final int position) {
-        final FavoriteDetailBook one = bookList.get(position);
+        final Book one = bookList.get(position);
 
-        holder.bookName.setText(one.getBookName());
-        if (one.getDownloadState().equals("downloaded")) {
+        holder.bookName.setText(one.bookName);
+        if (!one.bookLocalUrl.isEmpty()) {
             holder.downloadStateImage.setImageResource(R.drawable.download);
+            Glide.with(context)
+                    .load(one.bookImageLocalUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         } else {
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
+            Glide.with(context)
+                    .load(Url.domainUrl + "/" + one.coverUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         }
 
-        if (one.getReadState().equals("reading")) {
+        if (!one.bookStatus.isRead.equals("1")) {
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
-        Glide.with(context)
-                .load(one.getBookImage())
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
-
-        if (one.getStateClick().equals("noClicked")) {
-            holder.bookImage.setBackground(null);
-        } else if (one.getStateClick().equals("clicked")) {
-            holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
+        holder.bookImage.setBackground(null);
+        if (Global.bookAction == QueryBook.BookAction.SELECTTION){
+            if (selectedbookList.contains(one)){
+                holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
+            }
         }
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Global.editStateOfFavoritesDetails.equals("yes")) {
-
-                    if (one.getStateClick().equals("noClicked")) {
-                        holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
-                        one.setStateClick("clicked");
-
-                    } else if (one.getStateClick().equals("clicked")) {
-                        holder.bookImage.setBackground(null);
-                        one.setStateClick("noClicked");
-                    }
-
-                    listener.enableComponentAction();
-                }
+                listener.onClickBookItem(one, position);
             }
         });
     }
@@ -91,6 +88,15 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
     @Override
     public int getItemCount() {
         return bookList.size();
+    }
+
+    public void reloadBookList(ArrayList<Book> updatedBookList){
+        bookList = updatedBookList;
+        notifyDataSetChanged();
+    }
+    public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
+        selectedbookList = updatedBookList;
+        notifyDataSetChanged();
     }
 
     public class FavoritesDetailsViewHolder extends RecyclerView.ViewHolder {
@@ -110,6 +116,6 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
     }
 
     public interface addActionListener {
-        public void enableComponentAction();
+        public void onClickBookItem(Book selectedBook, int position);
     }
 }

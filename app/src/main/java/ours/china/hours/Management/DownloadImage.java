@@ -31,11 +31,9 @@ public class DownloadImage extends AsyncTask<String, String, String> {
 
     private String fileName;
     private String folder;
-    private Context context;
     private ImageListener imageListener;
 
     public DownloadImage(Context context, ImageListener imageListener) {
-        this.context = context;
         this.imageListener = imageListener;
     }
     /**

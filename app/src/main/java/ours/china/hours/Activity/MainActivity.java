@@ -264,7 +264,7 @@ public class MainActivity  extends FragmentActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(bookFragment).commit();
                     activityFragment = bookFragment;
-                    bookFragment.getAllDataFromLocalDB();
+                    bookFragment.getAllDataFromServer();
 
                     break;
                 case 2:

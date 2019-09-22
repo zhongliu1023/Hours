@@ -29,27 +29,10 @@
                     android:layout_marginBottom="10dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/search_back">
-                    <ImageView
-                        android:id="@+id/search_image"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/search_icon"
-                        android:layout_marginStart="10dp"
-                        android:layout_marginEnd="5dp"
-                        android:textColorHint="@color/alpa_40"
-                        android:layout_alignParentStart="true"/>
-                    <EditText
-                        android:layout_toEndOf="@+id/search_image"
+                    <SearchView
+                        android:id="@+id/favorSearchView"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:textSize="16sp"
-                        android:layout_marginEnd="5dp"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="5dp"
-                        android:background="@color/history_stroke"
-                        android:textColorHint="@color/alpa_40"
-                        android:hint="搜索书名、作者、出版社"
-                        android:textColor="@color/home_background_color"/>
+                        android:layout_height="match_parent"/>
                 </RelativeLayout>
                 <ImageView
                     android:id="@+id/imageNews"
@@ -73,14 +56,14 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:text="完成"
-                    android:textSize="@dimen/sw360_standard_fontsize_20" />
+                    android:textSize="@dimen/content_normal_size" />
                 <TextView
                     android:id="@+id/txtDownload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="下载"
                     android:textColor="@color/alpa_40"
-                    android:textSize="@dimen/sw360_standard_fontsize_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="16dp"
                     android:layout_centerVertical="true"/>
@@ -90,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:text="重命名"
                     android:textColor="@color/alpa_40"
-                    android:textSize="@dimen/sw360_standard_fontsize_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:layout_toStartOf="@id/txtDownload"/>
@@ -100,7 +83,7 @@
                     android:layout_height="wrap_content"
                     android:text="删除"
                     android:textColor="@color/alpa_40"
-                    android:textSize="@dimen/sw360_standard_fontsize_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:layout_marginEnd="@dimen/getneral_padding_16"
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@id/txtRename"/>
@@ -135,7 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="收藏夹"
-                android:textSize="24sp"
+                android:textSize="@dimen/navigation_title_size"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
         <TextView
@@ -144,7 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/content_normal_size"
             android:layout_marginEnd="@dimen/getneral_padding_8"
             android:text="编辑"/>
         <TextView
@@ -152,7 +135,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="添加"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/content_normal_size"
             android:layout_toStartOf="@+id/txtEdit"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/getneral_padding_16"

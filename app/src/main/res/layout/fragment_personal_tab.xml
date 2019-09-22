@@ -16,7 +16,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/personal"
-                android:textSize="@dimen/font_size_24"
+                android:textSize="@dimen/navigation_title_size"
                 android:textColor="@android:color/black"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
@@ -66,7 +66,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/myfavourite"/>
 
                             <TextView
@@ -76,7 +76,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right"/>
                         </LinearLayout>
                         <TextView
@@ -111,7 +111,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/personal_info"/>
 
                             <TextView
@@ -121,7 +121,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
 
@@ -155,7 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/feedback"/>
 
                             <TextView
@@ -165,7 +165,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
                         <TextView
@@ -201,7 +201,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/alwasy_problem"/>
 
                             <TextView
@@ -211,7 +211,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
                         <TextView
@@ -246,7 +246,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/statement"/>
 
                             <TextView
@@ -256,7 +256,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
                         <TextView
@@ -291,7 +291,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/about"/>
 
                             <TextView
@@ -301,7 +301,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right"/>
                         </LinearLayout>
                         <TextView
@@ -337,7 +337,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/mobile_number"/>
 
                             <TextView
@@ -347,7 +347,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right"
                                 android:hint="195111111" />
                         </LinearLayout>
@@ -383,7 +383,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/update_password"/>
 
                             <TextView
@@ -393,7 +393,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
                         <TextView
@@ -429,7 +429,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/check_update"/>
 
                             <TextView
@@ -439,7 +439,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right"/>
                         </LinearLayout>
                         <TextView
@@ -474,7 +474,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:textColor="@android:color/black"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:text="@string/account_change"/>
 
                             <TextView
@@ -484,7 +484,7 @@
                                 android:layout_weight="7"
                                 android:background="@android:color/transparent"
                                 android:gravity="end|center_vertical"
-                                android:textSize="@dimen/font_size_20"
+                                android:textSize="@dimen/content_normal_size"
                                 android:drawableRight="@drawable/ic_right" />
                         </LinearLayout>
                         <TextView

@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.Global;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Common.Utils.JsonUtil;
@@ -24,14 +25,16 @@ public class UsersManagement {
         uservo.userId = JsonUtil.getString(responseJsonObject, "userId");
         uservo.name = JsonUtil.getString(responseJsonObject, "name");
         uservo.studId = JsonUtil.getString(responseJsonObject, "studId");
-        uservo.className = JsonUtil.getString(responseJsonObject, "className");
+        uservo.className = JsonUtil.getString(responseJsonObject, "class");
+        uservo.school = JsonUtil.getString(responseJsonObject, "school");
+        uservo.lastReadBookId = JsonUtil.getString(responseJsonObject, "lastReadBookId");
         uservo.isDeleted = Boolean.parseBoolean(JsonUtil.getString(responseJsonObject, "isDeleted"));
         uservo.mobile = JsonUtil.getString(responseJsonObject, "mobile");
         uservo.identyStatus = JsonUtil.getString(responseJsonObject, "identyStatus");
         uservo.isFaceUsing = Boolean.parseBoolean(JsonUtil.getString(responseJsonObject, "isFaceUsing"));
         uservo.faceStateInfo = JsonUtil.getString(responseJsonObject, "faceStateInfo");
         uservo.faceState = JsonUtil.getString(responseJsonObject, "faceState");
-        uservo.verified = JsonUtil.getString(responseJsonObject, "verified");
+        uservo.verified = Boolean.parseBoolean(JsonUtil.getString(responseJsonObject, "verified"));
         uservo.created_at = JsonUtil.getString(responseJsonObject, "created_at");
         uservo.nickName = JsonUtil.getString(responseJsonObject, "nickName");
         uservo.faceInfoUrl = JsonUtil.getString(responseJsonObject, "faceInfoUrl");
@@ -47,6 +50,7 @@ public class UsersManagement {
         }.getType();
         String json = gson.toJson(userVo, type);
         sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.CURRENT_USER, json);
+        Global.currentUser = userVo;
     }
     public static User getCurrentUser(SharedPreferencesManager sharedPreferencesManager){
         User currentUser = new User();

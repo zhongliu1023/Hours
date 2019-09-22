@@ -106,7 +106,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             + KEY_bookmarks + " TEXT"
             + ")";
 
-    public static final String[] columns = new String[] {
+    public static final String[] columnsBookStatus = new String[] {
             DatabaseManager.KEY_id,
             DatabaseManager.KEY_bookId,
             DatabaseManager.KEY_pages,
@@ -119,7 +119,37 @@ public class DatabaseManager extends SQLiteOpenHelper {
             DatabaseManager.KEY_notes,
             DatabaseManager.KEY_bookmarks
     };
-
+    public static final String[] columnsBook = new String[] {
+            DatabaseManager.KEY_id,
+            DatabaseManager.KEY_bookId,
+            DatabaseManager.KEY_bookSerial,
+            DatabaseManager.KEY_coverUrl,
+            DatabaseManager.KEY_bookName,
+            DatabaseManager.KEY_bookNameUrl,
+            DatabaseManager.KEY_publishDate,
+            DatabaseManager.KEY_author,
+            DatabaseManager.KEY_averageProgress,
+            DatabaseManager.KEY_averageTime,
+            DatabaseManager.KEY_allAverageTime,
+            DatabaseManager.KEY_deadline,
+            DatabaseManager.KEY_demandTime,
+            DatabaseManager.KEY_favouriteCount,
+            DatabaseManager.KEY_downloadedCount,
+            DatabaseManager.KEY_attentionCount,
+            DatabaseManager.KEY_readingCount,
+            DatabaseManager.KEY_isReadCount,
+            DatabaseManager.KEY_isDeleted,
+            DatabaseManager.KEY_summary,
+            DatabaseManager.KEY_category,
+            DatabaseManager.KEY_publishingHouse,
+            DatabaseManager.KEY_pageCount,
+            DatabaseManager.KEY_isbn,
+            DatabaseManager.KEY_edition,
+            DatabaseManager.KEY_fileName,
+            DatabaseManager.KEY_bookLocalUrl,
+            DatabaseManager.KEY_bookImageLocalUrl,
+            DatabaseManager.KEY_libraryPosition
+    };
     public DatabaseManager(@Nullable Context context) {
         super(context, DB_name, null, DB_version);
     }

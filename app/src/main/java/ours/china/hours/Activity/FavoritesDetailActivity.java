@@ -6,12 +6,14 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -20,10 +22,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import ours.china.hours.Adapter.FavoritesDetailsAdatper;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.DB.DBController;
+import ours.china.hours.Management.BookManagement;
+import ours.china.hours.Management.Url;
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.FavoriteDetailBook;
+import ours.china.hours.Model.Favorites;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 import ours.china.hours.Utility.AlertDelete;
 
@@ -41,10 +57,18 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
     TextView txtCancel, txtFooterAddFavorite;
 
+    SearchView favorSearchView;
     FavoritesDetailsAdatper adatper;
-    ArrayList<FavoriteDetailBook> mBookList;
+    ArrayList<Book> mBookList;
+    ArrayList<Book> bookListFromLocal;
+    ArrayList<Book> selectedBookLists;
+    ArrayList<Book> searchedFavoritesList;
+
+    String favorite = "";
 
     AlertDelete alertDelete;
+    SharedPreferencesManager sessionManager;
+    DBController db = null;
 
 
     @Override
@@ -58,20 +82,29 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
     public void init() {
 
-        // for recyclerView
-        recyclerFavoritesDetailView = findViewById(R.id.recyclerFavoritesDetail);
+        favorite = getIntent().getStringExtra("favoriteType");
+        sessionManager = new SharedPreferencesManager(this);
+        db = new DBController(FavoritesDetailActivity.this);
 
-        mBookList = new ArrayList<>();
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独1", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独2", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独3", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独4", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独5", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独6", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独7", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独8", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独9", "downloaded", "nonRead", "noClicked"));
-        mBookList.add(new FavoriteDetailBook("hello", "百年孤独0", "downloaded", "nonRead", "noClicked"));
+        recyclerFavoritesDetailView = findViewById(R.id.recyclerFavoritesDetail);
+        mBookList = new ArrayList<Book>();
+        selectedBookLists = new ArrayList<Book>();
+        bookListFromLocal = new ArrayList<Book>();
+        searchedFavoritesList = new ArrayList<Book>();
+        ArrayList<Favorites> selectedBookList = BookManagement.getFavorites(sessionManager);
+        for (Favorites favorites : selectedBookList){
+            if (favorites.favorite.equals(favorite)){
+                mBookList = (ArrayList<Book>)favorites.bookList.clone();
+                break;
+            }
+        }
+
+        ArrayList<Book> tmpBookList = db.getAllData();
+        for (Book book : tmpBookList){
+            if (book.bookStatus != null && !book.bookStatus.collection.contains(favorite)){
+                bookListFromLocal.add(book);
+            }
+        }
 
         adatper = new FavoritesDetailsAdatper(mBookList, FavoritesDetailActivity.this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(FavoritesDetailActivity.this, 3);
@@ -104,6 +137,8 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
         alertDelete = new AlertDelete(FavoritesDetailActivity.this, R.style.AppTheme_Alert, "确定要收藏夹吗？");
         alertDelete.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        favorSearchView = findViewById(R.id.favorSearchView);
+        favorSearchView.setQueryHint("搜索书名、作者、出版社");
     }
 
     public void event() {
@@ -184,10 +219,10 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
                 linFooter.setVisibility(View.VISIBLE);
 
                 Global.editStateOfFavoritesDetails = "no";
-
-                for (FavoriteDetailBook one : mBookList) {
-                    one.setStateClick("noClicked");
-                }
+//
+//                for (FavoriteDetailBook one : mBookList) {
+//                    one.setStateClick("noClicked");
+//                }
                 adatper.notifyDataSetChanged();
             }
         });
@@ -196,6 +231,7 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
             @Override
             public void onClick(View view) {
 
+                Global.bookAction = QueryBook.BookAction.SELECTTION;
                 // for visible process
                 myBookShelfToolbar.setVisibility(View.VISIBLE);
                 mainToolbar.setVisibility(View.GONE);
@@ -207,6 +243,7 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
                 // for enable select item
                 Global.editStateOfFavoritesDetails = "yes";
+                adatper.reloadBookList(bookListFromLocal);
             }
         });
 
@@ -220,12 +257,7 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
                 txtFooterAddFavorite.setVisibility(View.GONE);
                 imgPlus.setVisibility(View.VISIBLE);
-
-                // temp action instead of API action
-                for (FavoriteDetailBook one : mBookList) {
-                    one.setStateClick("noClicked");
-                }
-                adatper.notifyDataSetChanged();
+                adatper.reloadBookList(mBookList);
             }
         });
 
@@ -242,28 +274,62 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
                 txtFooterAddFavorite.setVisibility(View.GONE);
                 imgPlus.setVisibility(View.VISIBLE);
 
-                // for disable select item
-                Global.editStateOfFavoritesDetails = "no";
-
-                // temp action instead of API action
-                for (FavoriteDetailBook one : mBookList) {
-                    one.setStateClick("noClicked");
+                Global.bookAction = QueryBook.BookAction.NONE;
+                mBookList.addAll(selectedBookLists);
+                for (Book book : selectedBookLists){
+                    book.bookStatus.collection += ","+favorite;
+                    db.updateBookStateData(book.bookStatus, book.bookId);
+                    Ion.with(FavoritesDetailActivity.this)
+                            .load(Url.bookStateChangeOperation)
+                            .setTimeout(10000)
+                            .setBodyParameter("access_token", Global.access_token)
+                            .setBodyParameter("bookId", book.bookId)
+                            .setBodyParameter("collection", book.bookStatus.collection)
+                            .asString()
+                            .setCallback(new FutureCallback<String>() {
+                                @Override
+                                public void onCompleted(Exception e, String result) {
+                                    if (e == null) {
+                                    }
+                                }
+                            });
                 }
-                adatper.notifyDataSetChanged();
+
+                ArrayList<Favorites> selectedFavorites = BookManagement.getFavorites(sessionManager);
+                for (Favorites favorites: selectedFavorites){
+                    if (favorites.favorite.equals(favorite)){
+                        favorites.bookList = mBookList;
+                        break;
+                    }
+                }
+                BookManagement.saveFavorites(selectedFavorites, sessionManager);
+
+                selectedBookLists.clear();
+                adatper.reloadBookList(mBookList);
+            }
+        });
+
+        favorSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                reloadFavorites(s);
+                return false;
             }
         });
     }
-
-    public boolean isExistCilckedItem() {
-        boolean result = false;
-        for (FavoriteDetailBook one : mBookList) {
-            if (one.getStateClick().equals("clicked")) {
-                result = true;
-                break;
+    private void reloadFavorites(String keywords){
+        searchedFavoritesList.clear();
+        for (Book book : mBookList){
+            if (book.bookName.contains(keywords)){
+                searchedFavoritesList.add(book);
             }
         }
-
-        return result;
+        adatper.reloadBookList(searchedFavoritesList);
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -273,29 +339,6 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
         return changedDrawable;
     }
 
-
-
-    @Override
-    public void enableComponentAction() {
-        if (isExistCilckedItem()) {
-            txtDelete.setEnabled(true);
-            txtAddFavorite.setEnabled(true);
-            txtDownload.setEnabled(true);
-
-            txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
-            txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
-            txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
-
-        } else {
-            txtDelete.setEnabled(false);
-            txtAddFavorite.setEnabled(false);
-            txtDownload.setEnabled(false);
-
-            txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
-            txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
-            txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
-        }
-    }
 
     @Override
     public void onBackPressed() {
@@ -307,10 +350,10 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
     public void onDelete() {
 
         for (int i = 0; i < mBookList.size(); i++) {
-            if (mBookList.get(i).getStateClick().equals("clicked")) {
-                mBookList.remove(i);
-                i--;
-            }
+//            if (mBookList.get(i).getStateClick().equals("clicked")) {
+//                mBookList.remove(i);
+//                i--;
+//            }
         }
         adatper.notifyDataSetChanged();
 
@@ -323,5 +366,36 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
         txtAddFavorite.setEnabled(false);
         txtDownload.setEnabled(false);
     }
+    @Override
+    public void onClickBookItem(Book selectedBook, int position) {
+        if (Global.bookAction == QueryBook.BookAction.NONE){
 
+        }else if (Global.bookAction == QueryBook.BookAction.SELECTTION){
+            if (selectedBookLists.contains(selectedBook)){
+                selectedBookLists.remove(selectedBook);
+            }else{
+                selectedBookLists.add(selectedBook);
+            }
+            adatper.reloadBookListWithSelection(selectedBookLists);
+            if (selectedBookLists.size() > 0) {
+                txtDelete.setEnabled(true);
+                txtAddFavorite.setEnabled(true);
+                txtDownload.setEnabled(true);
+
+                txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
+                txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
+                txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+
+            } else {
+                txtDelete.setEnabled(false);
+                txtAddFavorite.setEnabled(false);
+                txtDownload.setEnabled(false);
+
+                txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
+                txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
+                txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+            }
+        }
+
+    }
 }

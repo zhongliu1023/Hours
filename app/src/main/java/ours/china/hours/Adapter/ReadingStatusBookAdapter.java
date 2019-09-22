@@ -31,6 +31,7 @@ import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
 import ours.china.hours.CustomView.CustomRectView;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
 
@@ -79,10 +80,17 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         holder.txtSpecifiedTime.setText(one.demandTime);
         holder.txtLastDate.setText(one.bookStatus.lastRead);
 
-        Glide.with(context)
-                .load(one.bookImageLocalUrl)
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
+        if (one.bookImageLocalUrl.isEmpty()){
+            Glide.with(context)
+                    .load(Url.domainUrl + "/" + one.coverUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        }else{
+            Glide.with(context)
+                    .load(one.bookImageLocalUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        }
 
         String[] pages = one.bookStatus.pages.split(",");
         int percent = (one.bookStatus.pages.split(",")).length / Integer.parseInt(one.pageCount);
@@ -175,7 +183,8 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
 
         private TextView getRecycledTextViewOrCreate() {
             if (textViewPool.isEmpty()) {
-                return (TextView) LayoutInflater.from(container.getContext()).inflate(R.layout.block, container, false);
+                View view = (View) LayoutInflater.from(container.getContext()).inflate(R.layout.block, container, false);
+                return (TextView) view;
             }
             return textViewPool.remove(0);
         }

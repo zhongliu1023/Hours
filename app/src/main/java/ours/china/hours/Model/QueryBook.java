@@ -40,11 +40,30 @@ public class QueryBook {
         ZHIREN("zhiren", 2),
         RENWEN("renwen", 3),
         WENXIE("wenxie", 4),
-        ATEENTION("attention", 5);
+        ATEENTION("attention", 5),
+        DOWNLOADED("downloaded", 6);
 
         private String stringValue;
         private int intValue;
         private Category(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString(){
+            return stringValue;
+        }
+    }
+
+    public enum BookAction {
+        NONE("none", 0),
+        SELECTTION("selection", 1);
+
+        private String stringValue;
+        private int intValue;
+
+        private BookAction(String toString, int value){
             stringValue = toString;
             intValue = value;
         }

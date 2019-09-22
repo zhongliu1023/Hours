@@ -29,8 +29,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bigkoo.alertview.AlertView;
+import com.bigkoo.alertview.OnItemClickListener;
+
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.Auth.LoginOptionActivity;
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.Personality.AboutActivity;
@@ -44,7 +48,11 @@ import ours.china.hours.Activity.ProfileActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
 import ours.china.hours.Adapter.ProfileAdapter;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Dialog.OutDlg;
+import ours.china.hours.Management.BookManagement;
+import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Profile;
 import ours.china.hours.R;
@@ -58,8 +66,8 @@ public class PersonalFragment extends Fragment {
     public TextView tvFrPersonalFav,tvFrPersonalInfo,tvFrPersonalFeedback,tvFrPersonalProblem,tvFrPersonalStatement,
             tvFrPersonalAbout,tvFrPersonalMobile,tvFrPersonalPass,tvFrPersonalCheck,tvFrPersonalAccount;
     public Button btnFrPersonalOut;
-    public OutDlg outDlg;
 
+    SharedPreferencesManager sessionManager;
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,6 +94,7 @@ public class PersonalFragment extends Fragment {
 
     private void initUI(View view){
 
+        sessionManager = new SharedPreferencesManager(getContext());
         tvFrPersonalFav = (TextView)view.findViewById(R.id.tvfrPersonalFav);
         tvFrPersonalInfo = (TextView)view.findViewById(R.id.tvfrPersonalInfo);
         tvFrPersonalFeedback = (TextView)view.findViewById(R.id.tvfrPersonalFeedback);
@@ -167,12 +176,25 @@ public class PersonalFragment extends Fragment {
 
         btnFrPersonalOut.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-//                Toast.makeText(getActivity(), "dlg", Toast.LENGTH_SHORT).show();
-                outDlg = new OutDlg(getActivity());
-                outDlg.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                Window window = outDlg.getWindow();
-                window.setLayout(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT);
-                outDlg.show();
+
+                new AlertView.Builder().setContext(getContext()).setTitle(getString(R.string.app_name))
+                        .setMessage(getString(R.string.confirm_out))
+                        .setDestructive(getString(R.string.cancel))
+                        .setOthers(new String[]{getString(R.string.confirm)})
+                        .setStyle(AlertView.Style.Alert).setOnItemClickListener(new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Object o, int position) {
+                        if (position == 1){
+                            sessionManager.setPrefernceValueString(SharedPreferencesKeys.CURRENT_USER, "");
+                            sessionManager.setPrefernceValueString(SharedPreferencesKeys.FLEX_STRINGS, "");
+                            sessionManager.setPrefernceValueString(SharedPreferencesKeys.FOCUSE_BOOK, "");
+
+                            Intent intent = new Intent(getContext(), LoginOptionActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getContext().startActivity(intent);
+                        }
+                    }
+                }).build().show();
             }
         });
     }

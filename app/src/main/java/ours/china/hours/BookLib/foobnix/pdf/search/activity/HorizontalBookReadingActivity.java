@@ -2658,9 +2658,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     .setTimeout(10000)
                     .setBodyParameter("access_token", Global.access_token)
                     .setBodyParameter("bookId", focusBook.bookId)
-                    .setBodyParameter("page", db.getBookStateData(focusBook.bookId).pages)
-                    .setBodyParameter("time", db.getBookStateData(focusBook.bookId).time)
-                    .setBodyParameter("endPoint", db.getBookStateData(focusBook.bookId).lastRead)
+                    .setBodyParameter("pages", focusBook.bookStatus.pages)
+                    .setBodyParameter("time", focusBook.bookStatus.time)
+                    .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
                     .asString()
                     .setCallback(new FutureCallback<String>() {
                         @Override

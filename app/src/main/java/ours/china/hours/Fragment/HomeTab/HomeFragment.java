@@ -1,6 +1,7 @@
 package ours.china.hours.Fragment.HomeTab;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -37,32 +38,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
-import ours.china.hours.BookLib.foobnix.android.utils.LOG;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
-import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
-import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
-import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Interfaces.ImageListener;
-import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Management.BookManagement;
@@ -71,9 +63,7 @@ import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
-import ours.china.hours.Model.User;
 import ours.china.hours.R;
-import ours.china.hours.Utility.SessionManager;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
@@ -93,7 +83,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     private ImageView imgSort;
     private ImageView imgArrow;
     private TextView txtTypeBook;
-
+    TextView allBooks;
     private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
     private QueryBook.Order order = QueryBook.Order.ASC;
     private QueryBook.Category category = QueryBook.Category.ALL;
@@ -101,6 +91,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
+    JSONObject statistics = null;
     public HomeFragment() {
         Log.v("Hello", "This is DB controller part.");
     }
@@ -146,7 +137,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         txtTypeBook = view.findViewById(R.id.txtTypeBook);
         maskLayer = view.findViewById(R.id.maskLayer);
 
-        txtTypeBook.setText(getString(R.string.popup1_all, "90"));
+        txtTypeBook.setText("全都");
         imgArrow = view.findViewById(R.id.imgArrow);
 
     }
@@ -156,8 +147,38 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         localBooks = AppDB.get().getAll();
         Log.v("localBooks count", String.valueOf(localBooks.size()));
     }
+    void fetchBooksStatistics(){
+        Ion.with(getActivity())
+                .load(Url.booksStatistics)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+                                    statistics = new JSONObject(resObj.getString("statistics"));
+                                    reloadStatistics();
+                                } else {
+                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
 
+                        } else {
+                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
     public void getAllDataFromServer() {
+        fetchBooksStatistics();
         mBookList = new ArrayList<>();
 
         Global.showLoading(getContext(),"generate_report");
@@ -217,7 +238,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     public void getTotalData() {
         ArrayList<Book> books = db.getAllData();
         if (books == null) {
-            adapter.reloadBook(mBookList);
+            adapter.reloadBookList(mBookList);
             return;
         }
 
@@ -234,7 +255,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 }
             }
         }
-        adapter.reloadBook(mBookList);
+        adapter.reloadBookList(mBookList);
     }
 
 
@@ -258,6 +279,18 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         super.onResume();
     }
 
+    void reloadStatistics(){
+        try {
+            txtAllBook.setText(getString(R.string.popup1_all, statistics.getString("totalBooks")));
+            txtRecommended.setText(getString(R.string.popup1_recommned, statistics.getString("recommended")));
+            txtNatural.setText(getString(R.string.popup1_natural, statistics.getString("zhiren")));
+            txtHuman.setText(getString(R.string.popup1_human, statistics.getString("renwen")));
+            txtLiterature.setText(getString(R.string.popup1_literature, statistics.getString("wenxie")));
+            txtFollow.setText(getString(R.string.popup1_follow, statistics.getString("attention")));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
     PopupWindow popupWindow1;
     PopupWindow popupWindow2;
     TextView txtAllBook, txtRecommended, txtNatural, txtHuman, txtLiterature, txtFollow;
@@ -285,8 +318,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         });
         // for popupWindow to float
         View view1 = inflater.inflate(R.layout.popup1, null);
-        TextView allBooks = view1.findViewById(R.id.txtAllBooks);
-        allBooks.setText("全都（" + 1000 + ")");
+        allBooks = view1.findViewById(R.id.txtAllBooks);
+//        allBooks.setText("全都（" + 1000 + ")");
         final PopupWindow popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, true);
 //        relTypeBook.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -310,7 +343,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linAllBooks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("全都(1000)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_all, statistics.getString("totalBooks")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 category= QueryBook.Category.ALL;
                 getAllDataFromServer();
                 dismissPopupWindow1();
@@ -320,7 +357,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linRecommended.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("推荐(5)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_recommned, statistics.getString("recommended")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 category= QueryBook.Category.RECOMMEND;
                 getAllDataFromServer();
                 dismissPopupWindow1();
@@ -330,7 +371,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linNatural.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("自然科学(9)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_natural, statistics.getString("zhiren")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 category= QueryBook.Category.ZHIREN;
                 getAllDataFromServer();
                 dismissPopupWindow1();
@@ -340,7 +385,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linHuman.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("人文社科(2)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_human, statistics.getString("renwen")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 category= QueryBook.Category.RENWEN;
                 getAllDataFromServer();
                 dismissPopupWindow1();
@@ -350,7 +399,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linLiterature.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("文学艺术(7)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_literature, statistics.getString("wenxie")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 category= QueryBook.Category.WENXIE;
                 getAllDataFromServer();
                 dismissPopupWindow1();
@@ -360,7 +413,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         relFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("关注(5)");
+                try {
+                    txtTypeBook.setText(getString(R.string.popup1_follow, statistics.getString("attention")));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 maskLayer.setVisibility(View.GONE);
                 category= QueryBook.Category.ATEENTION;
                 getAllDataFromServer();
@@ -611,17 +668,18 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     void resetBookInfoAfterDownloading(int position){
         Book focuseBook = BookManagement.getFocuseBook(sessionManager);
 
-        int tempPosition;
+        int tempPosition = 0;
         if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
             tempPosition = 0;
         } else {
             tempPosition = AppDB.get().getAll().size();
         }
         focuseBook.libraryPosition = String.valueOf(tempPosition);
-
-        DBController db;
-        db = new DBController(getActivity());
-        db.insertData(focuseBook);
+        if (db.getBookData(focuseBook.bookId) == null){
+            db.insertData(focuseBook);
+        }else{
+            db.updateBookData(focuseBook);
+        }
         BookManagement.saveFocuseBook(focuseBook, sessionManager);
 
         mBookList.remove(position);
@@ -631,9 +689,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         if (!ExtUtils.isExteralSD(focuseBook.bookLocalUrl)) {
             FileMeta meta = AppDB.get().getOrCreate(focuseBook.bookLocalUrl);
             AppDB.get().updateOrSave(meta);
-            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+//            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
         }
-        TempHolder.listHash++;
+
         Ion.with(getActivity())
                 .load(Url.addToMybooks)
                 .setBodyParameter(Global.KEY_token, Global.access_token)

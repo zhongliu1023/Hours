@@ -42,14 +42,12 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     private boolean isDownloaded;
     private Context context;
 
-    DBController db;
     ImageListener imageListener;
 
     public DownloadFile(Context context, ImageListener imageListener) {
         this.context = context;
         this.imageListener = imageListener;
 
-        db = new DBController(context);
     }
     /**
      * Before starting background thread

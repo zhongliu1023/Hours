@@ -80,7 +80,7 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
                     .into(holder.bookImage);
         }
 
-        if (one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
+        if (one.bookStatus != null && one.bookStatus.isRead.equals(context.getString(R.string.state_read_complete))) {
             holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
@@ -97,12 +97,6 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             }
         });
     }
-
-    public void reloadBook(List<Book> updatedBooklists) {
-        this.bookList = updatedBooklists;
-        notifyDataSetChanged();
-    }
-
 
     @Override
     public int getItemCount() {

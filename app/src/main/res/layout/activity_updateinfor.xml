@@ -38,7 +38,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/forgot_complete"
-                    android:textSize="@dimen/font_size_20"
+                    android:textSize="@dimen/content_normal_size"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="@dimen/margin_20"
                     android:layout_centerInParent="true"/>
@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/information_name"/>
 
                     <EditText
@@ -89,7 +89,7 @@
                         android:layout_weight="7"
                         android:background="@android:color/transparent"
                         android:gravity="end|center_vertical"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_name_hint" />
                 </LinearLayout>
                 <TextView
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/information_veri"/>
                     <TextView
                         android:id="@+id/tvUpdateInfoIdentify"
@@ -130,7 +130,7 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:background="@android:color/transparent"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_veri_hint"/>
                 </LinearLayout>
                 <TextView
@@ -162,7 +162,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/information_face_veri"/>
                     <TextView
                         android:id="@+id/tvUpdateInfoFace"
@@ -171,7 +171,7 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:background="@android:color/transparent"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_face_veri_hint"/>
                 </LinearLayout>
                 <TextView
@@ -184,7 +184,10 @@
 
 
             </LinearLayout>
-
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:orientation="vertical"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -203,7 +206,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/school"/>
                     <EditText
                         android:id="@+id/edUpdateInfoSchool"
@@ -211,7 +214,7 @@
                         android:layout_weight="7"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:background="@android:color/transparent"
                         android:hint="@string/school_hint"/>
                 </LinearLayout>
@@ -244,7 +247,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/information_class"/>
                     <TextView
                         android:id="@+id/tvUpdateInfoClass"
@@ -253,7 +256,7 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:drawableRight="@drawable/ic_right"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:background="@android:color/transparent"
                         android:hint="@string/information_class_hint"/>
                 </LinearLayout>
@@ -286,7 +289,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:textColor="@android:color/black"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:text="@string/studId"/>
                     <EditText
                         android:id="@+id/edUpdateInfoStudid"
@@ -294,7 +297,7 @@
                         android:layout_weight="7"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
-                        android:textSize="@dimen/font_size_20"
+                        android:textSize="@dimen/content_normal_size"
                         android:background="@android:color/transparent"
                         android:hint="@string/information_name_hint"/>
                 </LinearLayout>

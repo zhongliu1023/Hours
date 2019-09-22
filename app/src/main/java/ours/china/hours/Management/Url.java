@@ -23,9 +23,12 @@ public static String domainUrl = "http://Hours.worldwardmobi.com";
     public static String imageUpload = baseUrl + "bookUserFaceInfo";
 
     // for search book
+
+    public static String mybooksStatistics = baseUrl + "mybooks_statistics";
+    public static String booksStatistics = baseUrl + "books_statistics";
     public static String searchAllBookwithMobile = baseUrl + "query_books";
     public static String searchMyBookwithMobile = baseUrl + "query_mybooks";
-    public static String bookStateChangeOperation = baseUrl + "updateParamWithMobile";
+    public static String bookStateChangeOperation = baseUrl + "update_bookstatus";
 
     // login
     public static String getFaceInfoUrl = baseUrl + "getFaceInfoUrl";

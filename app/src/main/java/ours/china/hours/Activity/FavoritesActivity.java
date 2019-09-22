@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,13 +18,29 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.Auth.RegisterActivity;
+import ours.china.hours.Activity.Personality.UpdateinforActivity;
 import ours.china.hours.Adapter.FavoritesAdapter;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.BookmarkPanel;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.Management.BookManagement;
+import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Favorites;
 import ours.china.hours.R;
 import ours.china.hours.Utility.AlertAddFavorites;
 import ours.china.hours.Utility.AlertDelete;
+import ours.china.hours.Utility.SessionManager;
 
 public class FavoritesActivity extends AppCompatActivity implements AlertAddFavorites.addFavoriteListener,
         FavoritesAdapter.addActionListener, AlertDelete.deleteButtonListener {
@@ -35,13 +52,16 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     TextView txtComplete, txtDelete, txtRename, txtDownload;
     RelativeLayout mainToolbar, otherToolbar;
 
+    SearchView favorSearchView;
     FavoritesAdapter adapter;
     ArrayList<Favorites> favoritesList;
+    ArrayList<Favorites> searchedFavoritesList;
 
     AlertAddFavorites alertAdd, alertRename;
     AlertDelete alertDelete;
 
     String optionAddOrRename = "";
+    SharedPreferencesManager sessionManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,17 +72,30 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         event();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter != null){
+            reloadFavorites();
+        }
+    }
+
+    public void reloadFavorites(){
+        favoritesList = BookManagement.getFavorites(sessionManager);
+        searchedFavoritesList = (ArrayList<Favorites>)favoritesList.clone();
+        adapter.reloadFavorites(favoritesList);
+    }
+
     public void init() {
 
         // for recycler View
+        sessionManager = new SharedPreferencesManager(this);
         recyclerFavorites = findViewById(R.id.recyclerFavorites);
 
-        favoritesList = new ArrayList<>();
-        favoritesList.add(new Favorites("hello", "hello", "hello", "人文", "noClicked"));
-        favoritesList.add(new Favorites("hello", "hello", "hello", "地理", "noClicked"));
-        favoritesList.add(new Favorites("hello", "hello", "hello", "人文", "noClicked"));
-        favoritesList.add(new Favorites("hello", "hello", "hello", "地理", "noClicked"));
-
+        favoritesList = new ArrayList<Favorites>();
+        searchedFavoritesList = new ArrayList<Favorites>();
+        favoritesList = BookManagement.getFavorites(sessionManager);
+        searchedFavoritesList = (ArrayList<Favorites>)favoritesList.clone();
         adapter = new FavoritesAdapter(favoritesList, FavoritesActivity.this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(FavoritesActivity.this, 2);
         recyclerFavorites.setLayoutManager(gridLayoutManager);
@@ -92,6 +125,9 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
 
         mainToolbar = findViewById(R.id.mainToolbar);
         otherToolbar = findViewById(R.id.otherToolbar);
+
+        favorSearchView = findViewById(R.id.favorSearchView);
+        favorSearchView.setQueryHint("搜索书名、作者、出版社");
     }
 
     public void event() {
@@ -162,7 +198,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                 Global.editStateOfFavorite = "no";
 
                 for (Favorites one : favoritesList) {
-                    one.setStateClick("noClicked");
+                    one.isChecked = false;
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -180,9 +216,39 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
             @Override
             public void onClick(View view) {
                 optionAddOrRename = "rename";
+                String changingName = "";
+
+                for (Favorites one : favoritesList) {
+                    if (one.isChecked) {
+                        changingName = one.favorite;
+                        break;
+                    }
+                }
+                alertRename.setEditText(changingName);
                 alertRename.show();
             }
         });
+        favorSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                reloadFavorites(s);
+                return false;
+            }
+        });
+    }
+    private void reloadFavorites(String keywords){
+        searchedFavoritesList.clear();
+        for (Favorites favorites : favoritesList){
+            if (favorites.favorite.contains(keywords)){
+                searchedFavoritesList.add(favorites);
+            }
+        }
+        adapter.reloadFavorites(searchedFavoritesList);
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -195,7 +261,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     public int numberOfClickedItem() {
         int count = 0;
         for (Favorites one : favoritesList) {
-            if (one.getStateClick().equals("clicked")) {
+            if (one.isChecked) {
                 count = count + 1;
             }
         }
@@ -246,18 +312,53 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     @Override
     public void addFavorite(String str) {
         if (optionAddOrRename.equals("add")) {
-            favoritesList.add(new Favorites(str, "noClicked"));
-            optionAddOrRename = "";
-            adapter.notifyDataSetChanged();
+            if (!Global.fullFavorites.contains(str)){
+                Favorites favorites = new Favorites();
+                favorites.favorite = str;
+                favoritesList.add(favorites);
+                BookManagement.saveFavorites(favoritesList, sessionManager);
+
+                if (Global.fullFavorites.isEmpty()){
+                    Global.fullFavorites = str;
+                }else{
+                    Global.fullFavorites += ","+str;
+                }
+                BookManagement.saveFullFavorites(Global.fullFavorites, sessionManager);
+                updateFavorites();
+
+                optionAddOrRename = "";
+                adapter.notifyDataSetChanged();
+            }else{
+                Toast.makeText(FavoritesActivity.this, "Already exists!", Toast.LENGTH_SHORT).show();
+
+            }
         }
         if (optionAddOrRename.equals("rename")) {
             for (Favorites one : favoritesList) {
-                if (one.getStateClick().equals("clicked")) {
-                    one.setFavoriteType(str);
+                if (one.isChecked) {
+
+                    String[] favors = Global.fullFavorites.split(",");
+                    String updatedFavorites = "";
+                    for (String aFavor : favors){
+                        boolean isMatch = false;
+                        if (aFavor.equals(one.favorite)){
+                            isMatch = true;
+                        }
+                        if (updatedFavorites.isEmpty()){
+                            updatedFavorites = aFavor;
+                        }else{
+                            updatedFavorites += "," + (isMatch ? str : aFavor);
+                        }
+                    }
+                    BookManagement.saveFullFavorites(updatedFavorites, sessionManager);
+                    updateFavorites();
+
+                    one.favorite = str;
                     break;
                 }
             }
 
+            BookManagement.saveFavorites(favoritesList, sessionManager);
             optionAddOrRename = "";
             adapter.notifyDataSetChanged();
         }
@@ -268,12 +369,22 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     public void onDelete() {
 
         for (int i = 0; i < favoritesList.size(); i++) {
-            if (favoritesList.get(i).getStateClick().equals("clicked")) {
+            if (favoritesList.get(i).isChecked) {
                 favoritesList.remove(i);
                 i = i - 1;
             }
         }
 
+        String updatedFavorites = "";
+        for (int i = 0; i < favoritesList.size(); i++) {
+            if (updatedFavorites.isEmpty()){
+                updatedFavorites = favoritesList.get(i).favorite;
+            }else{
+                updatedFavorites += "," + favoritesList.get(i).favorite;
+            }
+        }
+        BookManagement.saveFullFavorites(updatedFavorites, sessionManager);
+        updateFavorites();
         // for change color alpha
         txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
         txtRename.setTextColor(getResources().getColor(R.color.alpa_40));
@@ -285,7 +396,39 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         txtDelete.setEnabled(false);
 
         //
+        BookManagement.saveFavorites(favoritesList, sessionManager);
         adapter.notifyDataSetChanged();
         alertDelete.dismiss();
+    }
+
+    void updateFavorites(){
+        Ion.with(FavoritesActivity.this)
+                .load(Url.update_profile)
+                .setTimeout(10000)
+                .setBodyParameter("access_token", Global.access_token)
+                .setBodyParameter("collections", Global.fullFavorites)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+
+                                } else {
+                                    Toast.makeText(FavoritesActivity.this, "发生错误", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(FavoritesActivity.this, "正确注册你的脸", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 }

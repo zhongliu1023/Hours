@@ -11,10 +11,18 @@ import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
 import ours.china.hours.Dialog.OutDlg;
 
+import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
 public class Global {
 
+    public static User currentUser = new User();
+    public static String fullFavorites = "";
+
+    public static QueryBook.BookAction bookAction = QueryBook.BookAction.NONE;
+
+    boolean isShowingSpinner = false;
     public static String registeredFacePath = "";
     public static String canGetFaceFeature = "no";
     public static String faceFeatureData = "";
@@ -85,6 +93,7 @@ public class Global {
     public static ProgressDialog mProgressDialog;
     public static void showLoading(Context context, String title)
     {
+        if (mProgressDialog != null){return;}
         String strPleaseWaitAwhile = "请秒后";
         mProgressDialog = new ProgressDialog(context, R.style.DialogTheme);
         mProgressDialog.setMessage(strPleaseWaitAwhile);
