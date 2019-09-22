@@ -1789,6 +1789,23 @@ public class DragingDialogs {
 
     }
 
+
+    public static DragingPopup myPopup(FrameLayout anchor, final DocumentController controller) {
+
+        return new DragingPopup(R.string.text, anchor, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT) {
+            @Override
+            public View getContentView(LayoutInflater inflater) {
+                View view = inflater.inflate(R.layout.dragging_popup, null, false);
+                return view;
+            }
+        }.show("text", true).setOnCloseListener(new Runnable() {
+            @Override
+            public void run() {
+                AppState.get().selectedText = null;
+            }
+        });
+    }
+
     public static DragingPopup thumbnailDialog(final FrameLayout anchor, final DocumentController dc) {
         if (dc == null) {
             return null;

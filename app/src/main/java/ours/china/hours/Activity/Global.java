@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.TextView;
 
+import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
 import ours.china.hours.Dialog.OutDlg;
@@ -71,6 +72,7 @@ public class Global {
 
 
     public static UpdateDisplayInterface updateDisplayInterface;
+    public static DocumentController globalDC;
 
 
 
@@ -99,7 +101,7 @@ public class Global {
     {
         String strPleaseWaitAwhile = "请秒后";
         mProgressDialog = new ProgressDialog(context, R.style.DialogTheme);
-////        mProgressDialog.setContentView(R.layout.diaolog_loading);
+        mProgressDialog.setContentView(R.layout.diaolog_loading);
 //        mProgressDialog.setMessage(strPleaseWaitAwhile);1305074012413
 //        mProgressDialog.setCancelable(false);
 //        mProgressDialog.setCanceledOnTouchOutside(false);

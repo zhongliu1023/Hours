@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:padding="@dimen/getneral_padding_16"
+    android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/getneral_padding_8">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp">
+                <ImageView
+                    android:id="@+id/imgNoteColorIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/read_orange_icon"/>
+                <TextView
+                    android:id="@+id/txtPos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/imgNoteColorIcon"
+                    android:layout_centerVertical="true"
+                    android:textSize="16sp"
+                    android:text="位置："/>
+                <TextView
+                    android:id="@+id/txtPageNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/txtPos"
+                    android:layout_centerVertical="true"
+                    android:text="23/2003"/>
+                <ImageView
+                    android:id="@+id/imgNoteMore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/note_more"
+                    android:layout_gravity="end"/>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/getneral_padding_8"
+                android:layout_marginBottom="@dimen/getneral_padding_8"
+                android:background="@color/seperator"/>
+
+            <TextView
+                android:id="@+id/txtNoteContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="5"
+                android:text="sdjslsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjdlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfjsdjsldlskjflskfj"
+                android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/imgNoteAddOrUpdate"
+                    android:layout_width="23dp"
+                    android:layout_height="23dp"
+                    android:src="@drawable/note_note_icon"/>
+                <TextView
+                    android:id="@+id/txtNoteAddOrUpdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="添加笔记"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/pink"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

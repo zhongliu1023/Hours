@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@drawable/draggin_popup_back"
+    android:layout_height="40dp">
+
+    <RelativeLayout
+        android:id="@+id/popupBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:padding="@dimen/getneral_padding_8">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/return_icon"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/getneral_padding_8"
+        android:background="@color/seperator"
+        android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+    <LinearLayout
+        android:id="@+id/popupColorPart"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/popupYellow"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_yellow_icon"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/popupOrange"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_orange_icon"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/popupBlue"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_blue_icon"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/popupPink"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_pink_icon"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/popupErase"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_erase_icon"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/getneral_padding_8"
+        android:background="@color/seperator"
+        android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+    <LinearLayout
+        android:id="@+id/popupDefaultShow"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <RelativeLayout
+            android:id="@+id/popupColorPick"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/getneral_padding_8"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/popupColorPickImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/read_yellow_icon" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="14sp"
+                android:text="复制"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupNote"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="14sp"
+                android:text="笔记"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_centerInParent="true"
+                android:textSize="14sp"
+                android:text="搜索"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupTranslate"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="14sp"
+                android:text="翻译"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupShare"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="14sp"
+                android:text="分享"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/popupSearchPart"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/popupSearchBook"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sw360_standard_fontsize_14"
+                android:text="本书"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupSearchNet"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sw360_standard_fontsize_14"
+                android:text="网路"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/getneral_padding_8"
+            android:background="@color/seperator"
+            android:layout_marginBottom="@dimen/getneral_padding_8"/>
+
+        <RelativeLayout
+            android:id="@+id/popupSearchEncyclopedia"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sw360_standard_fontsize_14"
+                android:text="百度百科"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -122,6 +122,9 @@
             android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustPan" />
 
+        <activity android:name=".Activity.NoteActivity"
+            android:screenOrientation="sensorPortrait"/>
+
         <activity
             android:name="org.ebookdroid.ui.viewer.VerticalViewActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"

@@ -1,6 +1,8 @@
 package ours.china.hours.BookLib.foobnix.pdf.search.activity;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -33,12 +36,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -89,6 +94,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import cn.xm.weidongjian.popuphelper.PopupWindowHelper;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -100,6 +106,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Activity.NoteActivity;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
 import ours.china.hours.BookLib.foobnix.android.utils.IntegerResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.Keyboards;
@@ -109,6 +116,7 @@ import ours.china.hours.BookLib.foobnix.android.utils.ResultResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.TxtUtils;
 import ours.china.hours.BookLib.foobnix.android.utils.Views;
 import ours.china.hours.BookLib.foobnix.ext.CacheZipUtils;
+import ours.china.hours.BookLib.foobnix.model.AppBook;
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.BookLib.foobnix.model.AppProfile;
 import ours.china.hours.BookLib.foobnix.model.AppState;
@@ -123,6 +131,8 @@ import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.UiSystemUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
+import ours.china.hours.BookLib.foobnix.pdf.info.presentation.BookmarksAdapter;
+import ours.china.hours.BookLib.foobnix.pdf.info.presentation.OutlineAdapter;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.AlertDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.AnchorHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BookmarkPanel;
@@ -146,6 +156,7 @@ import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageAutoFit;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessageEvent;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessagePageXY;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MessegeBrightness;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MsgChangePaintWordsColor;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.CloseAppDialog;
 import ours.china.hours.BookLib.foobnix.pdf.search.view.VerticalViewPager;
 import ours.china.hours.BookLib.foobnix.sys.ClickUtils;
@@ -160,6 +171,7 @@ import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
+import ours.china.hours.Common.ColorCollection;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
@@ -210,6 +222,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     private DrawerLayout mDrawerLayout;
 
     ImageView catalogMenu, imgFont, imgBrightness, imgNote, imgShare;
+    RelativeLayout relCatalogMenu, relFont, relBrightness, relNote, relShare;
     LinearLayout mainBottomBar, fontBottomBar, brightnessBottomBar;
 
     public static String fontImageClicked = "no";
@@ -241,6 +254,23 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
     // for doc background
     ImageView imgWhiteBrightness, imgBrownBrightness, imgGreenBrightness, imgBlackBrightness;
+
+    // for drawerlayout.
+    LinearLayout linCatalogBack, linCatalogCatalog, linCatalogBookmark, linCatalogRefresh;
+    ListView contentList;
+
+    // for popupWindow
+    RelativeLayout popupBack, popupYellow, popupOrange, popupBlue, popupPink, popupErase;
+    RelativeLayout popupCopy, popupNote, popupSearch, popupTranslate, popupShare, popupColorPick;
+    RelativeLayout popupSearchBook, popupSearchNet, popupSearchEncyclopedia;
+
+    LinearLayout popupDefaultShow, popupSearchPart, popupColorPart;
+    ImageView popupColorPickImage;
+    RelativeLayout copyView;
+//    int popupColorPickValue, tempColorPickValue;
+
+    ColorCollection colorPickValue, tempColorPickValue;
+
 
     ClickUtils clickUtils;
     int flippingTimer = 0;
@@ -486,7 +516,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 if (AppState.get().isRememberDictionary) {
                     DictsHelper.runIntent(dc.getActivity(), AppState.get().selectedText);
                 } else {
-                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.myPopup(anchor, dc);
+                    showPopupWindow();
                 }
 
             }
@@ -732,11 +764,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         });
 
         // -- my definition. --
-
+        colorPickValue = ColorCollection.yellow;
+        tempColorPickValue = colorPickValue;
 
 
         uiInit();
         event();
+        drawerLayoutWork();
 
         db = new DBController(HorizontalBookReadingActivity.this);
 
@@ -769,11 +803,281 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         imgNote = findViewById(R.id.imgNote);
         imgShare = findViewById(R.id.imgShare);
 
+        relFont = findViewById(R.id.relFont);
+        relBrightness = findViewById(R.id.relBrightness);
+        relNote = findViewById(R.id.relNote);
+        relShare = findViewById(R.id.relShare);
+
         mainBottomBar = findViewById(R.id.mainBottomBar);
         fontBottomBar = findViewById(R.id.fontBottomBar);
         brightnessBottomBar = findViewById(R.id.brightnessBottomBar);
 
+        // for drawerLayout
+        linCatalogBack = findViewById(R.id.lin_catalog_back);
+        linCatalogCatalog = findViewById(R.id.lin_catalog_catalog);
+        linCatalogBookmark = findViewById(R.id.lin_catalog_bookmark);
+        linCatalogRefresh = findViewById(R.id.lin_catalog_refresh);
+
+        contentList = findViewById(R.id.contentList);
+
+
         Log.i("horizontalbookreading", "uiInit => end");
+    }
+
+    public void drawerLayoutWork() {
+        linCatalogCatalog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                displayContentList();
+            }
+        });
+    }
+
+    public void displayContentList() {
+        final Runnable showOutline = new Runnable() {
+            @Override
+            public void run() {
+                if (dc != null) {
+                    dc.getOutline(new ResultResponse<List<OutlineLinkWrapper>>() {
+                        @Override
+                        public boolean onResultRecive(List<OutlineLinkWrapper> outline) {
+
+                            contentList.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (outline != null && outline.size() > 0) {
+                                        contentList.clearChoices();
+                                        OutlineLinkWrapper currentByPageNumber = OutlineHelper.getCurrentChapter(dc);
+                                        final OutlineAdapter adapter = new OutlineAdapter(dc.getActivity(), outline, currentByPageNumber, dc.getPageCount());
+                                        contentList.setAdapter(adapter);
+                                        contentList.setOnItemClickListener(onClickContent);
+                                        contentList.setSelection(adapter.getItemPosition(currentByPageNumber) - 3);
+                                    }
+                                 }
+                            });
+
+                            return false;
+                        }
+                    }, true);
+                }
+            }
+        };
+
+        contentList.postDelayed(showOutline, 50);
+    }
+
+    final AdapterView.OnItemClickListener onClickContent = new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+            final OutlineLinkWrapper link = (OutlineLinkWrapper) parent.getItemAtPosition(position);
+
+            if (link.targetPage != -1) {
+                int pageCount = dc.getPageCount();
+                if (link.targetPage < 1 || link.targetPage > pageCount) {
+                    Toast.makeText(anchor.getContext(), "no", Toast.LENGTH_SHORT).show();
+                } else {
+                    dc.onGoToPage(link.targetPage);
+                    // ((ListView) parent).requestFocusFromTouch();
+                    // ((ListView) parent).setSelection(position);
+
+                }
+
+                mDrawerLayout.closeDrawers();
+                return;
+            }
+
+        }
+    };
+
+    public void showPopupWindow() {
+        PopupWindowHelper popupWindowHelper;
+        View popView;
+        popView = LayoutInflater.from(HorizontalBookReadingActivity.this).inflate(R.layout.dragging_popup, null);
+
+        // for popupWindow
+        popupBack = popView.findViewById(R.id.popupBack);
+        popupColorPickImage = popView.findViewById(R.id.popupColorPickImage);
+
+        popupColorPart = popView.findViewById(R.id.popupColorPart);
+        popupDefaultShow = popView.findViewById(R.id.popupDefaultShow);
+        popupSearchPart = popView.findViewById(R.id.popupSearchPart);
+
+        popupBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupBack.setVisibility(View.GONE);
+                popupErase.setVisibility(View.GONE);
+
+                if (colorPickValue == ColorCollection.yellow) {
+                    popupColorPickImage.setImageResource(R.drawable.read_yellow_icon);
+                }
+
+                if (colorPickValue == ColorCollection.orange) {
+                    popupColorPickImage.setImageResource(R.drawable.read_orange_icon);
+                }
+                if (colorPickValue == ColorCollection.blue) {
+                    popupColorPickImage.setImageResource(R.drawable.read_blue_icon);
+                }
+                if (colorPickValue == ColorCollection.pink) {
+                    popupColorPickImage.setImageResource(R.drawable.read_pink_icon);
+                }
+
+                popupColorPart.setVisibility(View.GONE);
+                popupSearchPart.setVisibility(View.GONE);
+                popupDefaultShow.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+        popupColorPick = popView.findViewById(R.id.popupColorPick);
+        popupColorPick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupBack.setVisibility(View.VISIBLE);
+
+                popupColorPart.setVisibility(View.VISIBLE);
+                popupDefaultShow.setVisibility(View.GONE);
+                popupSearchPart.setVisibility(View.GONE);
+            }
+        });
+
+        popupErase = popView.findViewById(R.id.popupErase);
+        popupErase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                colorPickValue = tempColorPickValue;
+                popupErase.setVisibility(View.GONE);
+            }
+        });
+
+        popupYellow = popView.findViewById(R.id.popupYellow);
+        popupYellow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.yellow;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+            }
+        });
+
+        popupOrange = popView.findViewById(R.id.popupOrange);
+        popupOrange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.orange;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupBlue = popView.findViewById(R.id.popupBlue);
+        popupBlue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.blue;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupPink = popView.findViewById(R.id.popupPink);
+        popupPink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.VISIBLE);
+
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.pink;
+
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+
+            }
+        });
+
+        popupErase = popView.findViewById(R.id.popupErase);
+        popupErase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupErase.setVisibility(View.GONE);
+
+                colorPickValue = tempColorPickValue;
+
+                ColorCollection temp = ColorCollection.erase;
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(temp));
+            }
+        });
+
+        copyView = findViewById(R.id.copyView);
+        popupCopy = popView.findViewById(R.id.popupCopy);
+        popupCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String copiedText = AppState.get().selectedText;
+
+                dc.clearSelectedText();
+                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) HorizontalBookReadingActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
+                    clipboard.setText(copiedText);
+                } else {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) HorizontalBookReadingActivity.this.getSystemService(Context.CLIPBOARD_SERVICE);
+                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copiedText);
+                    clipboard.setPrimaryClip(clip);
+                }
+
+                copyView.animate()
+                        .alpha(1.0f)
+                        .setDuration(1000)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                copyView.setVisibility(View.GONE);
+                            }
+                        });
+
+            }
+        });
+
+        // for note work
+//        final String selectedText = AppState.get().selectedText;
+//        Log.i("HorizontalBookReading", "selected text => " + selectedText);
+//        noteWork(selectedText);
+
+
+        popupWindowHelper = new PopupWindowHelper(popView);
+        popupWindowHelper.showAsPopUp(anchorX);
+    }
+
+    List<AppBookmark> objects;
+    BookmarksAdapter bookmarksAdapter;
+    public void noteWork(String selectedText) {
+
+        if (selectedText != null && !selectedText.trim().equals("")) {
+            final AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+            bookmark.isF = false;
+            BookmarksData.get().add(bookmark);
+
+            Log.i("HorizontalBookReading", "BookmarksData => " + BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+//            if (objects != null) {
+//                objects.add(0, bookmark);
+//            }
+//            if (bookmark != null) {
+//                bookmarksAdapter.notifyDataSetChanged();
+//            }
+
+        }
     }
 
     public void event() {
@@ -781,14 +1085,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         // to show navigation view.
         catalogMenu = findViewById(R.id.imgCatalogMenu);
-        catalogMenu.setOnClickListener(new View.OnClickListener() {
+        relCatalogMenu = findViewById(R.id.relCatalogMenu);
+        relCatalogMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDrawerLayout.openDrawer(GravityCompat. START);
             }
         });
 
-        imgFont.setOnClickListener(new View.OnClickListener() {
+        relFont.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -955,7 +1260,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         });
 
         // for brightness
-        imgBrightness.setOnClickListener(new View.OnClickListener() {
+        relBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -1190,6 +1495,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             }
         });
 
+        relNote = findViewById(R.id.relNote);
+        relNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HorizontalBookReadingActivity.this, NoteActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
     }
 
@@ -1239,6 +1553,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         // added code to insert totalpage to localDB.
         OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
         maxPage = info.textPage;
+
+        Global.globalDC = dc;
 
         Book one = new Book();
         one.setBookID(Global.bookID);
@@ -1374,7 +1690,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         }
 
         if (getIntent().hasExtra("id4")) {
-            DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//            DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//            DragingDialogs.myPopup(anchor, dc);
+            showPopupWindow();
         }
 
         if (getIntent().hasExtra("id5")) {
@@ -2571,7 +2889,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     DictsHelper.runIntent(dc.getActivity(), text);
                     dc.clearSelectedText();
                 } else {
-                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.selectTextMenu(anchor, dc, true, onRefresh);
+//                    DragingDialogs.myPopup(anchor, dc);
+                    showPopupWindow();
                 }
             }
         } else if (ev.getMessage().equals(MessageEvent.MESSAGE_GOTO_PAGE_BY_LINK)) {

@@ -78,10 +78,10 @@ public class Splash extends AppCompatActivity {
 //        ConfigUtil.setFtOrient(Splash.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
 //
 //        activeEngine();
-        List<FileMeta> localBooks = AppDB.get().getAll();
-        ExtUtils.openFile(Splash.this, localBooks.get(0));
+//        List<FileMeta> localBooks = AppDB.get().getAll();
+//        ExtUtils.openFile(Splash.this, localBooks.get(0));
 
-//        new DownloadFile(Splash.this).execute(Url.baseUrl + "assets/upload/book/mimetype.epub");
+        new DownloadFile(Splash.this).execute(Url.baseUrl + "assets/upload/book/mimetype.epub");
 
     }
 

@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +28,8 @@ import ours.china.hours.BookLib.foobnix.android.utils.TxtUtils;
 import ours.china.hours.BookLib.foobnix.android.utils.Vibro;
 import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.model.AppTemp;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MsgChangePaintWordsColor;
+import ours.china.hours.Common.ColorCollection;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BrightnessHelper;
@@ -46,6 +49,7 @@ import org.ebookdroid.core.codec.PageLink;
 import org.ebookdroid.droids.mupdf.codec.TextWord;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,6 +75,7 @@ public class PageImaveView extends View {
 
     private int pageNumber;
     ClickUtils clickUtils;
+    ColorCollection colorPickValue;
 
     BrightnessHelper brightnessHelper;
 
@@ -85,9 +90,11 @@ public class PageImaveView extends View {
         paintWrods.setStrokeWidth(Dips.dpToPx(1));
         paintWrods.setTextSize(30);
 
-        EventBus.getDefault().register(this);
         clickUtils = new ClickUtils();
         brightnessHelper = new BrightnessHelper(context);
+
+        colorPickValue = ColorCollection.yellow;
+        EventBus.getDefault().register(this);
     }
 
     public RectF transform(RectF origin, int number) {
@@ -754,6 +761,47 @@ public class PageImaveView extends View {
             LOG.e(e);
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMsgChangePaintWordsColor(MsgChangePaintWordsColor event) {
+        Log.i("Message", "My first EventBust message.");
+
+        ColorCollection colorPickValue = event.getColorPickValue();
+
+        if (colorPickValue == ColorCollection.yellow) {
+            paintWrods.setColor(Color.YELLOW);
+            paintWrods.setAlpha(60);
+
+            invalidate();
+        }
+
+        if (colorPickValue == ColorCollection.orange) {
+            paintWrods.setColor(getResources().getColor(R.color.orange));
+            paintWrods.setAlpha(60);
+
+            invalidate();
+        }
+
+        if (colorPickValue == ColorCollection.blue) {
+            paintWrods.setColor(Color.BLUE);
+            paintWrods.setAlpha(60);
+
+            invalidate();
+        }
+
+        if (colorPickValue == ColorCollection.pink) {
+            paintWrods.setColor(getResources().getColor(R.color.pink));
+            paintWrods.setAlpha(60);
+
+            invalidate();
+        }
+
+        if (colorPickValue == ColorCollection.erase) {
+            paintWrods.setColor(getResources().getColor(R.color.transparent));
+            invalidate();
+        }
+    }
+
 
     public void addBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;

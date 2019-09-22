@@ -713,6 +713,8 @@
     <string name="state_undownloaded">undownloaded</string>
     <string name="state_read_now">readnow</string>
     <string name="state_read_complete">readcomplete</string>
-
+    
+    <!--  for note  -->
+    <string name="note_page">%s/%s</string>
 
 </resources>
