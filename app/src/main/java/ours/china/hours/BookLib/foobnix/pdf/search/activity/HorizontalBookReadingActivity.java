@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.provider.Settings;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -196,13 +197,13 @@ import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
 
-public class HorizontalBookReadingActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+public class HorizontalBookReadingActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener, PageBookmarkAdapter.OnClickBookItemLintener {
 
     // ------------- for document browser ----------------
     VerticalViewPager viewPager;
-    View parentParent, pagesBookmark, overlay;
+    View parentParent, overlay;
     LinearLayout actionBar, bottomBar;
-
+    ImageView pagesBookmark, imgBookMark;
     TextView pagesCountIndicator;
     SeekBar seekBar;
     FrameLayout anchor;
@@ -558,24 +559,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         Keyboards.hideNavigationOnCreate(HorizontalBookReadingActivity.this);
 
         loadinAsyncTask = new CopyAsyncTask() {
-            AlertDialog dialog;
             private boolean isCancelled = false;
             long start = 0;
 
             @Override
             protected void onPreExecute() {
                 start = System.currentTimeMillis();
-                TempHolder.get().loadingCancelled = false;
-                dialog = Dialogs.loadingBook(HorizontalBookReadingActivity.this, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        isCancelled = true;
-                        TempHolder.get().loadingCancelled = true;
-                        CacheZipUtils.removeFiles(CacheZipUtils.CACHE_BOOK_DIR.listFiles());
-                        finish();
-                    }
-                });
+                Global.showLoading(HorizontalBookReadingActivity.this,"generate_report");
             }
 
             @Override
@@ -622,27 +612,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
             @Override
             protected void onCancelled() {
-                try {
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
-                } catch (Exception e) {
-                }
-                isCancelled = true;
+                Global.hideLoading();
             }
 
 
             @Override
             protected void onPostExecute(Object result) {
 
-                try {
-                    // onClose.setVisibility(View.VISIBLE);
-                    LOG.d("RESULT", result);
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
-                } catch (Exception e) {
-                }
+                Global.hideLoading();
                 if (isCancelled) {
                     LOG.d("Cancelled");
                     finish();
@@ -851,7 +828,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
 
                 Log.i("HorizontalBookReading", "bookmark data => " + objects);
-                pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  objects, dc);
+                pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  objects, dc, HorizontalBookReadingActivity.this);
                 recyclerContentList.setLayoutManager(new LinearLayoutManager(HorizontalBookReadingActivity.this));
                 recyclerContentList.setAdapter(pageBookmarkAdapter);
             }
@@ -859,6 +836,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     }
 
     public void displayContentList() {
+        contentList.setVisibility(View.VISIBLE);
+        recyclerContentList.setVisibility(View.GONE);
         final Runnable showOutline = new Runnable() {
             @Override
             public void run() {
@@ -1113,25 +1092,41 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         pagesBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (pagesBookmark.getVisibility() == View.GONE) {
-                    pagesBookmark.setVisibility(View.VISIBLE);
 
-                    String selectedText = "Bookmark";
-                    AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+                String selectedText = "Bookmark";
+                AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+
+                if (!BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), bookmark.getPage(Integer.parseInt(maxPage))
+                        , Integer.parseInt(maxPage))) {
+                    pagesBookmark.setImageResource(R.drawable.read_bookmark4_icon);
                     bookmark.isF = true;
                     BookmarksData.get().add(bookmark);
-
-                } else if ((pagesBookmark.getVisibility() == View.VISIBLE)) {
-                    pagesBookmark.setVisibility(View.GONE);
-
-                    String selectedText = "Bookmark";
-                    AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
-                    BookmarksData.get().remove(bookmark);
-
+                } else {
+                    AppBookmark appBookmark = BookmarksData.get().getBookMark(dc.getCurrentBook(), bookmark.getPage(Integer.parseInt(maxPage)), Integer.parseInt(maxPage));
+                    pagesBookmark.setImageResource(R.drawable.catalog_bookmark2_icon);
+                    BookmarksData.get().remove(appBookmark);
                 }
             }
         });
+        imgBookMark = findViewById(R.id.imgBookmark);
+        imgBookMark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String selectedText = "Bookmark";
+                AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
 
+                if (!BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), bookmark.getPage(Integer.parseInt(maxPage))
+                        , Integer.parseInt(maxPage))) {
+                    imgBookMark.setImageResource(R.drawable.read_bookmark4_icon);
+                    bookmark.isF = true;
+                    BookmarksData.get().add(bookmark);
+                } else {
+                    AppBookmark appBookmark = BookmarksData.get().getBookMark(dc.getCurrentBook(), bookmark.getPage(Integer.parseInt(maxPage)), Integer.parseInt(maxPage));
+                    imgBookMark.setImageResource(R.drawable.catalog_bookmark2_icon);
+                    BookmarksData.get().remove(appBookmark);
+                }
+            }
+        });
         // to show navigation view.
         catalogMenu = findViewById(R.id.imgCatalogMenu);
         relCatalogMenu = findViewById(R.id.relCatalogMenu);
@@ -2672,6 +2667,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         @Override
         public void onPageSelected(final int pos) {
+            if (BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), pos+1, Integer.parseInt(maxPage))) {
+                pagesBookmark.setImageResource(R.drawable.read_bookmark4_icon);
+                imgBookMark.setImageResource(R.drawable.read_bookmark4_icon);
+            } else {
+                pagesBookmark.setImageResource(R.drawable.catalog_bookmark2_icon);
+                imgBookMark.setImageResource(R.drawable.catalog_bookmark2_icon);
+            }
+
+
             PageImageState.currentPage = pos;
             dc.setCurrentPage(viewPager.getCurrentItem());
             updateUI(pos);
@@ -2703,6 +2707,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         @Override
         public void onPageScrollStateChanged(int arg0) {
+
             currentScrollState = arg0;
 
             pageChangedTime = System.currentTimeMillis();
@@ -3545,4 +3550,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     }
 
 
+    @Override
+    public void selectedBookItem(String pageNumber) {
+        if (!pageNumber.isEmpty()){
+            dc.onGoToPage(Integer.parseInt(pageNumber));
+            mDrawerLayout.closeDrawers();
+        }
+    }
 }

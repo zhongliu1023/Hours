@@ -171,7 +171,7 @@ public class BookDetailsDialog extends Dialog {
                                 if (resObject.getString("res").equals("success")||
                                         (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
 
-                                    onDownloadBookListner.onFinishDownload(focusBook, true);
+                                    onDownloadBookListner.onFinishDownload(focuseBook, true);
                                     dismiss();
                                 }
                             } catch (Exception ex) {

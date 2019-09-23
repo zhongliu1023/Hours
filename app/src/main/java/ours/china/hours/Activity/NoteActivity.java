@@ -31,11 +31,11 @@ public class NoteActivity extends AppCompatActivity {
 
         recyclerNoteView = findViewById(R.id.recyclerNote);
 
+        objects = Global.objects;
         adapter = new NoteDisplayAdatper(NoteActivity.this, objects, dc);
         recyclerNoteView.setLayoutManager(new LinearLayoutManager(NoteActivity.this));
         recyclerNoteView.setAdapter(adapter);
 
-        objects = Global.objects;
 //        objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
 //        Log.i(TAG, "BookmarksData => " + objects);
         adapter.notifyDataSetChanged();

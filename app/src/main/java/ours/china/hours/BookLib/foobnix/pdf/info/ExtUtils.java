@@ -925,13 +925,13 @@ public class ExtUtils {
 
 
     public static void showDocument(final Context c, final Uri uri, final float percent, final String playList) {
-//        Safe.run(new Runnable() {
-//
-//            @Override
-//            public void run() {
+        Safe.run(new Runnable() {
+
+            @Override
+            public void run() {
                 showDocumentInner(c, uri, percent, playList);
-//            }
-//        });
+            }
+        });
 
     }
 
@@ -1401,29 +1401,6 @@ public class ExtUtils {
 
                 final AlertDialog.Builder builder = new AlertDialog.Builder(a);
                 View view = LayoutInflater.from(a).inflate(R.layout.dialog_loading_book, null, false);
-                final TextView text = (TextView) view.findViewById(R.id.text1);
-
-                handler = new Handler() {
-                    @Override
-                    public void handleMessage(android.os.Message msg) {
-                        text.setText(a.getString(R.string.please_wait) + " " + msg.what + "/100%");
-                    }
-
-                    ;
-                };
-
-                ImageView image = (ImageView) view.findViewById(R.id.onCancel);
-                TintUtil.setTintImageWithAlpha(image);
-                image.setOnClickListener(new OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        LOG.d("loadingBook Cancel");
-                        TempHolder.get().isConverting = false;
-                        dialog.dismiss();
-                    }
-                });
-
                 builder.setView(view);
                 builder.setCancelable(false);
 

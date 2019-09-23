@@ -112,8 +112,8 @@ public class PasswordLoginFragment extends Fragment {
         tvFrRegister = view.findViewById(R.id.tvFrRegister);
 
 
-        featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "features" + File.separator;
-        featureImageFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "imgs" + File.separator;
+        featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator;
+        featureImageFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator;
 
         Log.i(TAG, featureFileDownloadDir);
         Log.i(TAG, featureImageFileDownloadDir);
@@ -293,7 +293,7 @@ public class PasswordLoginFragment extends Fragment {
         protected String doInBackground(String... f_url) {
             int count;
             try {
-                URL url = new URL(Url.domainUrl + f_url[0]);
+                URL url = new URL(Url.domainUrl +"/"+ f_url[0]);
                 URLConnection connection = url.openConnection();
                 connection.connect();
                 // getting file length
@@ -305,12 +305,18 @@ public class PasswordLoginFragment extends Fragment {
 
                 String dir = "";
 
-                if (isImage.equals("no")) {
-                    dir = featureFileDownloadDir;
-                } else if (isImage.equals("yes")) {
-                    dir = featureImageFileDownloadDir;
+                featureFileDownloadDir += "register" + File.separator;
+
+                File directory1 = new File(featureFileDownloadDir);
+                if (!directory1.exists()) {
+                    directory1.mkdirs();
                 }
 
+                if (isImage.equals("no")) {
+                    dir = featureFileDownloadDir + "features" + File.separator;
+                } else if (isImage.equals("yes")) {
+                    dir = featureFileDownloadDir+ "imgs" + File.separator;
+                }
                 File directory = new File(dir);
                 if (!directory.exists()) {
                     directory.mkdirs();

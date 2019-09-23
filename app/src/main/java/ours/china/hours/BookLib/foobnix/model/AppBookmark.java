@@ -21,6 +21,7 @@ public class AppBookmark implements MyPath.RelativePath {
     public AppBookmark(String path, String text, float percent) {
         super();
         this.path = MyPath.toRelative(path);
+        this.file = new File(path);
         this.text = text;
         this.p = percent;
         t = System.currentTimeMillis();

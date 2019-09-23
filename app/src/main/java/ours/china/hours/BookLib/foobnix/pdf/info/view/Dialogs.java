@@ -539,23 +539,10 @@ public class Dialogs {
         try {
             final AlertDialog.Builder builder = new AlertDialog.Builder(c);
             View view = LayoutInflater.from(c).inflate(R.layout.dialog_loading_book, null, false);
-            final TextView text = (TextView) view.findViewById(R.id.text1);
-
-            MyProgressBar pr = (MyProgressBar) view.findViewById(R.id.MyProgressBarLoading);
-            pr.setSaveEnabled(false);
-            pr.setSaveFromParentEnabled(false);
-            TintUtil.setDrawableTint(pr.getIndeterminateDrawable().getCurrent(), AppState.get().isDayNotInvert ? TintUtil.color : Color.WHITE);
-
-            ImageView image = (ImageView) view.findViewById(R.id.onCancel);
-            TintUtil.setTintImageNoAlpha(image, AppState.get().isDayNotInvert ? TintUtil.color : Color.WHITE);
-            image.setOnClickListener(new OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    LOG.d("loadingBook Cancel");
-                    onCancel.run();
-                }
-            });
+//            MyProgressBar pr = (MyProgressBar) view.findViewById(R.id.MyProgressBarLoading);
+//            pr.setSaveEnabled(false);
+//            pr.setSaveFromParentEnabled(false);
+//            TintUtil.setDrawableTint(pr.getIndeterminateDrawable().getCurrent(), AppState.get().isDayNotInvert ? TintUtil.color : Color.WHITE);
 
             builder.setView(view);
             builder.setCancelable(false);

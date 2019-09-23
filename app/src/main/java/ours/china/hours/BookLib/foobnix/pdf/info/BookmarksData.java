@@ -35,8 +35,6 @@ public class BookmarksData {
 
     public void add(AppBookmark bookmark) {
         LOG.d("BookmarksData", "add", bookmark.p, bookmark.text, bookmark.path);
-
-
         if (bookmark.p > 1) {
             bookmark.p = 0;
         }
@@ -55,7 +53,7 @@ public class BookmarksData {
         LOG.d("BookmarksData", "remove", bookmark.t, bookmark.file);
 
         try {
-            JSONObject obj = IO.readJsonObject(bookmark.file);
+            JSONObject obj = IO.readJsonObject(AppProfile.syncBookmarks);
             if (obj.has("" + bookmark.t)) {
                 obj.remove("" + bookmark.t);
             }
@@ -63,6 +61,17 @@ public class BookmarksData {
         } catch (Exception e) {
             LOG.e(e);
         }
+    }
+
+    public AppBookmark getBookMark(File file, int page, int totalPage){
+        List<AppBookmark> bookmarks = getBookmarksByBook(file.getPath());
+        AppBookmark foundBookMark  = new AppBookmark();
+        for (AppBookmark appBookmark : bookmarks){
+            if (appBookmark.getPage(totalPage) == page){
+                foundBookMark = appBookmark;
+            }
+        }
+        return foundBookMark;
     }
 
     public List<AppBookmark> getBookmarksByBook(File file) {
@@ -172,7 +181,7 @@ public class BookmarksData {
     public boolean hasBookmark(String lastBookPath, int page, int pages) {
         final List<AppBookmark> bookmarksByBook = getBookmarksByBook(lastBookPath);
         for (AppBookmark appBookmark : bookmarksByBook) {
-            if (appBookmark.getPercent() * pages == page) {
+            if (Math.round(appBookmark.getPercent() * pages) == page) {
                 return true;
             }
         }

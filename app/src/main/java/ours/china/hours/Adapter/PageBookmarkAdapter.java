@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,11 +27,13 @@ public class PageBookmarkAdapter extends RecyclerView.Adapter<PageBookmarkAdapte
     ArrayList<AppBookmark> objects;
     private Context context;
     private DocumentController controller;
+    OnClickBookItemLintener onClickBookItemLintener;
 
-    public PageBookmarkAdapter(Context context, ArrayList<AppBookmark> objects, DocumentController controller) {
+    public PageBookmarkAdapter(Context context, ArrayList<AppBookmark> objects, DocumentController controller, OnClickBookItemLintener listener) {
         this.objects = objects;
         this.context = context;
         this.controller = controller;
+        this.onClickBookItemLintener = listener;
 
         Log.i(TAG, "constructor");
     }
@@ -54,9 +57,15 @@ public class PageBookmarkAdapter extends RecyclerView.Adapter<PageBookmarkAdapte
         String totalPageCount = info.textPage;
 
         Log.i(TAG, "pageNumber => " + pageNumber + "totalPageCount => " + totalPageCount);
-        holder.bookmark_subtitle.setText("Hello");
+        holder.bookmark_subtitle.setText("");
         holder.bookmark_page_number.setText(context.getString(R.string.note_page, pageNumber, totalPageCount));
         holder.bookmark_content.setText(one.text);
+        holder.bookmarkLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBookItemLintener.selectedBookItem(pageNumber);
+            }
+        });
     }
 
     @Override
@@ -69,6 +78,7 @@ public class PageBookmarkAdapter extends RecyclerView.Adapter<PageBookmarkAdapte
         TextView bookmark_page_number;
         ImageView bookmark_icon;
         TextView bookmark_content;
+        LinearLayout bookmarkLayout;
 
         public PageBookmarkViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -77,6 +87,11 @@ public class PageBookmarkAdapter extends RecyclerView.Adapter<PageBookmarkAdapte
             bookmark_page_number = itemView.findViewById(R.id.catalog_bookmark_page_number);
             bookmark_icon = itemView.findViewById(R.id.catalog_bookmark_icon);
             bookmark_content = itemView.findViewById(R.id.catalog_bookmark_content);
+            bookmarkLayout = itemView.findViewById(R.id.bookmarkLayout);
         }
+    }
+
+    public interface OnClickBookItemLintener{
+        void selectedBookItem(String pageNumber);
     }
 }

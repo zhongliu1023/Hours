@@ -25,7 +25,7 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
     private static String TAG = "NoteDisplayAdapter";
 
     private Context context;
-    private ArrayList<AppBookmark> objects;
+    private ArrayList<AppBookmark> objects = new ArrayList<AppBookmark>();
 
     private DocumentController controller;
 
