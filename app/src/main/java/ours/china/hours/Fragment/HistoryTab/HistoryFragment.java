@@ -33,6 +33,7 @@ import ours.china.hours.Activity.ReadingCompleteBookActivity;
 import ours.china.hours.Activity.ReadingNowBookActivity;
 import ours.china.hours.Adapter.ReadingCompleteStatusBookAdapter;
 import ours.china.hours.Adapter.ReadingStatusBookAdapter;
+import ours.china.hours.Common.Interfaces.SelectStatePositionInterface;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -43,7 +44,7 @@ import ours.china.hours.R;
  * Created by liujie on 1/12/18.
  */
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends Fragment implements SelectStatePositionInterface {
 
     PieChartView pieChartView;
     RecyclerView recyclerReadingBookNow, recyclerReadingBookCompleted;
@@ -82,7 +83,7 @@ public class HistoryFragment extends Fragment {
 
     public void init(View rootView) {
         recyclerReadingBookNow = rootView.findViewById(R.id.recycler_book_reading_now);
-        readingBookStatusAdapter = new ReadingStatusBookAdapter(getContext(), bookArrayList);
+        readingBookStatusAdapter = new ReadingStatusBookAdapter(getContext(), bookArrayList, this);
         RecyclerView.LayoutManager manager1 = new LinearLayoutManager(getActivity());
         recyclerReadingBookNow.setLayoutManager(manager1);
         recyclerReadingBookNow.setAdapter(readingBookStatusAdapter);
@@ -236,4 +237,8 @@ public class HistoryFragment extends Fragment {
         super.onResume();
     }
 
+    @Override
+    public void onClickStatePosition(Book selectedBook, int pageNumber) {
+
+    }
 }

@@ -308,9 +308,9 @@ public class ExtUtils {
 
                 // this is modification part. Here dialog does not appear.
 //                ExtUtils.showDocument(a, file);
-                ImageLoader.getInstance().clearAllTasks();
-                AppTemp.get().readingMode = AppState.READING_MODE_BOOK;
-                showDocumentWithoutDialog(a, file, null);
+                    ImageLoader.getInstance().clearAllTasks();
+                    AppTemp.get().readingMode = AppState.READING_MODE_BOOK;
+                    showDocumentWithoutDialog(a, file, null);
             }
         }
     }

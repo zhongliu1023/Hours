@@ -79,6 +79,7 @@ public class Global {
     public static HorizontalModeController globalDC;
     public static ArrayList<AppBookmark> objects = new ArrayList<>();
 
+    public static int pageNumber = 0;
 
     public static void alert(Context context, String title, String message, String btnTitle) {
 

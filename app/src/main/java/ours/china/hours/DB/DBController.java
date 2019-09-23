@@ -196,6 +196,17 @@ public class DBController {
         database.close();
     }
 
+    public void updateBookmarksState(BookStatus data, String bookID) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_bookmarks, data.bookmarks);
+
+        String where = DatabaseManager.KEY_bookId + " = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{bookID});
+        database.close();
+    }
+
     public void updateBookTotalPage(Book data) {
         ContentValues updateValues = new ContentValues();
         updateValues.put(DatabaseManager.KEY_pageCount, data.pageCount);
