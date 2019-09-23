@@ -7,7 +7,11 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalModeController;
 import ours.china.hours.Common.Interfaces.UpdateDisplayInterface;
 import ours.china.hours.Dialog.AlertDlg;
 import ours.china.hours.Dialog.OutDlg;
@@ -72,7 +76,8 @@ public class Global {
     public static String readingNowOrHistory = "";
 
     public static UpdateDisplayInterface updateDisplayInterface;
-    public static DocumentController globalDC;
+    public static HorizontalModeController globalDC;
+    public static ArrayList<AppBookmark> objects = new ArrayList<>();
 
 
     public static void alert(Context context, String title, String message, String btnTitle) {

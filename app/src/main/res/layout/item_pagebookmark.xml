@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:gravity="center_vertical"
+        android:padding="@dimen/getneral_padding_8">
+        <TextView
+            android:id="@+id/catalog_bookmark_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
+            android:text="1.1 认知革命"/>
+        <ImageView
+            android:id="@+id/catalog_bookmark_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/catalog_bookmark3_icon"
+            android:layout_alignParentEnd="true"/>
+        <TextView
+            android:id="@+id/catalog_bookmark_page_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/getneral_padding_8"
+            android:gravity="center"
+            android:layout_toStartOf="@id/catalog_bookmark_icon"
+            android:text="10/200"/>
+
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/catalog_bookmark_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/getneral_padding_8"
+        android:text="What are you" />
+</LinearLayout>

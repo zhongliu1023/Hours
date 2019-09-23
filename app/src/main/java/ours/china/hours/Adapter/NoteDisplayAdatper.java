@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,11 +25,11 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
     private static String TAG = "NoteDisplayAdapter";
 
     private Context context;
-    private List<AppBookmark> objects;
+    private ArrayList<AppBookmark> objects;
 
     private DocumentController controller;
 
-    public NoteDisplayAdatper(Context context, List<AppBookmark> objects, DocumentController controller) {
+    public NoteDisplayAdatper(Context context, ArrayList<AppBookmark> objects, DocumentController controller) {
         this.context = context;
         this.objects = objects;
         this.controller = controller;
