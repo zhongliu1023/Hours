@@ -716,5 +716,6 @@
     
     <!--  for note  -->
     <string name="note_page">%s/%s</string>
+    <string name="bookmark_page">%s/%s</string>
 
 </resources>

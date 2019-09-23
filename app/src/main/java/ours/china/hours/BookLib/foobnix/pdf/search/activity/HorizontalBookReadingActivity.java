@@ -62,6 +62,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
@@ -107,6 +108,7 @@ import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NoteActivity;
+import ours.china.hours.Adapter.PageBookmarkAdapter;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
 import ours.china.hours.BookLib.foobnix.android.utils.IntegerResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.Keyboards;
@@ -258,6 +260,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     // for drawerlayout.
     LinearLayout linCatalogBack, linCatalogCatalog, linCatalogBookmark, linCatalogRefresh;
     ListView contentList;
+    RecyclerView recyclerContentList;
+    PageBookmarkAdapter pageBookmarkAdapter;
 
     // for popupWindow
     RelativeLayout popupBack, popupYellow, popupOrange, popupBlue, popupPink, popupErase;
@@ -270,7 +274,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 //    int popupColorPickValue, tempColorPickValue;
 
     ColorCollection colorPickValue, tempColorPickValue;
-
 
     ClickUtils clickUtils;
     int flippingTimer = 0;
@@ -540,10 +543,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 seekBar.setRotation(180);
             }
         }
-
-        pagesBookmark = findViewById(R.id.pagesBookmark);
-        pagesBookmark.setOnClickListener(onBookmarks);
-        pagesBookmark.setOnLongClickListener(onBookmarksLong);
 
         // for full screen
 
@@ -819,7 +818,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         linCatalogRefresh = findViewById(R.id.lin_catalog_refresh);
 
         contentList = findViewById(R.id.contentList);
-
+        recyclerContentList = findViewById(R.id.recycler_contentList);
 
         Log.i("horizontalbookreading", "uiInit => end");
     }
@@ -829,6 +828,24 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
                 displayContentList();
+            }
+        });
+
+        linCatalogBookmark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                contentList.setVisibility(View.GONE);
+                recyclerContentList.setVisibility(View.VISIBLE);
+
+                Log.i("HorizontalBookReading", "catalog bookmark");
+
+                ArrayList<AppBookmark> objects = new ArrayList<>();
+                objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+
+                Log.i("HorizontalBookReading", "bookmark data => " + objects);
+                pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  objects, dc);
+                recyclerContentList.setLayoutManager(new LinearLayoutManager(HorizontalBookReadingActivity.this));
+                recyclerContentList.setAdapter(pageBookmarkAdapter);
             }
         });
     }
@@ -1051,16 +1068,16 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         });
 
         // for note work
-//        final String selectedText = AppState.get().selectedText;
-//        Log.i("HorizontalBookReading", "selected text => " + selectedText);
-//        noteWork(selectedText);
+        final String selectedText = AppState.get().selectedText;
+        Log.i("HorizontalBookReading", "selected text => " + selectedText);
+        noteWork(selectedText);
 
 
         popupWindowHelper = new PopupWindowHelper(popView);
         popupWindowHelper.showAsPopUp(anchorX);
     }
 
-    List<AppBookmark> objects;
+    List<AppBookmark> objects = new ArrayList<>();
     BookmarksAdapter bookmarksAdapter;
     public void noteWork(String selectedText) {
 
@@ -1082,6 +1099,30 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
     public void event() {
         Log.i("horizontalbookreading", "event => start");
+
+        // for bookmark
+        pagesBookmark = findViewById(R.id.pagesBookmark);
+        pagesBookmark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (pagesBookmark.getVisibility() == View.GONE) {
+                    pagesBookmark.setVisibility(View.VISIBLE);
+
+                    String selectedText = "Bookmark";
+                    AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+                    bookmark.isF = true;
+                    BookmarksData.get().add(bookmark);
+
+                } else if ((pagesBookmark.getVisibility() == View.VISIBLE)) {
+                    pagesBookmark.setVisibility(View.GONE);
+
+                    String selectedText = "Bookmark";
+                    AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+                    BookmarksData.get().remove(bookmark);
+
+                }
+            }
+        });
 
         // to show navigation view.
         catalogMenu = findViewById(R.id.imgCatalogMenu);
@@ -1500,6 +1541,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(HorizontalBookReadingActivity.this, NoteActivity.class);
+
+                ArrayList<AppBookmark> objects = new ArrayList<>();
+                DocumentController controller = (DocumentController) dc;
+                objects.addAll(BookmarksData.get().getBookmarksByBook(controller.getCurrentBook()));
+                Global.objects = objects;
+                Log.i("HorizontalBookReading", "sending parameter" + objects);
+
                 startActivity(intent);
             }
         });

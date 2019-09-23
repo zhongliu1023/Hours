@@ -1,18 +1,16 @@
 package ours.china.hours.Activity;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ours.china.hours.Adapter.NoteDisplayAdatper;
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
-import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.R;
 
@@ -21,7 +19,7 @@ public class NoteActivity extends AppCompatActivity {
 
     RecyclerView recyclerNoteView;
     NoteDisplayAdatper adapter;
-    List<AppBookmark> objects;
+    ArrayList<AppBookmark> objects;
     DocumentController dc;
 
     @Override
@@ -32,12 +30,14 @@ public class NoteActivity extends AppCompatActivity {
         dc = Global.globalDC;
 
         recyclerNoteView = findViewById(R.id.recyclerNote);
+
         adapter = new NoteDisplayAdatper(NoteActivity.this, objects, dc);
+        recyclerNoteView.setLayoutManager(new LinearLayoutManager(NoteActivity.this));
+        recyclerNoteView.setAdapter(adapter);
 
-        objects = new ArrayList<AppBookmark>();
-        objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
-        Log.i(TAG, "BookmarksData => " + objects);
-
+        objects = Global.objects;
+//        objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+//        Log.i(TAG, "BookmarksData => " + objects);
         adapter.notifyDataSetChanged();
     }
 }
