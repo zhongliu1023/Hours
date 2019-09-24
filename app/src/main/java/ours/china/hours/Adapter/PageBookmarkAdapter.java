@@ -57,7 +57,7 @@ public class PageBookmarkAdapter extends RecyclerView.Adapter<PageBookmarkAdapte
         String totalPageCount = info.textPage;
 
         Log.i(TAG, "pageNumber => " + pageNumber + "totalPageCount => " + totalPageCount);
-        holder.bookmark_subtitle.setText("");
+        holder.bookmark_subtitle.setText(one.getSubTitle());
         holder.bookmark_page_number.setText(context.getString(R.string.note_page, pageNumber, totalPageCount));
         holder.bookmark_content.setText(one.text);
         holder.bookmarkLayout.setOnClickListener(new View.OnClickListener() {

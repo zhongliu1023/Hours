@@ -1037,7 +1037,6 @@ public class DragingDialogs {
         if (controller == null) {
             return;
         }
-
         DragingPopup dialog = new DragingPopup(R.string.search, anchor, 250, 150) {
             @Override
             public View getContentView(LayoutInflater inflater) {
@@ -1077,44 +1076,9 @@ public class DragingDialogs {
                     }
                 });
 
-                ImageView onClear = (ImageView) view.findViewById(R.id.imageClear);
-                onClear.setOnClickListener(new OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        boolean isRun = TempHolder.isSeaching;
-                        TempHolder.isSeaching = false;
-                        if (!isRun) {
-                            searchEdit.setText("");
-                            controller.clearSelectedText();
-                            searchingMsg.setVisibility(View.GONE);
-                            adapter.getItems().clear();
-                            adapter.notifyDataSetChanged();
-                        }
 
-                    }
-                });
 
-                final View onSearch = view.findViewById(R.id.onSearch);
-                TintUtil.setTintBg(onSearch);
-
-                EditTextHelper.enableKeyboardSearch(searchEdit, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        onSearch.performClick();
-                    }
-                });
-                if (TxtUtils.isNotEmpty(text)) {
-                    onSearch.postDelayed(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            onSearch.performClick();
-                        }
-                    }, 250);
-
-                }
 
                 final String searchingString = anchor.getContext().getString(R.string.searching_please_wait_);
                 final int count = controller.getPageCount();
@@ -1159,40 +1123,40 @@ public class DragingDialogs {
                     ;
                 };
 
-                onSearch.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        if (TempHolder.isSeaching) {
-                            TempHolder.isSeaching = false;
-                            return;
-                        }
-                        String searchString = searchEdit.getText().toString().trim();
-                        if (searchString.length() < 2) {
-                            Toast.makeText(controller.getActivity(), R.string.please_enter_more_characters_to_search, Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        TempHolder.isSeaching = true;
-
-                        searchingMsg.setText(R.string.searching_please_wait_);
-                        searchingMsg.setVisibility(View.VISIBLE);
-
-                        MyProgressBar.setVisibility(View.VISIBLE);
-                        gridView.setVisibility(View.GONE);
-                        adapter.getItems().clear();
-                        adapter.notifyDataSetChanged();
-
-                        Keyboards.close(searchEdit);
-                        hMessage.removeCallbacksAndMessages(null);
-                        controller.doSearch(searchString, new ResultResponse<Integer>() {
-                            @Override
-                            public boolean onResultRecive(final Integer pageNumber) {
-                                hMessage.sendEmptyMessage(pageNumber);
-                                return false;
-                            }
-                        });
-                    }
-                });
+//                onSearch.setOnClickListener(new View.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(View v) {
+//                        if (TempHolder.isSeaching) {
+//                            TempHolder.isSeaching = false;
+//                            return;
+//                        }
+//                        String searchString = searchEdit.getText().toString().trim();
+//                        if (searchString.length() < 2) {
+//                            Toast.makeText(controller.getActivity(), R.string.please_enter_more_characters_to_search, Toast.LENGTH_SHORT).show();
+//                            return;
+//                        }
+//                        TempHolder.isSeaching = true;
+//
+//                        searchingMsg.setText(R.string.searching_please_wait_);
+//                        searchingMsg.setVisibility(View.VISIBLE);
+//
+//                        MyProgressBar.setVisibility(View.VISIBLE);
+//                        gridView.setVisibility(View.GONE);
+//                        adapter.getItems().clear();
+//                        adapter.notifyDataSetChanged();
+//
+//                        Keyboards.close(searchEdit);
+//                        hMessage.removeCallbacksAndMessages(null);
+//                        controller.doSearch(searchString, new ResultResponse<Integer>() {
+//                            @Override
+//                            public boolean onResultRecive(final Integer pageNumber) {
+//                                hMessage.sendEmptyMessage(pageNumber);
+//                                return false;
+//                            }
+//                        });
+//                    }
+//                });
 
                 return view;
             }

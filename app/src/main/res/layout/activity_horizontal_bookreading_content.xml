@@ -29,22 +29,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </FrameLayout>
-
-        <Switch
-            android:id="@+id/switch_liveness_detect"
-            android:visibility="gone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_margin="20dp"
-            android:text="@string/face_liveness_detect" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_person"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-
     </FrameLayout>
 
     <TextView
@@ -114,10 +98,12 @@
         android:id="@+id/actionBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/transparent"
             android:paddingTop="@dimen/getneral_padding_8"
             android:paddingBottom="@dimen/getneral_padding_8"
             android:paddingEnd="@dimen/getneral_padding_16"

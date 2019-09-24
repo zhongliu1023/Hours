@@ -2,8 +2,8 @@ package ours.china.hours.Management;
 
 public class Url {
 //    public static String baseUrl = "http://192.168.6.222/Hour/";
-public static String domainUrl = "http://Hours.worldwardmobi.com";
-    public static String baseUrl = "http://Hours.worldwardmobi.com/api/";
+public static String domainUrl = "http://49.233.43.122/";
+    public static String baseUrl = "http://49.233.43.122/api/";
 
     public static String loginUrl = baseUrl + "login_by_oauth";
     public static String faceLogin = baseUrl + "login_by_face";

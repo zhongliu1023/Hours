@@ -618,6 +618,10 @@
     <string name="popup3_unread">未读(%s)</string>
     <string name="popup3_favorites">收藏夹(%s)</string>
 
+    <string name="book_reading_percent">本书已读 %s</string>
+    <string name="delete_note">确定要刪除该条笔记吗？</string>
+
+    <string name="countTime_verification">%s s 后重新获取</string>
     <!--  state fragment  -->
     <string name="txt_ranking">排名: %s/%s</string>
     <!-- TODO: Remove or change this placeholder text -->

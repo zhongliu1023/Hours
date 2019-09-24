@@ -58,7 +58,7 @@ public abstract class HorizontalModeController extends DocumentController {
     private CopyAsyncTask searchTask;
     private boolean isTextFormat = false;
     String bookPath;
-    CodecDocument codeDocument;
+    public CodecDocument codeDocument;
 
     int imageWidth, imageHeight;
     private SharedPreferences matrixSP;

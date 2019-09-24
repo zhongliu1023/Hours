@@ -665,17 +665,18 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     @Override
     public void onFinishDownload(Book book, Boolean isSuccess) {
-
-        for (int i = 0; i < mBookList.size(); i++) {
-            Book one = mBookList.get(i);
-            if (one.bookId != null && book.bookId != null && one.bookId.equals(book.bookId)) {
-                one.bookLocalUrl = book.bookLocalUrl;
-                one.bookImageLocalUrl = book.bookImageLocalUrl;
-                one.libraryPosition = book.libraryPosition;
-                adapter.notifyItemChanged(i);
-                break;
+        if (isSuccess){
+            for (int i = 0; i < mBookList.size(); i++) {
+                Book one = mBookList.get(i);
+                if (one.bookId != null && book.bookId != null && one.bookId.equals(book.bookId)) {
+                    one.bookLocalUrl = book.bookLocalUrl;
+                    one.bookImageLocalUrl = book.bookImageLocalUrl;
+                    one.libraryPosition = book.libraryPosition;
+                    adapter.notifyItemChanged(i);
+                    break;
+                }
             }
+            gotoReadingViewFile();
         }
-        gotoReadingViewFile();
     }
 }

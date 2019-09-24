@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/menu_delete"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:text="删除"/>
+    <TextView
+        android:id="@+id/menu_copy"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:text="复制"/>
+    <TextView
+        android:id="@+id/menu_share"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:text="分享"/>
+    <ImageView
+        android:id="@+id/menu_mark_1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:padding="5dp"
+        android:src="@drawable/read_yellow_icon"/>
+    <ImageView
+        android:id="@+id/menu_mark_2"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:padding="5dp"
+        android:src="@drawable/read_orange_icon"/>
+    <ImageView
+        android:id="@+id/menu_mark_3"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:padding="5dp"
+        android:src="@drawable/read_blue_icon"/>
+    <ImageView
+        android:id="@+id/menu_mark_4"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:padding="5dp"
+        android:src="@drawable/read_pink_icon"/>
+</LinearLayout>

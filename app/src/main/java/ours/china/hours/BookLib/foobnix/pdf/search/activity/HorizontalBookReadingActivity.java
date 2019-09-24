@@ -3,6 +3,7 @@ package ours.china.hours.BookLib.foobnix.pdf.search.activity;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
@@ -16,7 +17,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,10 +45,12 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -79,6 +84,8 @@ import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import org.ebookdroid.core.codec.CodecPage;
+import org.ebookdroid.droids.mupdf.codec.TextWord;
 import org.ebookdroid.droids.mupdf.codec.exceptions.MuPdfPasswordException;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -110,6 +117,7 @@ import ours.china.hours.Activity.Auth.ForgotPassActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NoteActivity;
 import ours.china.hours.Adapter.PageBookmarkAdapter;
+import ours.china.hours.BookLib.foobnix.android.utils.BaseItemLayoutAdapter;
 import ours.china.hours.BookLib.foobnix.android.utils.Dips;
 import ours.china.hours.BookLib.foobnix.android.utils.IntegerResponse;
 import ours.china.hours.BookLib.foobnix.android.utils.Keyboards;
@@ -130,8 +138,10 @@ import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.DictsHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
+import ours.china.hours.BookLib.foobnix.pdf.info.PageUrl;
 import ours.china.hours.BookLib.foobnix.pdf.info.TintUtil;
 import ours.china.hours.BookLib.foobnix.pdf.info.UiSystemUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.Urls;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
 import ours.china.hours.BookLib.foobnix.pdf.info.presentation.BookmarksAdapter;
@@ -144,9 +154,12 @@ import ours.china.hours.BookLib.foobnix.pdf.info.view.CustomSeek;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.Dialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.DialogsPlaylist;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.DragingDialogs;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.DragingPopup;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.EditTextHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.HorizontallSeekTouchEventListener;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.HypenPanelHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.MyPopupMenu;
+import ours.china.hours.BookLib.foobnix.pdf.info.view.MyProgressBar;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.DraggbleTouchListener;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.FileInformationDialog;
 import ours.china.hours.BookLib.foobnix.pdf.info.widget.RecentUpates;
@@ -177,6 +190,9 @@ import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
 import ours.china.hours.Common.ColorCollection;
 import ours.china.hours.DB.DBController;
+import ours.china.hours.Dialog.BookDetailsDialog;
+import ours.china.hours.Dialog.NoteDialog;
+import ours.china.hours.Dialog.SearchContentDialog;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
 import ours.china.hours.FaceDetect.model.DrawInfo;
@@ -190,6 +206,7 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.FaceDetect.widget.ShowFaceInfoAdapter;
+import ours.china.hours.Fragment.HomeTab.HomeFragmentRoot;
 import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -197,14 +214,18 @@ import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
 
-public class HorizontalBookReadingActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener, PageBookmarkAdapter.OnClickBookItemLintener {
+public class HorizontalBookReadingActivity extends AppCompatActivity implements
+        ViewTreeObserver.OnGlobalLayoutListener,
+        PageBookmarkAdapter.OnClickBookItemLintener,
+        SearchContentDialog.OnSelectContentListener,
+        NoteDialog.OnAddNoteListener {
 
     // ------------- for document browser ----------------
     VerticalViewPager viewPager;
     View parentParent, overlay;
     LinearLayout actionBar, bottomBar;
     ImageView pagesBookmark, imgBookMark;
-    TextView pagesCountIndicator;
+    TextView pagesCountIndicator, pagesReadingPercent, toolbar_title;
     SeekBar seekBar;
     FrameLayout anchor;
     ImageView anchorX, anchorY;
@@ -305,67 +326,30 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
     private static final String TAG = "RegisterAndRecognize";
     private static final int MAX_DETECT_NUM = 10;
-    /**
-     * 当FR成功，活体未成功时，FR等待活体的时间
-     *
-     * When the FR is successful and the living body is unsuccessful, the FR waits for the living time.
-     */
+
     private static final int WAIT_LIVENESS_INTERVAL = 50;
     private CameraHelper cameraHelper;
     private DrawHelper drawHelper;
     private Camera.Size previewSize;
-    /**
-     * 优先打开的摄像头，本界面主要用于单目RGB摄像头设备，因此默认打开前置
-     *
-     * Priority open camera, this interface is mainly used for monocular RGB camera devices, so the default is to open the front
-     */
+
     private Integer rgbCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private FaceEngine faceEngine;
     private FaceHelper faceHelper;
     private List<CompareResult> compareResultList;
-    private ShowFaceInfoAdapter adapter;
-    /**
-     * 活体检测的开关  -->  Live detection switch
-     */
     private boolean livenessDetect = true;
-
-    /**
-     * 注册人脸状态码，准备注册   -->   Register face status code, ready to register
-     */
-    private static final int REGISTER_STATUS_READY = 0;
-    /**
-     * 注册人脸状态码，注册中     -->   Register face status code, registering
-     */
-    private static final int REGISTER_STATUS_PROCESSING = 1;
-    /**
-     * 注册人脸状态码，注册结束（无论成功失败）   -->   Register face status code, registration ends (regardless of success)
-     */
-    private static final int REGISTER_STATUS_DONE = 2;
-
-    private int registerStatus = REGISTER_STATUS_DONE;
 
     private int afCode = -1;
     private ConcurrentHashMap<Integer, Integer> requestFeatureStatusMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, Integer> livenessMap = new ConcurrentHashMap<>();
     private CompositeDisposable getFeatureDelayedDisposables = new CompositeDisposable();
-    /**
-     * 相机预览显示的控件，可为SurfaceView或TextureView
-     *
-     * The camera preview shows the controls, which can be SurfaceView or TextureView
-     */
+
     private View previewView;
-    /**
-     * 绘制人脸框的控件     -->     a control that draws a face frame
-     */
     private FaceRectView faceRectView;
 
-    private Switch switchLivenessDetect;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final float SIMILAR_THRESHOLD = 0.8F;
-    /**
-     * 所需的所有权限信息    -->     All required permission information]
-     */
+
     private static final String[] NEEDED_PERMISSIONS = new String[]{
             Manifest.permission.CAMERA,
             Manifest.permission.READ_PHONE_STATE
@@ -380,7 +364,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     private Book focusBook = null;
     SharedPreferencesManager sessionManager;
 
-
+    PopupWindowHelper popupWindowHelper;
+    SearchContentDialog searchContentDialog;
+    NoteDialog noteDialog;
+    int selectedNoteType = 0;
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
@@ -484,6 +471,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         actionBar = findViewById(R.id.actionBar);
         bottomBar = findViewById(R.id.bottomBar);
 
+        topLayout = findViewById(R.id.topLayout);
+        bottomLayout = findViewById(R.id.bottomLayout);
+        docBackground = findViewById(R.id.docBackground);
+        pagesReadingPercent = findViewById(R.id.pagesReadingPercent);
+        toolbar_title = findViewById(R.id.toolbar_title);
+        pagesCountIndicator = findViewById(R.id.pagesCountIndicator);
+        topReadTime = findViewById(R.id.topReadTime);
+
         anchor = findViewById(R.id.anchor);
         anchorX = findViewById(R.id.anchorX);
         anchorY = findViewById(R.id.anchorY);
@@ -542,8 +537,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
         touch1.setOnMove(onMoveAction);
         touch2.setOnMove(onMoveAction);
-
-        pagesCountIndicator = (TextView) findViewById(R.id.pagesCountIndicator);
 
         updateSeekBarColorAndSize();
 
@@ -757,8 +750,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         event();
         drawerLayoutWork();
 
-
-        FaceServer.getInstance().init(this);
         faceInitView();
 
         if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("")) {
@@ -825,10 +816,16 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 Log.i("HorizontalBookReading", "catalog bookmark");
 
                 ArrayList<AppBookmark> objects = new ArrayList<>();
+                ArrayList<AppBookmark> tmpobjects = new ArrayList<>();
                 objects.addAll(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+                for (AppBookmark appBookmark : objects){
+                    if (appBookmark.isF == true){
+                        tmpobjects.add(appBookmark);
+                    }
+                }
 
                 Log.i("HorizontalBookReading", "bookmark data => " + objects);
-                pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  objects, dc, HorizontalBookReadingActivity.this);
+                pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  tmpobjects, dc, HorizontalBookReadingActivity.this);
                 recyclerContentList.setLayoutManager(new LinearLayoutManager(HorizontalBookReadingActivity.this));
                 recyclerContentList.setAdapter(pageBookmarkAdapter);
             }
@@ -895,7 +892,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
     };
 
     public void showPopupWindow() {
-        PopupWindowHelper popupWindowHelper;
+
         View popView;
         popView = LayoutInflater.from(HorizontalBookReadingActivity.this).inflate(R.layout.dragging_popup, null);
 
@@ -930,7 +927,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 popupColorPart.setVisibility(View.GONE);
                 popupSearchPart.setVisibility(View.GONE);
                 popupDefaultShow.setVisibility(View.VISIBLE);
-
             }
         });
 
@@ -950,6 +946,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupErase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedNoteType = 4;
                 colorPickValue = tempColorPickValue;
                 popupErase.setVisibility(View.GONE);
             }
@@ -959,6 +956,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupYellow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedNoteType = 0;
                 popupErase.setVisibility(View.VISIBLE);
 
                 tempColorPickValue = colorPickValue;
@@ -972,6 +970,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupOrange.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedNoteType = 1;
                 popupErase.setVisibility(View.VISIBLE);
 
                 tempColorPickValue = colorPickValue;
@@ -986,6 +985,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupBlue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedNoteType = 2;
                 popupErase.setVisibility(View.VISIBLE);
 
                 tempColorPickValue = colorPickValue;
@@ -1000,6 +1000,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupPink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                selectedNoteType = 3;
                 popupErase.setVisibility(View.VISIBLE);
 
                 tempColorPickValue = colorPickValue;
@@ -1028,6 +1029,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupCopy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                popupWindowHelper.dismiss();
                 String copiedText = AppState.get().selectedText;
 
                 dc.clearSelectedText();
@@ -1039,7 +1041,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", copiedText);
                     clipboard.setPrimaryClip(clip);
                 }
-
+                copyView.setVisibility(View.VISIBLE);
                 copyView.animate()
                         .alpha(1.0f)
                         .setDuration(1000)
@@ -1053,7 +1055,77 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
             }
         });
+        popupShare = popView.findViewById(R.id.popupShare);
+        popupShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+                String copiedText = AppState.get().selectedText;
+                final Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                String txt = "\"" + copiedText.trim() + "\" (" + dc.getBookFileMetaName() + ")";
+                intent.putExtra(Intent.EXTRA_TEXT, txt);
+                startActivity(Intent.createChooser(intent, dc.getString(R.string.share)));
+            }
+        });
+        popupTranslate = popView.findViewById(R.id.popupTranslate);
+        popupTranslate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+                String translateUrl = String.format("https://fanyi.baidu.com/?aldtype=85#en/zh/%s",AppState.get().selectedText.trim());
 
+                Urls.open(HorizontalBookReadingActivity.this, translateUrl);
+            }
+        });
+        popupSearch = popView.findViewById(R.id.popupSearch);
+        popupSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupBack.setVisibility(View.VISIBLE);
+                popupColorPart.setVisibility(View.GONE);
+                popupDefaultShow.setVisibility(View.GONE);
+                popupSearchPart.setVisibility(View.VISIBLE);
+//                searchMenu(anchor, dc, AppState.get().selectedText);
+            }
+        });
+        popupSearchBook = popView.findViewById(R.id.popupSearchBook);
+        popupSearchBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+                searchMenu(anchor, dc, AppState.get().selectedText);
+            }
+        });
+        popupSearchNet = popView.findViewById(R.id.popupSearchNet);
+        popupSearchNet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+                Urls.open(anchor.getContext(), "https://www.baidu.com/s?wd=" + AppState.get().selectedText.trim());
+
+            }
+        });
+        popupSearchEncyclopedia = popView.findViewById(R.id.popupSearchEncyclopedia);
+        popupSearchEncyclopedia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+                Urls.open(anchor.getContext(), "https://baike.baidu.com/item/" + AppState.get().selectedText.trim());
+
+            }
+        });
+        popupNote= popView.findViewById(R.id.popupNote);
+        popupNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindowHelper.dismiss();
+
+                noteDialog = new NoteDialog(HorizontalBookReadingActivity.this, R.style.AppTheme_Alert, "添加笔记", "", HorizontalBookReadingActivity.this);
+                noteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                noteDialog.show();
+            }
+        });
         // for note work
         final String selectedText = AppState.get().selectedText;
         Log.i("HorizontalBookReading", "selected text => " + selectedText);
@@ -1064,6 +1136,33 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         popupWindowHelper.showAsPopUp(anchorX);
     }
 
+    @Override
+    public void addNote(String str) {
+        OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
+        String selectedString = AppState.get().selectedText;
+        if (selectedString != null && !selectedString.trim().equals("")) {
+            final AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedString, dc.getPercentage());
+            bookmark.setNote(str);
+            bookmark.setSubTitle(info.chText);
+            bookmark.isF = false;
+            bookmark.type = selectedNoteType;
+            BookmarksData.get().add(bookmark);
+        }
+    }
+    public void searchMenu(final FrameLayout anchor, final HorizontalModeController controller, final String text) {
+        if (controller == null) {
+            return;
+        }
+        searchContentDialog = new SearchContentDialog("search", anchor, 300, 400);
+        searchContentDialog.initDialog(this, HorizontalBookReadingActivity.this, controller, text);
+        searchContentDialog.show("SearchContent");
+        Window rootWindow = getWindow();
+        Rect displayRect = new Rect();
+        rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+//        searchContentDialog.().setLayout(800, 1000);
+//        searchContentDialog.setCanceledOnTouchOutside(false);
+
+    }
     List<AppBookmark> objects = new ArrayList<>();
     BookmarksAdapter bookmarksAdapter;
     public void noteWork(String selectedText) {
@@ -1071,7 +1170,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         if (selectedText != null && !selectedText.trim().equals("")) {
             final AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
             bookmark.isF = false;
-            BookmarksData.get().add(bookmark);
+//            BookmarksData.get().add(bookmark);
 
             Log.i("HorizontalBookReading", "BookmarksData => " + BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
 //            if (objects != null) {
@@ -1092,10 +1191,23 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         pagesBookmark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                TextWord[][] text = dc.codeDocument.getPage(dc.currentPage).getText();
+                String bookMarkText = "";
+                int limit = 10;
+                for (TextWord[] textWords : text){
+                    for (TextWord textWord : textWords){
+                        limit --;
+                        bookMarkText += textWord.w;
+                    }
+                    if (limit < 0){
+                        break;
+                    }
+                }
+                String selectedText = bookMarkText+" ...";
 
-                String selectedText = "Bookmark";
+                OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
                 AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
-
+                bookmark.setSubTitle(info.chText);
                 if (!BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), bookmark.getPage(Integer.parseInt(maxPage))
                         , Integer.parseInt(maxPage))) {
                     pagesBookmark.setImageResource(R.drawable.read_bookmark4_icon);
@@ -1112,9 +1224,23 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         imgBookMark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String selectedText = "Bookmark";
-                AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+                TextWord[][] text = dc.codeDocument.getPage(dc.currentPage).getText();
+                String bookMarkText = "";
+                int limit = 10;
+                for (TextWord[] textWords : text){
+                    for (TextWord textWord : textWords){
+                        limit --;
+                        bookMarkText += textWord.w;
+                    }
+                    if (limit < 0){
+                        break;
+                    }
+                }
+                String selectedText = bookMarkText+" ...";
 
+                OutlineHelper.Info info = OutlineHelper.getForamtingInfo(dc, false);
+                AppBookmark bookmark = new AppBookmark(dc.getCurrentBook().getPath(), selectedText, dc.getPercentage());
+                bookmark.setSubTitle(info.chText);
                 if (!BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), bookmark.getPage(Integer.parseInt(maxPage))
                         , Integer.parseInt(maxPage))) {
                     imgBookMark.setImageResource(R.drawable.read_bookmark4_icon);
@@ -1134,6 +1260,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
                 mDrawerLayout.openDrawer(GravityCompat. START);
+                displayContentList();
             }
         });
 
@@ -1365,10 +1492,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         brightnessAutoSetting.setChecked(AppState.get().appBrightness == AppState.AUTO_BRIGTNESS);
         seekBarBrightness.setEnabled(AppState.get().appBrightness != AppState.AUTO_BRIGTNESS);
 
-        // for background
-        docBackground = findViewById(R.id.docBackground);
-        topLayout = findViewById(R.id.topLayout);
-        bottomLayout = findViewById(R.id.bottomLayout);
 
         // for doc background
         imgWhiteBrightness = findViewById(R.id.imgWhiteBrightness);
@@ -1376,41 +1499,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-                // for only doc background
-                AppState.get().isDayNotInvert = true;
+                int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.white)));
+                int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
+                if (dc.isTextFormat() || AppState.get().isCustomizeBgAndColors) {
+                    AppState.get().colorDayText = text;
+                }
+                AppState.get().colorDayBg = bg;
                 AppState.get().isUseBGImageDay = false;
 
-//                AppState.get().bgImageDayTransparency = 100;
-//                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BG_3;
-
-                int colorTextChoose = Color.BLACK;
-                int colorBgChoose = AppState.COLOR_WHITE;
-
-                AppState.get().colorDayText = colorTextChoose;
-                AppState.get().colorDayBg = colorBgChoose;
-
-                ImageLoader.getInstance().clearDiskCache();
-                ImageLoader.getInstance().clearMemoryCache();
-
-                // for other component
-                docBackground.setBackgroundColor(getResources().getColor(R.color.white));
-                topLayout.setBackgroundColor(getResources().getColor(R.color.white));
-                bottomLayout.setBackgroundColor(getResources().getColor(R.color.white));
-
-                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white2_icon));
-                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
-                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
-                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
-
-                updateUI(dc.currentPage);
-
-                // for only theme background.
-                TintUtil.color = getResources().getColor(R.color.white_theme);
-                AppState.get().tintColor = getResources().getColor(R.color.white);
-                TempHolder.listHash++;
-
-                AppProfile.save(HorizontalBookReadingActivity.this);
-
+                dc.restartActivity();
                 dc.restartActivity();
             }
         });
@@ -1420,40 +1517,18 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-                // for only doc background
-                AppState.get().isDayNotInvert = true;
-                AppState.get().isUseBGImageDay = true;
+                int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.brown)));
+                int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
+                if (dc.isTextFormat() || AppState.get().isCustomizeBgAndColors) {
+                    AppState.get().colorDayText = text;
+                }
 
-                AppState.get().bgImageDayTransparency = 100;
-                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BROWN;
-
-                int colorTextChoose = Color.BLACK;
-                int colorBgChoose = AppState.COLOR_WHITE;
-
-                AppState.get().colorDayText = colorTextChoose;
-                AppState.get().colorDayBg = colorBgChoose;
-
-                ImageLoader.getInstance().clearDiskCache();
-                ImageLoader.getInstance().clearMemoryCache();
-
-                // for other component
-                docBackground.setBackgroundColor(getResources().getColor(R.color.brown));
-                topLayout.setBackgroundColor(getResources().getColor(R.color.brown));
-                bottomLayout.setBackgroundColor(getResources().getColor(R.color.brown));
-
-                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
-                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown2_icon));
-                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
-                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
-
-                // for only theme background.
-                TintUtil.color = getResources().getColor(R.color.brown_theme);
-                AppState.get().tintColor = getResources().getColor(R.color.brown);
-                TempHolder.listHash++;
-
-                AppProfile.save(HorizontalBookReadingActivity.this);
+                AppState.get().colorDayBg = bg;
+                AppState.get().isUseBGImageDay = false;
 
                 dc.restartActivity();
+
+
             }
         });
 
@@ -1462,38 +1537,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-                // for only doc background
-                AppState.get().isDayNotInvert = true;
-                AppState.get().isUseBGImageDay = true;
 
-                AppState.get().bgImageDayTransparency = 100;
-                AppState.get().bgImageDayPath = MagicHelper.IMAGE_GREEN;
-
-                int colorTextChoose = Color.BLACK;
-                int colorBgChoose = AppState.COLOR_WHITE;
-
-                AppState.get().colorDayText = colorTextChoose;
-                AppState.get().colorDayBg = colorBgChoose;
-
-                ImageLoader.getInstance().clearDiskCache();
-                ImageLoader.getInstance().clearMemoryCache();
-
-                // for other component
-                docBackground.setBackgroundColor(getResources().getColor(R.color.green));
-                topLayout.setBackground(getResources().getDrawable(R.drawable.green));
-                bottomLayout.setBackground(getResources().getDrawable(R.drawable.green));
-
-                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
-                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
-                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green2_icon));
-                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black_icon));
-
-                // for only theme background.
-                TintUtil.color = getResources().getColor(R.color.green_theme);
-                AppState.get().tintColor = getResources().getColor(R.color.green);
-                TempHolder.listHash++;
-
-                AppProfile.save(HorizontalBookReadingActivity.this);
+                int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.green)));
+                int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
+                if (dc.isTextFormat() || AppState.get().isCustomizeBgAndColors) {
+                    AppState.get().colorDayText = text;
+                }
+                AppState.get().colorDayBg = bg;
+                AppState.get().isUseBGImageDay = false;
 
                 dc.restartActivity();
             }
@@ -1505,35 +1556,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onClick(View view) {
 
-                // for only doc background
-                AppState.get().isDayNotInvert = false;
-//                AppState.get().isUseBGImageDay = false;
-//
-////                AppState.get().bgImageDayTransparency = 100;
-////                AppState.get().bgImageDayPath = MagicHelper.IMAGE_BG_3;
-//
-//                int colorTextChoose = AppState.get().colorNigthText;
-//                int colorBgChoose = AppState.COLOR_BLACK;
-//
-//                AppState.get().colorDayText = colorTextChoose;
-//                AppState.get().colorDayBg = colorBgChoose;
-//
-//                ImageLoader.getInstance().clearDiskCache();
-//                ImageLoader.getInstance().clearMemoryCache();
-//
-//                // for other component
-//                docBackground.setBackgroundColor(getResources().getColor(R.color.black));
-//                imgWhiteBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_white_icon));
-//                imgBrownBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_brown_icon));
-//                imgGreenBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_green_icon));
-//                imgBlackBrightness.setBackground(getResources().getDrawable(R.drawable.brightness_black2_icon));
-//
-//                // for only theme background.
-//                TintUtil.color = getResources().getColor(R.color.black_theme);
-//                AppState.get().tintColor = getResources().getColor(R.color.black);
-//                TempHolder.listHash++;
-//
-//                AppProfile.save(HorizontalBookReadingActivity.this);
+                int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
+                int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.white)));
+                if (dc.isTextFormat() || AppState.get().isCustomizeBgAndColors) {
+                    AppState.get().colorDayText = text;
+                }
+                AppState.get().colorDayBg = bg;
+                AppState.get().isUseBGImageDay = false;
 
                 dc.restartActivity();
             }
@@ -1545,16 +1574,32 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             public void onClick(View view) {
                 Intent intent = new Intent(HorizontalBookReadingActivity.this, NoteActivity.class);
 
+                ArrayList<AppBookmark> tmpobjects = new ArrayList<>();
                 ArrayList<AppBookmark> objects = new ArrayList<>();
                 DocumentController controller = (DocumentController) dc;
                 objects.addAll(BookmarksData.get().getBookmarksByBook(controller.getCurrentBook()));
-                Global.objects = objects;
+                for (AppBookmark appBookmark : objects){
+                    if (appBookmark.isF == false){
+                        tmpobjects.add(appBookmark);
+                    }
+                }
+                Global.objects = tmpobjects;
                 Log.i("HorizontalBookReading", "sending parameter" + objects);
 
                 startActivity(intent);
             }
         });
-
+        relShare = findViewById(R.id.relShare);
+        relShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                String txt = focusBook.bookName + "(" + focusBook.bookNameUrl + ")";
+                intent.putExtra(Intent.EXTRA_TEXT, txt);
+                startActivity(Intent.createChooser(intent, dc.getString(R.string.share)));
+            }
+        });
 
     }
 
@@ -1614,9 +1659,17 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
     private void tinUI() {
         Log.i("horizontalbookreading", "tinUI => start");
+        TintUtil.setBgSimple(actionBar, AppState.get().colorDayBg);
+        TintUtil.setBgSimple(bottomBar, AppState.get().colorDayBg);
+        TintUtil.setBgSimple(topLayout, AppState.get().colorDayBg);
+        TintUtil.setBgSimple(bottomLayout, AppState.get().colorDayBg);
+        TintUtil.setBgSimple(docBackground, AppState.get().colorDayBg);
 
-        TintUtil.setTintBgSimple(actionBar, AppState.get().transparencyUI);
-        TintUtil.setTintBgSimple(bottomBar, AppState.get().transparencyUI);
+        TintUtil.setTextColorSimple(pagesReadingPercent, AppState.get().colorDayText);
+        TintUtil.setTextColorSimple(pagesCountIndicator, AppState.get().colorDayText);
+        TintUtil.setTextColorSimple(topReadTime, AppState.get().colorDayText);
+        TintUtil.setTextColorSimple(toolbar_title, AppState.get().colorDayText);
+
         TintUtil.setStatusBarColor(this);
 
         Log.i("horizontalbookreading", "tinUI => end");
@@ -1698,7 +1751,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             seconds = seconds % 60;
             topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
 
-            topReadTime.setTextColor(getResources().getColor(R.color.black));
             Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
         }
 
@@ -1718,7 +1770,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
 
 
-
+        int pagePercent = page * 100 / Integer.parseInt(maxPage);
+        pagesReadingPercent.setText(getString(R.string.book_reading_percent, Integer.toString(pagePercent)) + "%");
         Log.i("horizontalbookreading", "updateUI => end");
     }
 
@@ -2792,7 +2845,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             AnchorHelper.setXY(anchorY, event.getX1(), event.getY1());
 
         }
+        if (event.getType() == MessagePageXY.TYPE_SELECT_TEXT) {
+            float x = event.getX() - anchorX.getWidth();
+            float y = event.getY() - anchorX.getHeight() / 2;
+            AnchorHelper.setXY(anchorX, x, y);
+            AnchorHelper.setXY(anchorY, event.getX1(), event.getY1());
 
+        }
     }
 
     @Subscribe
@@ -2983,22 +3042,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
         faceRectView = findViewById(R.id.face_rect_view);
-        switchLivenessDetect = findViewById(R.id.switch_liveness_detect);
-        switchLivenessDetect.setChecked(livenessDetect);
-        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                livenessDetect = isChecked;
-            }
-        });
-        RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
+
         compareResultList = new ArrayList<>();
-        adapter = new ShowFaceInfoAdapter(compareResultList, this);
-        recyclerShowFaceInfo.setAdapter(adapter);
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
-        recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
-        recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
+
     }
 
     /**
@@ -3010,11 +3056,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
         VersionInfo versionInfo = new VersionInfo();
         faceEngine.getVersion(versionInfo);
-        Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
 
         if (afCode != ErrorInfo.MOK) {
-//            Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
         }
+        FaceServer.getInstance().init(this);
     }
 
     private boolean checkPermissions(String[] neededPermissions) {
@@ -3047,40 +3093,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             @Override
             public void onFail(Exception e) {
                 Log.e(TAG, "onFail: " + e.getMessage());
+                faceDetectStartTime = 0;
             }
-
-            //请求FR的回调
             @Override
             public void onFaceFeatureInfoGet(@Nullable final FaceFeature faceFeature, final Integer requestId) {
-                //FR成功
                 if (faceFeature != null) {
-//                    Log.i(TAG, "onPreview: fr end = " + System.currentTimeMillis() + " trackId = " + requestId);
-
-                    //不做活体检测的情况，直接搜索
-                    if (!livenessDetect) {
-                        searchFace(faceFeature, requestId);
-                    }
-                    //活体检测通过，搜索特征
-                    else if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.ALIVE) {
-                        searchFace(faceFeature, requestId);
-                    }
-                    //活体检测未出结果，延迟100ms再执行该函数
-                    else if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.UNKNOWN) {
-                        getFeatureDelayedDisposables.add(Observable.timer(WAIT_LIVENESS_INTERVAL, TimeUnit.MILLISECONDS)
-                                .subscribe(new Consumer<Long>() {
-                                    @Override
-                                    public void accept(Long aLong) {
-                                        onFaceFeatureInfoGet(faceFeature, requestId);
-                                    }
-                                }));
-                    }
-                    //活体检测失败
-                    else {
-                        requestFeatureStatusMap.put(requestId, RequestFeatureStatus.NOT_ALIVE);
-                    }
-
+                    searchFace(faceFeature, requestId);
                 }
-                //FR 失败
                 else {
                     requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                 }
@@ -3117,9 +3136,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     drawPreviewInfo(facePreviewInfoList);
                 }
 
-                registerFace(nv21, facePreviewInfoList);
-                clearLeftFace(facePreviewInfoList);
-
 //                Toast.makeText(HorizontalBookReadingActivity.this, "here real time operation", Toast.LENGTH_SHORT).show();
                 long tempTime = System.currentTimeMillis();
                 runOnUiThread(new Runnable() {
@@ -3139,10 +3155,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                             seconds = seconds % 60;
 //                            topReadTime.setText(getString(R.string.readTime, String.valueOf(hours), String.valueOf(minutes), String.valueOf(seconds)));
                             topReadTime.setText(getString(R.string.readTime, hours, minutes, seconds));
-                            topReadTime.setTextColor(getResources().getColor(R.color.black));
-
                             Log.i("HorizontalBookReading", "displayedTime => " + displayedTime);
                             Log.i("HorizontalBookReading", "tempDisplayedTime => " + tempDisplayedTime);
+                        }else{
+                            tempDisplayedTime = displayedTime;
+                            int seconds = (int) displayedTime/1000;
+                            int minutes = seconds / 60;
+                            int hours = minutes / 60;
+                            seconds = seconds % 60;
+                            topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
                         }
 
                         if (tempTime - countTime > 20000 && stateChangFlag) {
@@ -3207,48 +3228,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         updateBookLastTimeState();      // update last time.
     }
 
-
-    private void registerFace(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {
-        if (registerStatus == REGISTER_STATUS_READY && facePreviewInfoList != null && facePreviewInfoList.size() > 0) {
-            registerStatus = REGISTER_STATUS_PROCESSING;
-            Observable.create(new ObservableOnSubscribe<Boolean>() {
-                @Override
-                public void subscribe(ObservableEmitter<Boolean> emitter) {
-                    boolean success = FaceServer.getInstance().registerNv21(HorizontalBookReadingActivity.this, nv21.clone(), previewSize.width, previewSize.height,
-                            facePreviewInfoList.get(0).getFaceInfo(), "registered " + faceHelper.getCurrentTrackId());
-
-                    emitter.onNext(success);
-                }
-            })
-                    .subscribeOn(Schedulers.computation())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Observer<Boolean>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-
-                        }
-
-                        @Override
-                        public void onNext(Boolean success) {
-                            String result = success ? "register success!" : "register failed!";
-//                            Toast.makeText(HorizontalBookReadingActivity.this, result, Toast.LENGTH_SHORT).show();
-                            registerStatus = REGISTER_STATUS_DONE;
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-//                            Toast.makeText(HorizontalBookReadingActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
-                            registerStatus = REGISTER_STATUS_DONE;
-                        }
-
-                        @Override
-                        public void onComplete() {
-
-                        }
-                    });
-        }
-    }
-
     private void drawPreviewInfo(List<FacePreviewInfo> facePreviewInfoList) {
         List<DrawInfo> drawInfoList = new ArrayList<>();
         for (int i = 0; i < facePreviewInfoList.size(); i++) {
@@ -3261,85 +3240,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
         drawHelper.draw(faceRectView, drawInfoList);
     }
 
-    /**
-     * 删除已经离开的人脸
-     *
-     * @param facePreviewInfoList 人脸和trackId列表
-     */
-    private void clearLeftFace(List<FacePreviewInfo> facePreviewInfoList) {
-
-        Set<Integer> keySet = requestFeatureStatusMap.keySet();
-
-        if (compareResultList != null) {
-            for (int i = compareResultList.size() - 1; i >= 0; i--) {
-                if (!keySet.contains(compareResultList.get(i).getTrackId())) {
-                    compareResultList.remove(i);
-                    adapter.notifyItemRemoved(i);
-
-                    faceDetectRemovedTime = System.currentTimeMillis();
-                    if (faceDetectStartTime != 0) {
-                        readTime = faceDetectRemovedTime - faceDetectStartTime;
-                        faceDetectStartTime = 0;
-                        updateBookReadTimeState(String.valueOf(readTime));
-
-//                        Toast.makeText(this, "Here, detected face is removed." + readTime, Toast.LENGTH_SHORT).show();
-
-                        tempDisplayedTime = displayedTime;
-
-                        int seconds = (int) displayedTime / 1000;
-                        int minutes = seconds / 60;
-                        int hours = minutes / 60;
-                        seconds = seconds % 60;
-//                        topReadTime.setText(getString(R.string.readTimeStop, String.valueOf(hours), String.valueOf(minutes), String.valueOf(seconds)));
-
-                        topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
-                        topReadTime.setTextColor(getResources().getColor(R.color.black));
-
-//                        // for r
-//                        int seconds = Integer.parseInt(db.getBookStateData(focuse.bookId).getReadTime()) / 1000;
-//                        int minutes = seconds / 60;
-//                        topReadTime.setText(getString(R.string.readTime, String.valueOf(minutes), String.valueOf(seconds)));
-//                        topReadTime.setTextColor(getResources().getColor(R.color.black));
-                        Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
-                    } else {
-//                        Toast.makeText(this, "Here, detected face is removed. faceDetectStartTime=" + faceDetectStartTime, Toast.LENGTH_SHORT).show();
-                    }
-
-
-
-                }
-            }
-        }
-        if (facePreviewInfoList == null || facePreviewInfoList.size() == 0) {
-            requestFeatureStatusMap.clear();
-            livenessMap.clear();
-            return;
-        }
-
-        for (Integer integer : keySet) {
-            boolean contained = false;
-            for (FacePreviewInfo facePreviewInfo : facePreviewInfoList) {
-                if (facePreviewInfo.getTrackId() == integer) {
-                    contained = true;
-                    break;
-                }
-            }
-            if (!contained) {
-                requestFeatureStatusMap.remove(integer);
-                livenessMap.remove(integer);
-            }
-        }
-
-    }
-
     private void searchFace(final FaceFeature frFace, final Integer requestId) {
         Observable.create(new ObservableOnSubscribe<CompareResult>() {
             @Override
             public void subscribe(ObservableEmitter<CompareResult> emitter) {
-//                        Log.i(TAG, "subscribe: fr search start = " + System.currentTimeMillis() + " trackId = " + requestId);
                 CompareResult compareResult = FaceServer.getInstance().getTopOfFaceLib(frFace);
-//                        Log.i(TAG, "subscribe: fr search end = " + System.currentTimeMillis() + " trackId = " + requestId);
-
                 if (compareResult == null) {
                     emitter.onError(null);
                 } else {
@@ -3357,19 +3262,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
 
                     @Override
                     public void onNext(CompareResult compareResult) {
-//                        Toast.makeText(HorizontalBookReadingActivity.this, "Help1", Toast.LENGTH_SHORT).show();
-
                         if (compareResult == null || compareResult.getUserName() == null) {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             faceHelper.addName(requestId, "VISITOR " + requestId);
                             return;
                         }
-
-//                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
 
                             faceDetectStartTime = System.currentTimeMillis();
-//                            Toast.makeText(HorizontalBookReadingActivity.this, "Here, face detect started " +faceDetectStartTime, Toast.LENGTH_SHORT).show();
 
                             boolean isAdded = false;
                             if (compareResultList == null) {
@@ -3384,18 +3284,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                                 }
                             }
                             if (!isAdded) {
-                                //对于多人脸搜索，假如最大显示数量为 MAX_DETECT_NUM 且有新的人脸进入，则以队列的形式移除
-                                if (compareResultList.size() >= MAX_DETECT_NUM) {
-                                    compareResultList.remove(0);
-                                    adapter.notifyItemRemoved(0);
-                                }
-                                //添加显示人员时，保存其trackId
                                 compareResult.setTrackId(requestId);
                                 compareResultList.add(compareResult);
-                                adapter.notifyItemInserted(compareResultList.size() - 1);
-
-//                                String tempByteStr = new String(frFace.getFeatureData());
-//                                alerDialogWork(tempByteStr);
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.addName(requestId, compareResult.getUserName());
@@ -3417,19 +3307,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
                     }
                 });
     }
-
-
-    /**
-     * 将准备注册的状态置为{@link #REGISTER_STATUS_READY}
-     *
-     * @param view 注册按钮
-     */
-    public void register(View view) {
-        if (registerStatus == REGISTER_STATUS_DONE) {
-            registerStatus = REGISTER_STATUS_READY;
-        }
-    }
-
 
     @Override
     public void onGlobalLayout() {
@@ -3557,4 +3434,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements 
             mDrawerLayout.closeDrawers();
         }
     }
+
+    @Override
+    public void onSelectedContent(int page) {
+        dc.onGoToPage(page);
+    }
+    public void onDismissSearchDialog() {
+        TempHolder.isSeaching = false;
+    }
+
 }

@@ -1,27 +1,56 @@
 package ours.china.hours.Adapter;
 
+import android.app.ActivityOptions;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bigkoo.alertview.AlertView;
+import com.bigkoo.alertview.OnItemClickListener;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 
+import at.stefl.svm.object.action.LineAction;
+import ours.china.hours.Activity.Personality.UpdateinforActivity;
 import ours.china.hours.BookLib.foobnix.android.utils.TxtUtils;
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
+import ours.china.hours.BookLib.foobnix.model.AppState;
+import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
+import ours.china.hours.Dialog.NoteDialog;
 import ours.china.hours.R;
 
-public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.NoteViewHolder> {
+public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.NoteViewHolder> implements NoteDialog.OnAddNoteListener{
     private static String TAG = "NoteDisplayAdapter";
 
     private Context context;
@@ -29,10 +58,17 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
 
     private DocumentController controller;
 
-    public NoteDisplayAdatper(Context context, ArrayList<AppBookmark> objects, DocumentController controller) {
+    NoteDialog noteDialog;
+    int focusPosition = 0;
+    NoteViewHolder focusHolder;
+
+    OnCopyListiner onCopyListiner;
+
+    public NoteDisplayAdatper(Context context, ArrayList<AppBookmark> objects, DocumentController controller, OnCopyListiner listner) {
         this.context = context;
         this.objects = objects;
         this.controller = controller;
+        this.onCopyListiner = listner;
 //        this.onRefresh = onRefresh;
     }
 
@@ -46,7 +82,6 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         AppBookmark one = objects.get(position);
-
         String pageNumber = TxtUtils.deltaPage(one.getPage(controller.getPageCount()));
         OutlineHelper.Info info = OutlineHelper.getForamtingInfo(controller, false);
         String totalPageCount = info.textPage;
@@ -54,11 +89,241 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
         Log.i(TAG, "pageNumber => " + pageNumber + "totalPageCount => " + totalPageCount);
         holder.txtPageNumber.setText(context.getString(R.string.note_page, pageNumber, totalPageCount));
         holder.txtNoteContent.setText(one.text);
+        holder.titleText.setText(one.subTitle);
+        holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+        if (one.type >= 0){
+            switch (one.type){
+                case 0:
+                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
+                    break;
+                case 1:
+                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+                    break;
+                case 2:
+                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
+                    break;
+                case 3:
+                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
+                    break;
+                case 4:
+                    holder.imgNoteColorIcon.setImageResource(R.drawable.note_note_icon);
+                    break;
+                default:
+                    break;
+            }
+        }
+        holder.imgNoteMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View layout = mInflater.inflate(R.layout.more_note, null);
+
+                final TextView menu_delete = (TextView) layout.findViewById(R.id.menu_delete);
+                final TextView menu_copy = (TextView) layout.findViewById(R.id.menu_copy);
+                final TextView menu_share = (TextView) layout.findViewById(R.id.menu_share);
+                final ImageView menu_mark_1 = (ImageView) layout.findViewById(R.id.menu_mark_1);
+                final ImageView menu_mark_2 = (ImageView) layout.findViewById(R.id.menu_mark_2);
+                final ImageView menu_mark_3 = (ImageView) layout.findViewById(R.id.menu_mark_3);
+                final ImageView menu_mark_4 = (ImageView) layout.findViewById(R.id.menu_mark_4);
+
+                layout.measure(View.MeasureSpec.UNSPECIFIED,
+                        View.MeasureSpec.UNSPECIFIED);
+                PopupWindow mDropdown = new PopupWindow(layout, FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,true);
+                Drawable background = context.getResources().getDrawable(android.R.drawable.editbox_dropdown_light_frame);
+                mDropdown.setBackgroundDrawable(background);
+                mDropdown.showAsDropDown(view, 5, 5);
+
+                menu_delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        new AlertView.Builder().setContext(context).setTitle(context.getString(R.string.app_name))
+                                .setMessage(context.getString(R.string.delete_note))
+                                .setDestructive(context.getString(R.string.cancel))
+                                .setOthers(new String[]{context.getString(R.string.confirm)})
+                                .setStyle(AlertView.Style.Alert).setOnItemClickListener(new OnItemClickListener() {
+                            @Override
+                            public void onItemClick(Object o, int position) {
+                                if (position == 1){
+                                    BookmarksData.get().remove(one);
+                                    objects.remove(focusPosition);
+                                    notifyDataSetChanged();
+                                }
+                            }
+                        }).build().show();
+                    }
+                });
+                menu_copy.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                            clipboard.setText(one.text);
+                        } else {
+                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", one.text);
+                            clipboard.setPrimaryClip(clip);
+                        }
+                        onCopyListiner.onCopyNote();
+                    }
+                });
+                menu_share.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        final Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.setType("text/plain");
+                        String txt = one.note;
+                        intent.putExtra(Intent.EXTRA_TEXT, txt);
+                        context.startActivity(Intent.createChooser(intent,"Share"));
+                    }
+                });
+                menu_mark_1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        one.type = 0;
+                        BookmarksData.get().update(one);
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
+                    }
+                });
+                menu_mark_2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        one.type = 1;
+                        BookmarksData.get().update(one);
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+                    }
+                });
+                menu_mark_3.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        one.type = 2;
+                        BookmarksData.get().update(one);
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
+                    }
+                });
+                menu_mark_4.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDropdown.dismiss();
+                        one.type = 3;
+                        BookmarksData.get().update(one);
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
+                    }
+                });
+//                try {
+//                    // Reflection apis to enforce show icon
+//                    Field[] fields = popup.getClass().getDeclaredFields();
+//                    for (Field field : fields) {
+//                        if (field.getName().equals("mPopup")) {
+//                            field.setAccessible(true);
+//                            Object menuPopupHelper = field.get(popup);
+//                            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+//                            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+//                            setForceIcons.invoke(menuPopupHelper, true);
+//                            break;
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                MenuInflater inflater = popup.getMenuInflater();
+//                inflater.inflate(R.menu.more_note, popup.getMenu());
+//                popup.show();
+//                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        switch (item.getItemId())
+//                        {
+//                            case R.id.menu_delete:
+//                                new AlertView.Builder().setContext(context).setTitle(context.getString(R.string.app_name))
+//                                        .setMessage(context.getString(R.string.remove_from_library))
+//                                        .setDestructive(context.getString(R.string.cancel))
+//                                        .setOthers(new String[]{context.getString(R.string.confirm)})
+//                                        .setStyle(AlertView.Style.Alert).setOnItemClickListener(new OnItemClickListener() {
+//                                    @Override
+//                                    public void onItemClick(Object o, int position) {
+//                                        if (position == 1){
+//                                            BookmarksData.get().remove(one);
+//                                            objects.remove(focusPosition);
+//                                            notifyDataSetChanged();
+//                                        }
+//                                    }
+//                                }).build().show();
+//                                break;
+//                            case R.id.menu_copy:
+//                                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+//                                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+//                                    clipboard.setText(one.text);
+//                                } else {
+//                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+//                                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", one.text);
+//                                    clipboard.setPrimaryClip(clip);
+//                                }
+//                                break;
+//                            case R.id.menu_share:
+//                                final Intent intent = new Intent(Intent.ACTION_SEND);
+//                                intent.setType("text/plain");
+//                                String txt = one.note;
+//                                intent.putExtra(Intent.EXTRA_TEXT, txt);
+//                                context.startActivity(Intent.createChooser(intent,"Share"));
+//                                break;
+//                            case R.id.menu_mark_1:
+//                                one.type = 0;
+//                                BookmarksData.get().update(one);
+//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
+//                                break;
+//                            case  R.id.menu_mark_2:
+//                                one.type = 1;
+//                                BookmarksData.get().update(one);
+//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+//                                break;
+//                            case R.id.menu_mark_3:
+//                                one.type = 2;
+//                                BookmarksData.get().update(one);
+//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
+//                                break;
+//                            case R.id.menu_mark_4:
+//                                one.type = 3;
+//                                BookmarksData.get().update(one);
+//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
+//                                break;
+//                            default:
+//                                break;
+//                        }
+//                        return false;
+//                    }
+//                });
+            }
+        });
+
+        holder.noteLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                focusPosition = position;
+                noteDialog = new NoteDialog(context, R.style.AppTheme_Alert, "添加笔记", one.note, NoteDisplayAdatper.this);
+                noteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                noteDialog.show();
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return objects.size();
+    }
+
+    @Override
+    public void addNote(String str) {
+        AppBookmark one = objects.get(focusPosition);
+        one.note = str;
+
+        BookmarksData.get().update(one);
     }
 
     public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -69,7 +334,10 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
         TextView txtNoteContent;
         TextView txtNoteAddOrUpdate;
         TextView txtPageNumber;
+        TextView titleText;
+        TextView subTitleTxt;
 
+        LinearLayout noteLayout;
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -79,6 +347,15 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
             txtNoteContent = itemView.findViewById(R.id.txtNoteContent);
             txtNoteAddOrUpdate = itemView.findViewById(R.id.txtNoteAddOrUpdate);
             txtPageNumber = itemView.findViewById(R.id.txtPageNumber);
+            titleText = itemView.findViewById(R.id.titleText);
+            subTitleTxt = itemView.findViewById(R.id.subTitleTxt);
+
+            noteLayout = itemView.findViewById(R.id.noteLayout);
         }
     }
+
+    public interface OnCopyListiner{
+        void onCopyNote();
+    }
+
 }

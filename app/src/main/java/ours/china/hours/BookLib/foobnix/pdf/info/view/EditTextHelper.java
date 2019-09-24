@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -22,6 +23,28 @@ public class EditTextHelper {
             }
         });
 
+        searchEdit.setOnKeyListener(new OnKeyListener() {
+
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    action.run();
+                    return true;
+
+                }
+                return false;
+            }
+        });
+
+    }
+    public static void enableKeyboardSearch(final SearchView searchEdit, final Runnable action) {
+        searchEdit.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        searchEdit.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                    action.run();
+            }
+        });
         searchEdit.setOnKeyListener(new OnKeyListener() {
 
             @Override

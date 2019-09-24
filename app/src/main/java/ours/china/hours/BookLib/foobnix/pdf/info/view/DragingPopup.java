@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -136,8 +139,12 @@ public abstract class DragingPopup {
         appLogo.setVisibility(View.GONE);
 
         topHeaderLayout = popupView.findViewById(R.id.topLayout);
-        TintUtil.setTintBgSimple(topHeaderLayout, 230);
-
+        ColorDrawable colorDrawable = new ColorDrawable(Color.parseColor("#7e1887"));
+        if (Build.VERSION.SDK_INT >= 16) {
+            topHeaderLayout.setBackground(colorDrawable.getCurrent());
+        } else {
+            topHeaderLayout.setBackgroundDrawable(colorDrawable);
+        }
         popupContent = (MyFrameLayout) popupView.findViewById(R.id.popupContent);
 
         TextView titleView = (TextView) popupView.findViewById(R.id.dialogTitle);

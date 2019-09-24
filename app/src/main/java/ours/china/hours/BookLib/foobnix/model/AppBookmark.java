@@ -7,6 +7,9 @@ import java.io.File;
 public class AppBookmark implements MyPath.RelativePath {
     public String path;
     public String text;
+    public String subTitle;
+    public String note;
+    public int type;
 
     public float p;
     public long t;
@@ -33,6 +36,24 @@ public class AppBookmark implements MyPath.RelativePath {
         return Math.round(p * pages);
     }
 
+    public int getType() {
+        return type;
+    }
+    public void setType(int t) {
+        this.type = t;
+    }
+    public String getNote() {
+        return note;
+    }
+    public void setNote(String str) {
+        this.note = str;
+    }
+    public String getSubTitle() {
+        return subTitle;
+    }
+    public void setSubTitle(String str) {
+        this.subTitle = str;
+    }
     public String getText() {
         return text;
     }

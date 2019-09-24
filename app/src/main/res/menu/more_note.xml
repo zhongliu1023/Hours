@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_delete"
+        android:orderInCategory="100"
+        android:title="删除"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_copy"
+        android:orderInCategory="100"
+        android:title="复制"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_share"
+        android:orderInCategory="100"
+        android:title="分享"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_mark_1"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/read_yellow_icon"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_mark_2"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/read_orange_icon"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_mark_3"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/read_blue_icon"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_mark_4"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/read_pink_icon"
+        app:showAsAction="never" />
+</menu>

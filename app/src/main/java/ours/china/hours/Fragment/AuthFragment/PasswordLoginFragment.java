@@ -58,7 +58,6 @@ public class PasswordLoginFragment extends Fragment {
     private static String featureFileUrl;
     private static String featureImageUrl;
     private String featureFileDownloadDir;
-    private String featureImageFileDownloadDir;
 
     private String isImage = "no";
 
@@ -112,11 +111,9 @@ public class PasswordLoginFragment extends Fragment {
         tvFrRegister = view.findViewById(R.id.tvFrRegister);
 
 
-        featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator;
-        featureImageFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator;
+        featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator;;
 
         Log.i(TAG, featureFileDownloadDir);
-        Log.i(TAG, featureImageFileDownloadDir);
 
     }
 
@@ -224,13 +221,6 @@ public class PasswordLoginFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "featureDir deleted");
-        try {
-            FileUtils.deleteDirectory(new File(featureImageFileDownloadDir));
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
-        Log.i(TAG, "featureImageDir deleted");
 
     }
     void getUserInfo(){
@@ -305,8 +295,6 @@ public class PasswordLoginFragment extends Fragment {
 
                 String dir = "";
 
-                featureFileDownloadDir += "register" + File.separator;
-
                 File directory1 = new File(featureFileDownloadDir);
                 if (!directory1.exists()) {
                     directory1.mkdirs();
@@ -322,8 +310,8 @@ public class PasswordLoginFragment extends Fragment {
                     directory.mkdirs();
                 }
 
-                OutputStream output = new FileOutputStream(featureFileDownloadDir + fileName);
-                Log.i(TAG, "featureDownloadFileUrl => " + featureFileDownloadDir + fileName);
+                OutputStream output = new FileOutputStream(dir + fileName);
+                Log.i(TAG, "featureDownloadFileUrl => " + dir + fileName);
 
                 byte data[] = new byte[1024];
                 long total = 0;

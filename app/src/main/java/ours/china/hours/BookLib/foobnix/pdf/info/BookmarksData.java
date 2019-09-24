@@ -47,7 +47,20 @@ public class BookmarksData {
             LOG.e(e);
         }
     }
+    public void update(AppBookmark bookmark) {
+        LOG.d("BookmarksData", "remove", bookmark.t, bookmark.file);
 
+        try {
+            JSONObject obj = IO.readJsonObject(AppProfile.syncBookmarks);
+            if (obj.has("" + bookmark.t)) {
+                obj.put("" + bookmark.t, Objects.toJSONObject(bookmark));
+                IO.writeObjAsync(AppProfile.syncBookmarks, obj);
+            }
+            IO.writeObjAsync(bookmark.file, obj);
+        } catch (Exception e) {
+            LOG.e(e);
+        }
+    }
 
     public void remove(AppBookmark bookmark) {
         LOG.d("BookmarksData", "remove", bookmark.t, bookmark.file);
@@ -181,7 +194,7 @@ public class BookmarksData {
     public boolean hasBookmark(String lastBookPath, int page, int pages) {
         final List<AppBookmark> bookmarksByBook = getBookmarksByBook(lastBookPath);
         for (AppBookmark appBookmark : bookmarksByBook) {
-            if (Math.round(appBookmark.getPercent() * pages) == page) {
+            if (appBookmark.isF && Math.round(appBookmark.getPercent() * pages) == page) {
                 return true;
             }
         }

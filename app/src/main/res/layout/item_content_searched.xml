@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/bookmarkLayout">
+    android:id="@+id/searchedContentLayout"
+    android:padding="5dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -10,32 +11,30 @@
         android:gravity="center_vertical"
         android:padding="@dimen/getneral_padding_8">
         <TextView
-            android:id="@+id/catalog_bookmark_subtitle"
+            android:id="@+id/titleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="1.1 认知革命"/>
-        <ImageView
-            android:id="@+id/catalog_bookmark_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/catalog_bookmark3_icon"
-            android:layout_alignParentEnd="true"/>
         <TextView
-            android:id="@+id/catalog_bookmark_page_number"
+            android:id="@+id/pageTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/getneral_padding_8"
             android:gravity="center"
-            android:layout_toStartOf="@id/catalog_bookmark_icon"
+            android:layout_alignParentRight="true"
             android:text="10/200"/>
 
     </RelativeLayout>
     <TextView
-        android:id="@+id/catalog_bookmark_content"
+        android:id="@+id/contentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/getneral_padding_8"
         android:textColor="@color/lt_grey_alpha2"
         android:text="What are you" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/lt_grey_alpha2" />
 </LinearLayout>

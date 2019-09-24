@@ -576,6 +576,8 @@ public class PageImaveView extends View {
                     String selectText = selectText(event.getX(), event.getY(), xInit, yInit);
                     if (selectText != null && selectText.contains(" ")) {
                         EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_SHOW, -1, xInit, yInit, event.getX(), event.getY()));
+                    }else{
+                        EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_SELECT_TEXT, -1, xInit, yInit, event.getX(), event.getY()));
                     }
 
                 } else if (BookCSS.get().isTextFormat()) {

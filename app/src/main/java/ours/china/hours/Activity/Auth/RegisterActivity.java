@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,9 @@ import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
@@ -37,6 +41,7 @@ public class RegisterActivity  extends AppCompatActivity {
     private EditText edReMobile, edReVerification, edRePassword;
     private Button btnRegConfirm;
     private TextView tvReForgot, tvReLogin, tvRegOtp;
+    private RelativeLayout viewBack;
 
     private static String TAG = "RegisterActivity";
 
@@ -45,6 +50,8 @@ public class RegisterActivity  extends AppCompatActivity {
     APIInterface apiInterface;
     SharedPreferencesManager sessionManager;
 
+    Boolean isStartedCount = false;
+    int totalCount = 60;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,11 +61,7 @@ public class RegisterActivity  extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         initUI();
-
-        gotoForgot();
-        gotoLogin();
-        verifyCode();
-        confirmVerify();
+        initListiner();
 
     }
 
@@ -72,50 +75,41 @@ public class RegisterActivity  extends AppCompatActivity {
         tvReLogin = findViewById(R.id.tvReLogin);
         btnRegConfirm = (Button)findViewById(R.id.btnRegConfirm);
         tvRegOtp = (TextView) findViewById(R.id.tvRegOtp);
+        viewBack =  findViewById(R.id.viewBack);
     }
 
-    private void gotoForgot(){
-
+    private void initListiner(){
         tvReForgot.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intent = new Intent(RegisterActivity.this, ForgotPassActivity.class);
                 startActivity(intent);
             }
         });
-    }
-
-
-    private void gotoLogin(){
-
         tvReLogin.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 finish();
             }
         });
-    }
-
-
-    private void verifyCode(){
-
         tvRegOtp.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
-                verifyProcess();
+                if (!isStartedCount){
+                    verifyProcess();
+                }
             }
         });
-    }
-
-
-    private void confirmVerify(){
-
         btnRegConfirm.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Log.i(TAG, "btnRegister = " + btnRegConfirm.getText().toString());
                 confirmVerifyProcess();
             }
         });
+        viewBack.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View view) {
+                finish();
+            }
+        });
     }
-
 
     private void verifyProcess(){
 
@@ -152,6 +146,7 @@ public class RegisterActivity  extends AppCompatActivity {
 
                                 if (resObj.getString("res").equals("success")) {
                                     Toast.makeText(RegisterActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
+                                    decountTime();
                                 }else {
                                     Toast.makeText(RegisterActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
                                 }
@@ -168,6 +163,23 @@ public class RegisterActivity  extends AppCompatActivity {
     }
 
 
+    void decountTime(){
+        isStartedCount = true;
+        Timer T=new Timer();
+        T.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    totalCount--;
+                    tvRegOtp.setText(getString(R.string.countTime_verification, Integer.toString(totalCount)));
+                    if (totalCount == 0){
+                        isStartedCount = false;
+                        tvRegOtp.setText(getString(R.string.login_verify_code));
+                    }
+                });
+            }
+        }, 1000, 1000);
+    }
     public void confirmVerifyProcess(){
 
         String otp = edReVerification.getText().toString();
