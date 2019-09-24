@@ -6,6 +6,7 @@ import android.graphics.ColorSpace;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -30,6 +31,7 @@ import java.util.Map;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
+import ours.china.hours.Common.Interfaces.SelectStatePositionInterface;
 import ours.china.hours.CustomView.CustomRectView;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -41,14 +43,20 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
     private List<Book> bookList;
     public Context context;
     ReadingStatusBookViewHolder holder;
+    SelectStatePositionInterface listener;
+
+    private float paramMarginLeft, paramMarginTop, paramWidthPerPage;
+    private int paramWidth, paramHeight;
 
     // the cycle continues between the LinkedList => textViewPol and Arraylist => textViews.
     // if it's added as needed, it won't be created and the cycle will continue.
     private final List<TextView> textViewPool = new LinkedList<>();
+    private final List<ImageView> imageViewPool = new LinkedList<>();
 
-    public ReadingStatusBookAdapter(Context context, ArrayList<Book> bookList) {
+    public ReadingStatusBookAdapter(Context context, ArrayList<Book> bookList, SelectStatePositionInterface listener) {
         this.context = context;
         this.bookList = bookList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -69,6 +77,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         holder.txtReadTime.setText(one.bookStatus.time);
 
         Log.i("ReadingStatusBook", "reagTime = >>>>>" + one.bookStatus.time);
+        Log.i("ReadingStatusBook", "page count => " + one.pageCount);
         if (one.bookStatus.time.equals("")) {
             holder.txtReadTime.setText("0.0");
         } else {
@@ -92,6 +101,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                     .into(holder.bookImage);
         }
 
+        String[] bookmarks = one.bookStatus.bookmarks.split(",");
         String[] pages = one.bookStatus.pages.split(",");
         int percent = 0;
         if (one.pageCount.isEmpty() || one.pageCount.equals("0")){
@@ -100,22 +110,24 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
             percent = pages.length / Integer.parseInt(one.pageCount);
         }
         holder.txtReadPercent.setText(one.bookStatus.progress);
-        holder.container.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        holder.containerStateBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
 
-                float paramMarginLeft = holder.txtStateBar.getX();
-                float paramMarginTop = holder.txtStateBar.getY();
-                int paramWidth = (int) holder.txtStateBar.getWidth();
-                int paramHeight = (int) holder.txtStateBar.getHeight();
+                paramMarginLeft = holder.txtStateBar.getX();
+                paramMarginTop = holder.txtStateBar.getY();
+                paramWidth = (int) holder.txtStateBar.getWidth();
+                paramHeight = (int) holder.txtStateBar.getHeight();
 
-                float paramWidthPerPage = 0;
+                paramWidthPerPage = 0;
                 if (one.pageCount.isEmpty() || one.pageCount.equals("0")){
 
                 }else{
                     paramWidthPerPage = (int) paramWidth / Integer.parseInt(one.pageCount);
                 }
+
                 holder.recycleTextViews();
+                holder.recycleImageViews();
 
                 if (pages.length !=0 && !pages[0].equals("")) {
 
@@ -134,7 +146,53 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                     }
                 }
 
+                if (bookmarks.length != 0 && !bookmarks[0].equals("")) {
 
+                    for (int j = 0; j < bookmarks.length; j++) {
+                        TextView tv = holder.getRecycledTextViewOrCreate();
+                        holder.textViews.add(tv);
+
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(5, paramHeight);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+                        params.leftMargin = (int) (paramWidthPerPage * Integer.parseInt(bookmarks[j]) + paramMarginLeft + holder.container.getWidth() * 1.2 / 5.6 + paramWidthPerPage / 2 - 2.5);
+                        params.topMargin = (int) (convertDpToPixel(8) + holder.containerStateBar.getHeight() * 2 / 3 + paramMarginTop);
+                        tv.setBackgroundColor(context.getResources().getColor(R.color.pink));
+
+                        holder.container.addView(tv, params);
+                    }
+                }
+
+                if (bookmarks.length != 0 && !bookmarks[0].equals("")) {
+
+                    for (int j = 0; j < bookmarks.length; j++) {
+                        ImageView iv = holder.getRecycledImageViewOrCreate();
+                        holder.imageViews.add(iv);
+
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(50, 50);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+                        params.leftMargin = (int) (paramWidthPerPage * Integer.parseInt(bookmarks[j]) + paramMarginLeft + holder.container.getWidth() * 1.2 / 5.6 - 25 + paramWidthPerPage / 2);
+                        params.topMargin = (int) (convertDpToPixel(8) + holder.containerStateBar.getHeight() * 2 / 3 + paramMarginTop + paramHeight + 5);
+
+                        holder.container.addView(iv, params);
+                    }
+                }
+
+            }
+        });
+
+        holder.txtStateBar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+
+                Log.i("ReadingStatusBook", "marginLeft => " + paramMarginLeft + "paramWidthPerpage => " + paramWidthPerPage);
+                Log.i("ReadingStatusBook", "event: x => " + x + "y => " + y);
+
+                int pageNumber = (int) ((x - paramMarginLeft) /paramWidthPerPage);
+
+                listener.onClickStatePosition(one, pageNumber);
+                return true;
             }
         });
 
@@ -167,6 +225,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
         ViewGroup container;
         RelativeLayout rootNowItem;
         private final List<TextView> textViews = new ArrayList<>();
+        private final List<ImageView> imageViews = new ArrayList<>();
 
         public ReadingStatusBookViewHolder(View view) {
             super(view);
@@ -193,6 +252,14 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
             return textViewPool.remove(0);
         }
 
+        private ImageView getRecycledImageViewOrCreate() {
+            if (imageViewPool.isEmpty()) {
+                View view = LayoutInflater.from(container.getContext()).inflate(R.layout.block_image, container, false);
+                return (ImageView) view;
+            }
+            return imageViewPool.remove(0);
+        }
+
         public void recycleTextViews() {
             textViewPool.addAll(textViews);
 
@@ -204,6 +271,18 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
             // remove all the instances.
             textViews.clear();
         }
+
+        public void recycleImageViews() {
+            imageViewPool.addAll(imageViews);
+
+            // remove the addition
+            for (int i = 0; i < imageViews.size(); i++) {
+                container.removeView(imageViews.get(i));
+            }
+
+            // remove all the instances.
+            imageViews.clear();
+        }
     }
 
 
@@ -211,6 +290,7 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
     public void onViewRecycled(@NonNull ReadingStatusBookViewHolder holder) {
         super.onViewRecycled(holder);
         holder.recycleTextViews();
+        holder.recycleImageViews();
     }
 
     public static int convertDpToPixel(float dp){

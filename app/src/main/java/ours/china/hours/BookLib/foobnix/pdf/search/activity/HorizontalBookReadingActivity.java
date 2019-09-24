@@ -425,7 +425,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         focusBook.bookStatus = db.getBookStateData(focusBook.bookId);
 
 
-
         // for read time
         topReadTime = findViewById(R.id.topReadTime);
         pageReadingPercent = findViewById(R.id.pagesReadingPercent);
@@ -680,35 +679,39 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
                 } else {
 
-                    seekBar.setVisibility(View.VISIBLE);
-
-                    AppTemp.get().lastClosedActivity = HorizontalBookReadingActivity.class.getSimpleName();
-                    AppTemp.get().lastMode = HorizontalBookReadingActivity.class.getSimpleName();
-                    LOG.d("lasta save", AppTemp.get().lastClosedActivity);
-
-                    PageImageState.get().isAutoFit = PageImageState.get().needAutoFit;
-
-                    if (ExtUtils.isTextFomat(getIntent())) {
-                        PageImageState.get().isAutoFit = true;
-                    } else if (AppState.get().isLockPDF) {
-                        // moveCenter.setVisibility(View.VISIBLE);
-                        AppTemp.get().isLocked = true;
-                    }
-
+//                    seekBar.setVisibility(View.VISIBLE);
+//
+//                    AppTemp.get().lastClosedActivity = HorizontalBookReadingActivity.class.getSimpleName();
+//                    AppTemp.get().lastMode = HorizontalBookReadingActivity.class.getSimpleName();
+//                    LOG.d("lasta save", AppTemp.get().lastClosedActivity);
+//
+//                    PageImageState.get().isAutoFit = PageImageState.get().needAutoFit;
+//
+//                    if (ExtUtils.isTextFomat(getIntent())) {
+//                        PageImageState.get().isAutoFit = true;
+//                    } else if (AppState.get().isLockPDF) {
+//                        // moveCenter.setVisibility(View.VISIBLE);
+//                        AppTemp.get().isLocked = true;
+//                    }
+//
                     loadUI();
-
-                    // AppState.get().isEditMode = false; //remember last
-                    int pageFromUri = dc.getCurentPage();
-                    updateUI(pageFromUri);
-                    hideShow();
-
-                    EventBus.getDefault().post(new MessageAutoFit(pageFromUri));
-                    seekBar.setOnSeekBarChangeListener(onSeek);
-
-                    testScreenshots();
-
-                    isInitPosistion = Dips.screenHeight() > Dips.screenWidth();
-                    isInitOrientation = AppState.get().orientation;
+                    if (Global.pageNumber != 0) {
+                        dc.onGoToPage(Global.pageNumber);
+                        Global.pageNumber = 0;
+                    }
+//
+//                    // AppState.get().isEditMode = false; //remember last
+//                    int pageFromUri = dc.getCurentPage();
+//                    updateUI(pageFromUri);
+//                    hideShow();
+//
+//                    EventBus.getDefault().post(new MessageAutoFit(pageFromUri));
+//                    seekBar.setOnSeekBarChangeListener(onSeek);
+//
+//                    testScreenshots();
+//
+//                    isInitPosistion = Dips.screenHeight() > Dips.screenWidth();
+//                    isInitOrientation = AppState.get().orientation;
 
                 }
 
@@ -1218,8 +1221,12 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                     pagesBookmark.setImageResource(R.drawable.catalog_bookmark2_icon);
                     BookmarksData.get().remove(appBookmark);
                 }
+
+                Log.i("HorizontalBookReading", "Bookmark page number => " + dc.getCurrentPage());
+                updateBookmarksState(String.valueOf(dc.getCurrentPage()));
             }
         });
+
         imgBookMark = findViewById(R.id.imgBookmark);
         imgBookMark.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2720,7 +2727,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
         @Override
         public void onPageSelected(final int pos) {
-            if (BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), pos+1, Integer.parseInt(maxPage))) {
+            if (BookmarksData.get().hasBookmark(dc.getCurrentBook().getPath(), pos + 1, Integer.parseInt(maxPage))) {
                 pagesBookmark.setImageResource(R.drawable.read_bookmark4_icon);
                 imgBookMark.setImageResource(R.drawable.read_bookmark4_icon);
             } else {
@@ -3338,6 +3345,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                     .setBodyParameter("bookId", focusBook.bookId)
                     .setBodyParameter("pages", focusBook.bookStatus.pages)
                     .setBodyParameter("time", focusBook.bookStatus.time)
+                    .setBodyParameter("bookmarks", focusBook.bookStatus.bookmarks)
                     .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
                     .setBodyParameter("progress", focusBook.bookStatus.progress)
                     .asString()
@@ -3424,6 +3432,50 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
         focusBook.bookStatus.lastRead = lastTime;
         db.updateBookLastTimeState(focusBook.bookStatus, focusBook.bookId);
+    }
+
+    public void updateBookmarksState(String pageNumber) {
+        String bookmarks = focusBook.bookStatus.bookmarks;
+
+        if (bookmarks.equals("")) {
+            focusBook.bookStatus.bookmarks = pageNumber;
+        } else {
+
+            if (bookmarks.contains(pageNumber)) {
+                // delete bookmarks
+                Log.i("HorizontalBookReading", "bookmarks string ===>>>" + bookmarks);
+                String[] pageArray = bookmarks.split(",");
+                Log.i("HorizontalBookReading", "pageArray => " + pageArray.toString() + "count" + pageArray.length);
+                if (pageArray.length == 1) {
+                    Log.i("HorizontalBookReading", "length => 1");
+                    focusBook.bookStatus.bookmarks = "";
+                } else {
+                    int index = bookmarks.indexOf(pageNumber);
+                    String tempFrontStr = bookmarks.substring(0, index - 1);
+                    String lastPageNumber = bookmarks.substring(bookmarks.lastIndexOf(",") + 1);
+
+                    // in case of last character.
+                    if (pageNumber.equals(lastPageNumber)) {
+                        Log.i("HorizontalBookReading", "length => last index");
+                        focusBook.bookStatus.bookmarks = tempFrontStr;
+                    } else {
+                        Log.i("HorizontalBookReading", "length => middle index");
+                        String tempEndStr = bookmarks.substring(index + pageNumber.length());
+                        focusBook.bookStatus.bookmarks = tempFrontStr + tempEndStr;
+                    }
+                }
+
+            } else {
+                // add bookmarks
+                Log.i("HorizontalBookReading", "insert pageNumber");
+                focusBook.bookStatus.bookmarks = bookmarks + "," + pageNumber;
+            }
+        }
+
+        Log.i("HorizontalBookReading", "bookmarks => " + focusBook.bookStatus.bookmarks);
+        db.updateBookmarksState(focusBook.bookStatus, focusBook.bookId);
+        stateChangFlag = true;
+
     }
 
 

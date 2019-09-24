@@ -57,4 +57,14 @@ public class SharedPreferencesManager {
         editor.apply();
     }
 
+    public float getPreferenceValueFloat(String key) {
+        return sharedPreferences.getFloat(key, 0.0f);
+    }
+
+    public void setPreferenceValueFloat(String key, float value) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putFloat(key, value);
+        editor.apply();
+    }
+
 }
