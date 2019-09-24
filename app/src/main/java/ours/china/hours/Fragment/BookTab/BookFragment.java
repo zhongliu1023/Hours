@@ -1,10 +1,12 @@
 package ours.china.hours.Fragment.BookTab;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -35,7 +38,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,20 +48,19 @@ import java.util.Map;
 import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.Global;
-import ours.china.hours.Activity.MainActivity;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
-import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.Adapter.BookFragmentAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
-import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
-import ours.china.hours.BookLib.foobnix.ui2.BooksService;
+import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
-import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
-import ours.china.hours.Common.Utils.ItemOffsetDecoration;
 import ours.china.hours.DB.DBController;
+import ours.china.hours.Dialog.BookDetailsDialog;
+import ours.china.hours.Dialog.SelectFavoriteDialog;
+import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -73,15 +74,20 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment implements BookItemInterface {
+public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
 
     String tempPopupWindow2String = "默认";
 
+    RelativeLayout mainToolbar, otherToolbar;
+    TextView txtToolbarComplete, txtToolbarDownload, txtToolbarFavorite;
+
     ArrayList<Book> localBookList;
     ArrayList<Book> mBookList;
+    ArrayList<Book> selectedBookLists;
     ArrayList<Book> searchedBookList;
     ArrayList<Favorites> mFavorites;
-    HomeBookAdapter adapter;
+
+    BookFragmentAdapter adapter;
     RelativeLayout maskLayer;
 
     SwipeRefreshLayout swipeRefreshLayout;
@@ -99,6 +105,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
+    BookDetailsDialog bookDetailsDialog;
 
     JSONObject statistics = null;
     @Nullable
@@ -121,11 +128,19 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
     public void init(View view) {
 
+        selectedBookLists = new ArrayList<Book>();
+        // for toolbar
+        mainToolbar = view.findViewById(R.id.mainToolbar);
+        otherToolbar = view.findViewById(R.id.otherToolbar);
+        txtToolbarComplete = view.findViewById(R.id.txtToolbarComplete);
+        txtToolbarDownload = view.findViewById(R.id.txtToolbarDownload);
+        txtToolbarFavorite = view.findViewById(R.id.txtToolbarFavortie);
+
         sessionManager = new SharedPreferencesManager(getActivity());
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
-        adapter = new HomeBookAdapter(mBookList, getActivity(), this);
+        adapter = new BookFragmentAdapter(mBookList, getActivity(), this, this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
@@ -227,7 +242,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
                                         }
                                     }
 
-                                    searchedBookList = (ArrayList<Book>) mBookList.clone();
+//                                    searchedBookList = (ArrayList<Book>) mBookList.clone();
                                     getTotalData();
 
 
@@ -245,6 +260,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
                     }
                 });
     }
+
     public void getTotalData() {
         ArrayList<Book> books = db.getAllData();
         if (books == null) {
@@ -265,7 +281,9 @@ public class BookFragment extends Fragment implements BookItemInterface {
                 }
             }
         }
-        adapter.reloadBookList(mBookList);
+
+        searchedBookList = (ArrayList<Book>) mBookList.clone();
+        adapter.reloadBookList(searchedBookList);
 
         txtTypeBook.setText(getString(R.string.popup3_all, Integer.toString(mBookList.size())));
 
@@ -291,7 +309,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
         for (String aCollection : collections){
             Favorites favorites = new Favorites();
             favorites.favorite = aCollection;
-            for (Book book : mBookList){
+            for (Book book : searchedBookList){
                 if (book.bookStatus == null || book.bookStatus.collection.isEmpty()) continue;
                 if (book.bookStatus.collection.contains(aCollection)){
                     favorites.bookList.add(book);
@@ -502,7 +520,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
         linUnread = view1.findViewById(R.id.linUnread);
         linFavorites = view1.findViewById(R.id.linFavorites);
 
-        popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow1 = new PopupWindow(view1, (int) getResources().getDimension(R.dimen.popup_window_width), LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow1.setAnimationStyle(R.style.popupwindowAnimation);
 
         // for popupWindow 2
@@ -519,7 +537,7 @@ public class BookFragment extends Fragment implements BookItemInterface {
         imgTitle = view2.findViewById(R.id.imgTitle);
         imgAuthor = view2.findViewById(R.id.imgAuthor);
 
-        popupWindow2 = new PopupWindow(view2, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow2 = new PopupWindow(view2, (int) getResources().getDimension(R.dimen.popup_window_width), LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow2.setAnimationStyle(R.style.popupwindowAnimation);
     }
 
@@ -590,6 +608,73 @@ public class BookFragment extends Fragment implements BookItemInterface {
                 }, 1000);
             }
         });
+
+        txtToolbarDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (txtToolbarDownload.getText().equals("删除")) {
+                    int i;
+                    for (i = 0; i < selectedBookLists.size(); i++) {
+                        // delete data from database.
+                        Book one = selectedBookLists.get(i);
+                        db.deleteBook(one);
+                        one.bookLocalUrl = "";
+                        one.bookImageLocalUrl = "";
+                    }
+
+                    if (i == selectedBookLists.size()) {
+
+                        Global.bookAction = QueryBook.BookAction.NONE;
+                        mainToolbar.setVisibility(View.VISIBLE);
+                        otherToolbar.setVisibility(View.GONE);
+                        adapter.reloadBookList(searchedBookList);
+
+                        Toast.makeText(getContext(), "删除成功", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (txtToolbarDownload.getText().equals("下载")) {
+                    BookManagement.saveFocuseBook(selectedBookLists.get(0), sessionManager);
+
+                    if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                        bookDetailsDialog = new BookDetailsDialog(getActivity(), BookFragment.this);
+                        bookDetailsDialog.show();
+
+                        // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
+                        Window rootWindow = getActivity().getWindow();
+                        Rect displayRect = new Rect();
+                        rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+                        bookDetailsDialog.getWindow().setLayout(displayRect.width(), displayRect.height());
+                        bookDetailsDialog.setCanceledOnTouchOutside(false);
+                    }else{
+                        EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    }
+                }
+            }
+        });
+
+        txtToolbarFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BookManagement.setBooks(selectedBookLists, sessionManager);
+
+                SelectFavoriteDialog dialog = new SelectFavoriteDialog(getContext());
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+            }
+        });
+
+        txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainToolbar.setVisibility(View.VISIBLE);
+                otherToolbar.setVisibility(View.GONE);
+
+                selectedBookLists.clear();
+                adapter.reloadBookList(searchedBookList);
+
+
+                Global.bookAction = QueryBook.BookAction.NONE;
+            }
+        });
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -601,27 +686,120 @@ public class BookFragment extends Fragment implements BookItemInterface {
 
     @Override
     public void onClickBookItem(Book selectedBook, int position) {
-        if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+        if (Global.bookAction == QueryBook.BookAction.SELECTTION){
+            if (selectedBookLists.contains(selectedBook)){
+                selectedBookLists.remove(selectedBook);
+            }else{
+                selectedBookLists.add(selectedBook);
+            }
+            adapter.reloadBookListWithSelection(selectedBookLists);
+            if (selectedBookLists.size() > 0) {
+                txtToolbarFavorite.setEnabled(true);
+                txtToolbarDownload.setEnabled(true);
+
+                txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
+                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+
+            } else {
+                txtToolbarFavorite.setEnabled(false);
+                txtToolbarDownload.setEnabled(false);
+
+                txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
+                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+            }
+
+            if (selectedBookLists.size() == 1 && selectedBookLists.get(0).bookLocalUrl.equals("") && selectedBookLists.get(0).bookImageLocalUrl.equals("")){
+                txtToolbarDownload.setText("下载");
+            } else if (judgeSelectedAllBooksIsDownloaded()) {
+                txtToolbarDownload.setText("删除");
+            } else {
+                txtToolbarDownload.setEnabled(false);
+                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+            }
+
+        } else {
+            if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+                BookManagement.saveFocuseBook(selectedBook, sessionManager);
+                gotoReadingViewFile();
+                return;
+            }
+
             BookManagement.saveFocuseBook(selectedBook, sessionManager);
-            gotoReadingViewFile();
-            return;
+
+
+            if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                bookDetailsDialog = new BookDetailsDialog(getActivity(), BookFragment.this);
+                bookDetailsDialog.show();
+
+                // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
+                Window rootWindow = getActivity().getWindow();
+                Rect displayRect = new Rect();
+                rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+                bookDetailsDialog.getWindow().setLayout(displayRect.width(), displayRect.height());
+                bookDetailsDialog.setCanceledOnTouchOutside(false);
+            }else{
+                EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
         }
 
-        BookManagement.saveFocuseBook(selectedBook, sessionManager);
-
-
-        if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            Intent intent = new Intent(getActivity(), BookDetailActivity.class);
-            getActivity().startActivity(intent);
-        }else{
-            EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
     }
+
+    public boolean judgeSelectedAllBooksIsDownloaded() {
+        if (selectedBookLists != null && selectedBookLists.size() != 0) {
+            for (Book one : selectedBookLists) {
+                if (one.bookImageLocalUrl.equals("") || one.bookLocalUrl.equals("")) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Global.bookAction = QueryBook.BookAction.NONE;
+    }
+
     void gotoReadingViewFile(){
         Book focuseBook = BookManagement.getFocuseBook(sessionManager);
         List<FileMeta> localBooks = AppDB.get().getAll();
         int tempLibraryPosition = Integer.parseInt(focuseBook.libraryPosition);
 
         ExtUtils.openFile(getActivity(), localBooks.get(tempLibraryPosition));
+    }
+
+    @Override
+    public void onLongClickBookItem(Book selectedBook, int position) {
+        Global.bookAction = QueryBook.BookAction.SELECTTION;
+        adapter.reloadBookList(searchedBookList);
+
+        mainToolbar.setVisibility(View.GONE);
+        otherToolbar.setVisibility(View.VISIBLE);
+    }
+
+
+    @Override
+    public void onFinishDownload(Book book, Boolean isSuccess) {
+        if (isSuccess){
+            for (int i = 0; i < mBookList.size(); i++) {
+                Book one = mBookList.get(i);
+                if (one.bookId != null && book.bookId != null && one.bookId.equals(book.bookId)) {
+                    one.bookLocalUrl = book.bookLocalUrl;
+                    one.bookImageLocalUrl = book.bookImageLocalUrl;
+                    one.libraryPosition = book.libraryPosition;
+                    adapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+
+            Global.bookAction = QueryBook.BookAction.NONE;
+            mainToolbar.setVisibility(View.VISIBLE);
+            otherToolbar.setVisibility(View.GONE);
+            adapter.reloadBookList(searchedBookList);
+            gotoReadingViewFile();
+        }
     }
 }

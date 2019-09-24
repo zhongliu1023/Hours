@@ -94,6 +94,7 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
         bookList = updatedBookList;
         notifyDataSetChanged();
     }
+
     public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
         selectedbookList = updatedBookList;
         notifyDataSetChanged();

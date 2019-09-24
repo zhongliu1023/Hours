@@ -184,6 +184,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     }
                 });
     }
+
     public void getAllDataFromServer() {
         fetchBooksStatistics();
         mBookList = new ArrayList<>();
@@ -527,7 +528,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         linLiterature = view1.findViewById(R.id.linLiterature);
         relFollow = view1.findViewById(R.id.relFollow);
 
-        popupWindow1 = new PopupWindow(view1, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow1 = new PopupWindow(view1, (int) getResources().getDimension(R.dimen.popup_window_width), LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow1.setAnimationStyle(R.style.popupwindowAnimation);
 
         // for popupWindow 2
@@ -546,7 +547,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         imgTitle = view2.findViewById(R.id.imgTitle);
         imgAuthor = view2.findViewById(R.id.imgAuthor);
 
-        popupWindow2 = new PopupWindow(view2, 180, LinearLayout.LayoutParams.WRAP_CONTENT, false);
+        popupWindow2 = new PopupWindow(view2, (int) getResources().getDimension(R.dimen.popup_window_width), LinearLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow2.setAnimationStyle(R.style.popupwindowAnimation);
     }
 
@@ -641,10 +642,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         }
         BookManagement.saveFocuseBook(selectedBook, sessionManager);
 
-
         if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
             bookDetailsDialog = new BookDetailsDialog(getActivity(), HomeFragment.this);
             bookDetailsDialog.show();
+
+            // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
             Window rootWindow = getActivity().getWindow();
             Rect displayRect = new Rect();
             rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);

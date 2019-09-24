@@ -59,6 +59,13 @@ public class DBController {
         database.insert(DatabaseManager.bookTable, null, values);
     }
 
+    public void deleteBook(Book book) {
+        database = dbManager.getWritableDatabase();
+
+        database.delete(DatabaseManager.bookTable, DatabaseManager.KEY_bookId + " = ?", new String[]{book.bookId});
+        database.close();
+    }
+
     public void insertBookStateData(BookStatus data, String bookID) {
         database = dbManager.getWritableDatabase();
 
@@ -307,13 +314,13 @@ public class DBController {
         if (cursor.moveToFirst()) {
             do {
                 Book row = new Book();
-                row.bookId = cursor.getString(1);
-                row.bookName = cursor.getString(2);
-                row.bookLocalUrl = cursor.getString(3);
-                row.bookImageLocalUrl = cursor.getString(4);
-                row.demandTime = cursor.getString(5);
-                row.pageCount = cursor.getString(6);
-                row.libraryPosition = cursor.getString(7);
+//                row.bookId = cursor.getString(1);
+//                row.bookName = cursor.getString(2);
+//                row.bookLocalUrl = cursor.getString(3);
+//                row.bookImageLocalUrl = cursor.getString(4);
+//                row.demandTime = cursor.getString(5);
+//                row.pageCount = cursor.getString(6);
+//                row.libraryPosition = cursor.getString(7);
 
                 row.bookId = cursor.getString(1);
                 row.bookSerial = cursor.getString(2);

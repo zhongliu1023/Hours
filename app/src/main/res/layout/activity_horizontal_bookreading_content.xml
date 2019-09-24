@@ -132,6 +132,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"/>
             <ImageView
+                android:id="@+id/imgSearch"
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/search_icon"
@@ -456,7 +457,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:id="@+id/brightnessBottomBar"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_height="wrap_content">
 
             <TextView

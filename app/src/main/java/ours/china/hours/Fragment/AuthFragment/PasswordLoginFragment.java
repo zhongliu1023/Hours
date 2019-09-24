@@ -180,21 +180,23 @@ public class PasswordLoginFragment extends Fragment {
                                     try {
                                         resObj = new JSONObject(result.toString());
 
-                                        // save token and refresh token.
-                                        Global.access_token = resObj.getString("access_token");
-                                        Global.refresh_token = resObj.getString("refresh_token");
+                                        if (resObj.getString("res").equals("success")) {
 
-                                        // save session data.
-                                        currentUser.mobile = mobile;
-                                        currentUser.password = password;
-                                        UsersManagement.saveCurrentUser(currentUser, sessionManager);
+                                            // save token and refresh token.
+                                            Global.access_token = resObj.getString("access_token");
+                                            Global.refresh_token = resObj.getString("refresh_token");
 
-                                        if (Global.access_token != null && !Global.access_token.equals("")) {
+                                            // save session data.
+                                            currentUser.mobile = mobile;
+                                            currentUser.password = password;
+                                            UsersManagement.saveCurrentUser(currentUser, sessionManager);
+
                                             tempMobileNumber = mobile;
                                             getUserInfo();
+
                                         } else {
-                                            Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
                                             Global.hideLoading();
+                                            Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
                                         }
                                     } catch (JSONException ex) {
                                         ex.printStackTrace();
@@ -202,8 +204,8 @@ public class PasswordLoginFragment extends Fragment {
                                     }
 
                                 } else {
+                                    Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
                                     Global.hideLoading();
-                                    Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
@@ -243,6 +245,7 @@ public class PasswordLoginFragment extends Fragment {
                                 UsersManagement.saveCurrentUser(user, sessionManager);
 
                                 if (user.faceInfoUrl.isEmpty()){
+                                    Global.hideLoading();
                                     Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
                                     startActivity(intent);
                                 }else{

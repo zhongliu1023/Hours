@@ -24,6 +24,7 @@ public class BookManagement {
         String json = gson.toJson(book, type);
         sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.FOCUSE_BOOK, json);
     }
+
     public static Book getFocuseBook(SharedPreferencesManager sharedPreferencesManager){
         Book book = new Book();
         String userInfoStr = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.FOCUSE_BOOK);
@@ -35,6 +36,7 @@ public class BookManagement {
         }
         return book;
     }
+
     public static ArrayList<Book> getBooks(SharedPreferencesManager sharedPreferencesManager){
         ArrayList<Book> flexStrings = new ArrayList<Book>(){};
         String userInfoStr = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.FOCUSE_BOOKLIST);
@@ -46,6 +48,7 @@ public class BookManagement {
         }
         return flexStrings;
     }
+
     public static void setBooks(ArrayList<Book> flexStrings, SharedPreferencesManager sharedPreferencesManager){
         Gson gson = new Gson();
         Type type = new TypeToken<ArrayList<Book>>() {
@@ -53,6 +56,7 @@ public class BookManagement {
         String json = gson.toJson(flexStrings, type);
         sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.FOCUSE_BOOKLIST, json);
     }
+
     public static ArrayList<Favorites> getFavorites(SharedPreferencesManager sharedPreferencesManager){
         ArrayList<Favorites> favorites = new ArrayList<Favorites>(){};
         String userInfoStr = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.FAVORITES);
@@ -64,6 +68,7 @@ public class BookManagement {
         }
         return favorites;
     }
+
     public static void saveFavorites(ArrayList<Favorites> favorites, SharedPreferencesManager sharedPreferencesManager){
         Gson gson = new Gson();
         Type type = new TypeToken<ArrayList<Favorites>>() {
@@ -76,6 +81,7 @@ public class BookManagement {
         Global.fullFavorites = str;
         sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.COLLECTIONS, str);
     }
+
     public static String getFullFavorites(SharedPreferencesManager sharedPreferencesManager){
         return sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.COLLECTIONS);
     }

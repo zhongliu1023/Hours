@@ -60,10 +60,13 @@
 
             <RatingBar
                 android:id="@+id/ratingView"
-                android:theme="@style/RatingBar"
-                android:rating="0"
+                style="@style/RatingBar"
                 android:stepSize="1"
                 android:numStars="1"
+                android:scaleY="1.5"
+                android:scaleX="1.5"
+                android:paddingTop="18dp"
+                android:layout_marginRight="10dp"
                 android:layout_alignParentEnd="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

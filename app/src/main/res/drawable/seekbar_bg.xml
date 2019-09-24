@@ -6,14 +6,14 @@
             <size android:height="1dp" />
 
             <gradient
-                android:endColor="@android:color/darker_gray"
-                android:startColor="@android:color/darker_gray" />
+                android:endColor="@color/pink"
+                android:startColor="@color/pink" />
         </shape>
     </item>
     <item android:id="@android:id/progress">
         <clip>
             <shape>
-                <size android:height="3dp" />
+                <size android:height="1dp" />
 
                 <gradient
                     android:endColor="@color/orange"

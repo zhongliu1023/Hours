@@ -23,6 +23,9 @@ import com.koushikdutta.ion.Ion;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Management.Retrofit.APIClient;
 import ours.china.hours.Management.Retrofit.APIInterface;
@@ -41,6 +44,9 @@ public class ForgotPassActivity extends AppCompatActivity {
     ImageView imgForBack;
     TextView tvRegOtp;
     APIInterface apiInterface;
+
+    Boolean isStartedCount = false;
+    int totalCount = 60;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +78,9 @@ public class ForgotPassActivity extends AppCompatActivity {
 
         tvRegOtp.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-
-                verifyProcess();
+                if (!isStartedCount){
+                    verifyProcess();
+                }
             }
         });
     }
@@ -103,6 +110,7 @@ public class ForgotPassActivity extends AppCompatActivity {
 
                                 if (resObj.getString("res").equals("success")) {
                                     Toast.makeText(ForgotPassActivity.this, "验证码成功发送", Toast.LENGTH_SHORT).show();
+                                    decountTime();
                                 }else {
                                     Toast.makeText(ForgotPassActivity.this, resObj.getString("err_msg"), Toast.LENGTH_SHORT).show();
                                 }
@@ -128,6 +136,26 @@ public class ForgotPassActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    void decountTime(){
+        isStartedCount = true;
+        Timer T=new Timer();
+        T.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    totalCount--;
+                    tvRegOtp.setText(getString(R.string.countTime_verification, Integer.toString(totalCount)));
+                    if (totalCount == 0){
+                        isStartedCount = false;
+                        tvRegOtp.setText(getString(R.string.login_verify_code));
+                        totalCount = 60;
+                        T.cancel();
+                    }
+                });
+            }
+        }, 1000, 1000);
     }
 
 

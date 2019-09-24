@@ -1,5 +1,6 @@
 package ours.china.hours.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,40 +13,55 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.Common.Interfaces.BookItemEditInterface;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
-import ours.china.hours.Model.FragmentBookModel;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
 public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmentViewHolder> {
+    private static String TAG = "HomeBookAdapter";
 
-    public List<FragmentBookModel> bookList;
+    public List<Book> bookList;
+    public List<Book> selectedbookList;
+    BookItemInterface bookItemInterface;
+    BookItemEditInterface bookItemEditInterface;
+
     public Context context;
+    public Activity activity;
 
-    public BookFragmentAdapter(List<FragmentBookModel> bookList, Context context) {
+    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface) {
         this.bookList = bookList;
         this.context = context;
+        this.activity = (Activity)context;
+        this.bookItemEditInterface = bookItemEditInterface;
+        this.bookItemInterface = bookItemInterface;
+
+        this.selectedbookList = new ArrayList<Book>();
     }
 
     @NonNull
     @Override
     public BookFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.book_fragment_item, parent, false);
+                .inflate(R.layout.book_item, parent, false);
         return new BookFragmentViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final BookFragmentViewHolder holder, int position) {
-        final FragmentBookModel parent = bookList.get(position);
-        final Book one = bookList.get(position).getBook();
+    public void onBindViewHolder(@NonNull BookFragmentViewHolder holder, int position) {
+        Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
         if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
 
             // for downloaded book
+            holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
                     .load(one.bookImageLocalUrl)
@@ -56,39 +72,37 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
             // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
-                    .load(one.coverUrl)
+                    .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
 
-        if (one.bookStatus.isRead.equals("1")) {
+        if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
+            holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
-        // select event
-        if (parent.getSelectedState().equals("noClicked")) {
-            holder.bookImage.setBackground(null);
-        } else if (parent.getSelectedState().equals("clicked")) {
-            holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
+        holder.bookImage.setBackground(null);
+        if (Global.bookAction == QueryBook.BookAction.SELECTTION){
+            if (selectedbookList.contains(one)){
+                holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
+            }
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Global.editStateOfFavoritesDetails.equals("yes")) {
+                bookItemInterface.onClickBookItem(one, position);
+            }
+        });
 
-                    if (parent.getSelectedState().equals("noClicked")) {
-                        holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
-                        parent.setSelectedState("clicked");
-
-                    } else if (parent.getSelectedState().equals("clicked")) {
-                        holder.bookImage.setBackground(null);
-                        parent.setSelectedState("noClicked");
-                    }
-
-                }
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                bookItemEditInterface.onLongClickBookItem(one, position);
+                return true;
             }
         });
 
@@ -97,6 +111,16 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
     @Override
     public int getItemCount() {
         return bookList.size();
+    }
+
+    public void reloadBookList(List<Book> updatedBooklist){
+        bookList = updatedBooklist;
+        notifyDataSetChanged();
+    }
+
+    public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
+        selectedbookList = updatedBookList;
+        notifyDataSetChanged();
     }
 
     public class BookFragmentViewHolder extends RecyclerView.ViewHolder {

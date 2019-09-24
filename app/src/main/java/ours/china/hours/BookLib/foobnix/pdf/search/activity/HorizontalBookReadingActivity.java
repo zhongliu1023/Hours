@@ -255,6 +255,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     public static String fontImageClicked = "no";
     public static String brightnessImageClicked = "no";
 
+    // for search
+    ImageView imgSearch;
+
     // for brightness
     CustomSeek seekBarBrightness;
     CheckBox brightnessAutoSetting;
@@ -415,7 +418,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             return;
         }
 
-
+        // in case there are no data in database, insert primary data into database
         db = new DBController(HorizontalBookReadingActivity.this);
         sessionManager = new SharedPreferencesManager(this);
         focusBook = BookManagement.getFocuseBook(sessionManager);
@@ -423,7 +426,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             db.insertBookStateData(new BookStatus(), focusBook.bookId);
         }
         focusBook.bookStatus = db.getBookStateData(focusBook.bookId);
-
 
         // for read time
         topReadTime = findViewById(R.id.topReadTime);
@@ -679,39 +681,39 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
                 } else {
 
-//                    seekBar.setVisibility(View.VISIBLE);
-//
-//                    AppTemp.get().lastClosedActivity = HorizontalBookReadingActivity.class.getSimpleName();
-//                    AppTemp.get().lastMode = HorizontalBookReadingActivity.class.getSimpleName();
-//                    LOG.d("lasta save", AppTemp.get().lastClosedActivity);
-//
-//                    PageImageState.get().isAutoFit = PageImageState.get().needAutoFit;
-//
-//                    if (ExtUtils.isTextFomat(getIntent())) {
-//                        PageImageState.get().isAutoFit = true;
-//                    } else if (AppState.get().isLockPDF) {
-//                        // moveCenter.setVisibility(View.VISIBLE);
-//                        AppTemp.get().isLocked = true;
-//                    }
-//
-                    loadUI();
-                    if (Global.pageNumber != 0) {
-                        dc.onGoToPage(Global.pageNumber);
-                        Global.pageNumber = 0;
+                    seekBar.setVisibility(View.VISIBLE);
+
+                    AppTemp.get().lastClosedActivity = HorizontalBookReadingActivity.class.getSimpleName();
+                    AppTemp.get().lastMode = HorizontalBookReadingActivity.class.getSimpleName();
+                    LOG.d("lasta save", AppTemp.get().lastClosedActivity);
+
+                    PageImageState.get().isAutoFit = PageImageState.get().needAutoFit;
+
+                    if (ExtUtils.isTextFomat(getIntent())) {
+                        PageImageState.get().isAutoFit = true;
+                    } else if (AppState.get().isLockPDF) {
+                        // moveCenter.setVisibility(View.VISIBLE);
+                        AppTemp.get().isLocked = true;
                     }
-//
-//                    // AppState.get().isEditMode = false; //remember last
-//                    int pageFromUri = dc.getCurentPage();
-//                    updateUI(pageFromUri);
-//                    hideShow();
-//
-//                    EventBus.getDefault().post(new MessageAutoFit(pageFromUri));
-//                    seekBar.setOnSeekBarChangeListener(onSeek);
-//
-//                    testScreenshots();
-//
-//                    isInitPosistion = Dips.screenHeight() > Dips.screenWidth();
-//                    isInitOrientation = AppState.get().orientation;
+
+                    loadUI();
+//                    if (Global.pageNumber != 0) {
+//                        dc.onGoToPage(Global.pageNumber);
+//                        Global.pageNumber = 0;
+//                    }
+
+                    // AppState.get().isEditMode = false; //remember last
+                    int pageFromUri = dc.getCurentPage();
+                    updateUI(pageFromUri);
+                    hideShow();
+
+                    EventBus.getDefault().post(new MessageAutoFit(pageFromUri));
+                    seekBar.setOnSeekBarChangeListener(onSeek);
+
+                    testScreenshots();
+
+                    isInitPosistion = Dips.screenHeight() > Dips.screenWidth();
+                    isInitOrientation = AppState.get().orientation;
 
                 }
 
@@ -1188,6 +1190,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     public void event() {
         Log.i("horizontalbookreading", "event => start");
+
+        imgSearch = findViewById(R.id.imgSearch);
+        imgSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchMenu(anchor, dc, AppState.get().selectedText);
+            }
+        });
 
         // for bookmark
         pagesBookmark = findViewById(R.id.pagesBookmark);
@@ -3486,7 +3496,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     @Override
     public void onSelectedContent(int page) {
         dc.onGoToPage(page);
+        searchContentDialog.closeDialog();
     }
+
     public void onDismissSearchDialog() {
         TempHolder.isSeaching = false;
     }

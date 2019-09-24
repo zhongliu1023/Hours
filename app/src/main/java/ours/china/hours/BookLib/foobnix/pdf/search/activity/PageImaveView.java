@@ -950,6 +950,10 @@ public class PageImaveView extends View {
             return null;
         }
 
+        if (y1 < yInit) {
+            return null;
+        }
+
         boolean single = Math.abs(x1 - xInit) < MIN && Math.abs(y1 - yInit) < MIN;
 
         RectF tr = new RectF();

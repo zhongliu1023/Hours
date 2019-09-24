@@ -631,7 +631,7 @@
     <string name="login_mobile">请输入手机号</string>
     <string name="login_password">请输入密码</string>
     <string name="login_verify_code">获取验证码</string>
-    <string name="register_identy">请输入验证吗</string>
+    <string name="register_identy">请输入验证码</string>
     <string name="login_forgot_password">忘记密码</string>
     <string name="login_register">用户注册</string>
     <string name="register_login">用户登录</string>

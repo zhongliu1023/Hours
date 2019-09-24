@@ -162,7 +162,6 @@ public class RegisterActivity  extends AppCompatActivity {
 
     }
 
-
     void decountTime(){
         isStartedCount = true;
         Timer T=new Timer();
@@ -175,11 +174,14 @@ public class RegisterActivity  extends AppCompatActivity {
                     if (totalCount == 0){
                         isStartedCount = false;
                         tvRegOtp.setText(getString(R.string.login_verify_code));
+                        totalCount = 60;
+                        T.cancel();
                     }
                 });
             }
         }, 1000, 1000);
     }
+
     public void confirmVerifyProcess(){
 
         String otp = edReVerification.getText().toString();

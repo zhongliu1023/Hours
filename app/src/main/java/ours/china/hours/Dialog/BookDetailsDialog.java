@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.builder.Builders;
 
 import org.json.JSONObject;
 
@@ -50,7 +51,6 @@ public class BookDetailsDialog extends Dialog {
 
     OnDownloadBookListenner onDownloadBookListner;
 
-
     public BookDetailsDialog(Context context, OnDownloadBookListenner listenner) {
         super(context);
         this.context = context;
@@ -60,6 +60,7 @@ public class BookDetailsDialog extends Dialog {
         initView();
         initListener();
     }
+
     private void initView() {
         db = new DBController(context);
         sessionManager = new SharedPreferencesManager(context);
@@ -87,7 +88,7 @@ public class BookDetailsDialog extends Dialog {
                     .placeholder(R.drawable.book_image)
                     .into(bookCoverImg);
         }
-        txtDownloadButton.setVisibility(focusBook.bookLocalUrl.isEmpty()?View.VISIBLE:View.GONE);
+        txtDownloadButton.setVisibility(focusBook.bookLocalUrl.isEmpty() ? View.VISIBLE : View.GONE);
         bookName.setText(focusBook.bookName);
         bookAuthor.setText(focusBook.author);
         txtDeadlineDate.setText(focusBook.deadline);
@@ -96,6 +97,7 @@ public class BookDetailsDialog extends Dialog {
         bookSummary.setText(focusBook.summary);
 //        ratingView.setRating(focusBook.);
     }
+
     private void initListener(){
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,7 +119,9 @@ public class BookDetailsDialog extends Dialog {
                 }).execute(Url.domainUrl + "/" + focusBook.coverUrl);
             }
         });
+
     }
+
     void downloadFile(Book book){
         new DownloadFile(context, new ImageListener() {
             @Override

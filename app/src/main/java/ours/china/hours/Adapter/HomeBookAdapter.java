@@ -124,34 +124,4 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         }
     }
 
-    public void displayLocalBook(int position) {
-        Book one = bookList.get(position);
-
-        FileMeta fileMeta = new FileMeta();
-        fileMeta.setAuthor("zhong liu");
-        fileMeta.setChild("epub");
-        fileMeta.setDateTxt("9/7/19");
-        fileMeta.setExt("epub");
-        fileMeta.setGenre("test...");
-        fileMeta.setIsRecent(true);
-        fileMeta.setIsRecentProgress((float) 0.253);
-        fileMeta.setIsRecentTime(System.currentTimeMillis());
-        fileMeta.setIsSearchBook(true);
-        fileMeta.setIsStar(false);
-        fileMeta.setIsStarTime(System.currentTimeMillis());
-        fileMeta.setIsbn(one.bookLocalUrl);
-        fileMeta.setLang("en");
-        fileMeta.setPages(20);
-        fileMeta.setPath(one.bookLocalUrl);
-        fileMeta.setPathTxt("test");
-        fileMeta.setPublisher("");
-        fileMeta.setSequence("");
-        fileMeta.setSizeTxt("1770KB");
-        fileMeta.setSize((long) (1770 * 1000));
-        fileMeta.setState(2);
-        fileMeta.setTitle("");
-        fileMeta.setYear(2016);
-        ExtUtils.openFile(activity, fileMeta);
-    }
-
 }
