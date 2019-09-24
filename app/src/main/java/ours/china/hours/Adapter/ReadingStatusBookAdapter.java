@@ -3,6 +3,7 @@ package ours.china.hours.Adapter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.ColorSpace;
+import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import org.jsoup.select.Evaluator;
+import org.zwobble.mammoth.internal.documents.Bookmark;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import java.util.Map;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.android.utils.LOG;
+import ours.china.hours.BookLib.foobnix.model.AppBookmark;
+import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
 import ours.china.hours.Common.Interfaces.SelectStatePositionInterface;
 import ours.china.hours.CustomView.CustomRectView;
@@ -177,6 +181,51 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
                     }
                 }
 
+                List<AppBookmark> appBookmarks = BookmarksData.get().getAll(context);
+                for (AppBookmark appBookmark : appBookmarks){
+                    if (one.bookLocalUrl.isEmpty()) continue;
+                    if (appBookmark.path.isEmpty()) continue;
+                    String currentBookName = Uri.parse(one.bookLocalUrl).getLastPathSegment();
+                    String noteBookName = Uri.parse(appBookmark.path).getLastPathSegment();
+                    if (!appBookmark.isF && currentBookName.equals(noteBookName)){
+                        ImageView iv = holder.getRecycledImageViewOrCreate();
+                        switch (appBookmark.type){
+                            case 0:
+                                iv.setImageResource(R.drawable.read_yellow_icon);
+                                break;
+                            case 1:
+                                iv.setImageResource(R.drawable.read_orange_icon);
+                                break;
+                            case 2:
+                                iv.setImageResource(R.drawable.read_blue_icon);
+                                break;
+                            case 3:
+                                iv.setImageResource(R.drawable.read_pink_icon);
+                                break;
+                            default:
+                                iv.setImageResource(R.drawable.read_yellow_icon);
+                                break;
+                        }
+                        int currentPage = appBookmark.getPage(Integer.parseInt(one.pageCount));
+                        holder.imageViews.add(iv);
+                        iv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                            }
+                        });
+
+                        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(50, 50);
+                        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+                        params.leftMargin = (int) (paramWidthPerPage * currentPage + paramMarginLeft + holder.container.getWidth() * 1.2 / 5.6 - 25 + paramWidthPerPage / 2);
+                        params.topMargin = (int) (convertDpToPixel(8) + holder.containerStateBar.getHeight() * 2 / 3 + paramMarginTop - 5 - iv.getHeight());
+
+                        holder.container.addView(iv, params);
+
+                    }
+                }
+
+
             }
         });
 
@@ -259,7 +308,6 @@ public class ReadingStatusBookAdapter extends RecyclerView.Adapter<ReadingStatus
             }
             return imageViewPool.remove(0);
         }
-
         public void recycleTextViews() {
             textViewPool.addAll(textViews);
 

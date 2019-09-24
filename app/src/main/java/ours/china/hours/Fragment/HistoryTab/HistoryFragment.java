@@ -58,7 +58,6 @@ public class HistoryFragment extends Fragment implements SelectStatePositionInte
     ArrayList<Book> bookArrayList;
     ArrayList<Book> completeStatusBooks;
 
-
     DBController db;
 
     @Override

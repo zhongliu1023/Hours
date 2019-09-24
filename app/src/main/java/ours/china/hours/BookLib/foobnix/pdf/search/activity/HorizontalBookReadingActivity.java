@@ -1258,6 +1258,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                     imgBookMark.setImageResource(R.drawable.catalog_bookmark2_icon);
                     BookmarksData.get().remove(appBookmark);
                 }
+                updateBookmarksState(String.valueOf(dc.getCurrentPage()));
             }
         });
         // to show navigation view.
@@ -3442,12 +3443,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         } else {
 
             if (bookmarks.contains(pageNumber)) {
-                // delete bookmarks
-                Log.i("HorizontalBookReading", "bookmarks string ===>>>" + bookmarks);
                 String[] pageArray = bookmarks.split(",");
-                Log.i("HorizontalBookReading", "pageArray => " + pageArray.toString() + "count" + pageArray.length);
                 if (pageArray.length == 1) {
-                    Log.i("HorizontalBookReading", "length => 1");
                     focusBook.bookStatus.bookmarks = "";
                 } else {
                     int index = bookmarks.indexOf(pageNumber);
@@ -3456,7 +3453,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
                     // in case of last character.
                     if (pageNumber.equals(lastPageNumber)) {
-                        Log.i("HorizontalBookReading", "length => last index");
                         focusBook.bookStatus.bookmarks = tempFrontStr;
                     } else {
                         Log.i("HorizontalBookReading", "length => middle index");
