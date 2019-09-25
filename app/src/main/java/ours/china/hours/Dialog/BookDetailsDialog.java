@@ -29,6 +29,7 @@ import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
 public class BookDetailsDialog extends Dialog {
@@ -96,7 +97,7 @@ public class BookDetailsDialog extends Dialog {
         bookSummary.setText(focusBook.summary);
 
         starImage = findViewById(R.id.starImage);
-        if (focusBook.bookStatus.isAttention.equals("true")) {
+        if (focusBook.bookStatus.isAttention.equals(QueryBook.BookAttention.ATTENTION.toString())) {
             starImage.setImageResource(R.drawable.collect2_icon);
             starImagePos = 1;
         } else {
@@ -136,11 +137,11 @@ public class BookDetailsDialog extends Dialog {
                 if (starImagePos == 0) {
                     starImagePos = 1;
                     starImage.setImageResource(R.drawable.collect2_icon);
-                    focusBook.bookStatus.isAttention = "true";
+                    focusBook.bookStatus.isAttention = QueryBook.BookAttention.ATTENTION.toString();
                 } else if (starImagePos == 1) {
                     starImagePos = 0;
                     starImage.setImageResource(R.drawable.collect_icon);
-                    focusBook.bookStatus.isAttention = "false";
+                    focusBook.bookStatus.isAttention = QueryBook.BookAttention.NONE.toString();
                 }
             }
         });

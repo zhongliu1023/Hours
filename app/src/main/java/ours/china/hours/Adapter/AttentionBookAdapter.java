@@ -1,6 +1,5 @@
 package ours.china.hours.Adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,37 +23,34 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
-public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmentViewHolder> {
-    private static String TAG = "HomeBookAdapter";
+public class AttentionBookAdapter extends RecyclerView.Adapter<AttentionBookAdapter.AttentionBookViewHolder> {
+    private final String TAG = "AttentionBookAdapter";
 
     public List<Book> bookList;
     public List<Book> selectedbookList;
+    public Context context;
     BookItemInterface bookItemInterface;
     BookItemEditInterface bookItemEditInterface;
 
-    public Context context;
-    public Activity activity;
-
-    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface) {
+    public AttentionBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface) {
         this.bookList = bookList;
         this.context = context;
-        this.activity = (Activity)context;
-        this.bookItemEditInterface = bookItemEditInterface;
         this.bookItemInterface = bookItemInterface;
+        this.bookItemEditInterface = bookItemEditInterface;
 
         this.selectedbookList = new ArrayList<Book>();
     }
 
     @NonNull
     @Override
-    public BookFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AttentionBookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.book_item, parent, false);
-        return new BookFragmentViewHolder(itemView);
+        return new AttentionBookViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BookFragmentViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AttentionBookViewHolder holder, int position) {
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
@@ -105,7 +101,6 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
                 return true;
             }
         });
-
     }
 
     @Override
@@ -123,13 +118,13 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
         notifyDataSetChanged();
     }
 
-    public class BookFragmentViewHolder extends RecyclerView.ViewHolder {
+    public class AttentionBookViewHolder extends RecyclerView.ViewHolder {
         ImageView bookImage;
         ImageView downloadStateImage;
         ImageView readStateImage;
         TextView bookName;
 
-        public BookFragmentViewHolder(View itemView) {
+        public AttentionBookViewHolder(View itemView) {
             super(itemView);
 
             bookImage = itemView.findViewById(R.id.item_book_image);
@@ -138,5 +133,4 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
             bookName = itemView.findViewById(R.id.item_bookName);
         }
     }
-
 }

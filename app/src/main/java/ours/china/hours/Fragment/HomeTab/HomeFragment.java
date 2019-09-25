@@ -626,6 +626,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             }
         });
     }
+
     private Drawable changeImageColor(int color, Drawable mDrawable){
         Drawable changedDrawable = mDrawable;
         changedDrawable.setColorFilter(new

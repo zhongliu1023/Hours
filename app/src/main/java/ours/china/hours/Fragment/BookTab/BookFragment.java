@@ -772,7 +772,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     }
 
     @Override
-    public void onLongClickBookItem(Book selectedBook, int position) {
+    public void onLongClickBookItem() {
         Global.bookAction = QueryBook.BookAction.SELECTTION;
         adapter.reloadBookList(searchedBookList);
 

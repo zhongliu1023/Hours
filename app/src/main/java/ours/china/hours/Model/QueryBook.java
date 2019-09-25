@@ -73,4 +73,23 @@ public class QueryBook {
             return stringValue;
         }
     }
+
+    public enum BookAttention {
+        NONE("none", 0),
+        ATTENTION("selection", 1);
+
+        private String stringValue;
+        private int intValue;
+
+        private BookAttention(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString(){
+            return stringValue;
+        }
+
+    }
 }
