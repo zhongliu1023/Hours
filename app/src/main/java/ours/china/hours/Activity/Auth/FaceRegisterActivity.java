@@ -4,12 +4,18 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -27,12 +33,16 @@ import androidx.core.content.ContextCompat;
 
 import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.ErrorInfo;
+import com.arcsoft.face.Face3DAngle;
 import com.arcsoft.face.FaceEngine;
 import com.arcsoft.face.FaceFeature;
+import com.arcsoft.face.FaceInfo;
+import com.arcsoft.face.FaceSimilar;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 
+import com.arcsoft.face.util.ImageUtils;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -84,7 +94,7 @@ import ours.china.hours.Utility.MultipartUtility;
 
 public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
 
-    private static final String TAG = "RegisterAndRecognize";
+    private static final String TAG = "FaceRegisterActivity";
     private static final int MAX_DETECT_NUM = 10;
     /**
      * 当FR成功，活体未成功时，FR等待活体的时间
@@ -102,6 +112,8 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
      */
     private Integer rgbCameraID = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private FaceEngine faceEngine;
+    private FaceEngine compareEngine;
+
     private FaceHelper faceHelper;
 
     /**
@@ -120,6 +132,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     private int registerStatus = REGISTER_STATUS_DONE;
 
     private int afCode = -1;
+    private int faceEngineCode = -1;
     private ConcurrentHashMap<Integer, Integer> requestFeatureStatusMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, Integer> livenessMap = new ConcurrentHashMap<>();
     private CompositeDisposable getFeatureDelayedDisposables = new CompositeDisposable();
@@ -151,6 +164,10 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
     SharedPreferencesManager sessionManager;
     User currentUser;
 
+    private FaceFeature mainFeature;
+    private Bitmap mainBimap;
+    private int processImageValue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +180,17 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             attributes.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             getWindow().setAttributes(attributes);
         }
+
+
+        // judge whether this is step to get first feature
+        String tempClassName = this.getClass().getSimpleName();
+        Log.i(TAG, "ClassName => " + tempClassName);
+        if (Global.faceIDFeature == null) {
+            processImageValue = 0;
+        } else {
+            processImageValue = 1;
+        }
+
 
         // Activity启动后就锁定为启动时的方向
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
@@ -205,6 +233,16 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         faceEngine.getVersion(versionInfo);
         if (afCode != ErrorInfo.MOK) {
             Toast.makeText(this, getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
+        }
+
+        compareEngine = new FaceEngine();
+        faceEngineCode = compareEngine.init(this, FaceEngine.ASF_DETECT_MODE_IMAGE, FaceEngine.ASF_OP_0_ONLY,
+                16, 6, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_AGE | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_GENDER | FaceEngine.ASF_FACE3DANGLE);
+
+        Log.i(TAG, "initEngine: init " + compareEngine);
+
+        if (faceEngineCode != ErrorInfo.MOK) {
+            Toast.makeText(this, getString(R.string.init_failed, faceEngineCode), Toast.LENGTH_SHORT).show();
         }
     }
     private void unInitEngine() {
@@ -397,7 +435,13 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
-                                uploadIdFaceInformation();
+                                try {
+                                    mainBimap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(Global.faceFeatureSavedImageUrl)));
+                                    Log.i(TAG, "mainBitmap => " + mainBimap);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                processImage(mainBimap, processImageValue);
                             }
 
                         }
@@ -500,6 +544,11 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         }
     }
     private void uploadIdFaceInformation(){
+        if (mainFeature == null) {
+            Toast.makeText(FaceRegisterActivity.this, "面部检测失败", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Global.showLoading(FaceRegisterActivity.this,"generate_report");
         String header = "Bearer " + Global.access_token;
         File sourceFeatureFile = new File(Global.faceFeatureSavedUrl);
@@ -524,6 +573,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                                 if (resObj.getString("res").equals("success")) {
 
                                     Global.identify = getResources().getString(R.string.identify_success);
+                                    Global.faceFeature = mainFeature;
                                     Toast.makeText(FaceRegisterActivity.this, "认证成功", Toast.LENGTH_LONG).show();
 
                                     currentUser.faceImageUrl = resObj.getString("faceImageUrl");
@@ -545,5 +595,121 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                 });
     }
 
+    public void processImage(Bitmap bitmap, int type) {
+        if (bitmap == null) {
+            return;
+        }
+
+        if (compareEngine == null) {
+            return;
+        }
+
+        //接口需要的bgr24宽度必须为4的倍数
+        bitmap = ImageUtils.alignBitmapForBgr24(bitmap);
+
+        if (bitmap == null) {
+            return;
+        }
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        //bitmap转bgr24
+        final byte[] bgr24 = ImageUtils.bitmapToBgr24(bitmap);
+
+        if (bgr24 != null) {
+
+            List<FaceInfo> faceInfoList = new ArrayList<>();
+            //人脸检测
+            int detectCode = compareEngine.detectFaces(bgr24, width, height, FaceEngine.CP_PAF_BGR24, faceInfoList);
+            if (detectCode != 0 || faceInfoList.size() == 0) {
+                Toast.makeText(FaceRegisterActivity.this, "面部不在", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //绘制bitmap
+            bitmap = bitmap.copy(Bitmap.Config.RGB_565, true);
+            Canvas canvas = new Canvas(bitmap);
+            Paint paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(10);
+            paint.setColor(Color.YELLOW);
+
+            if (faceInfoList.size() > 0) {
+
+                for (int i = 0; i < faceInfoList.size(); i++) {
+                    //绘制人脸框
+                    paint.setStyle(Paint.Style.STROKE);
+                    canvas.drawRect(faceInfoList.get(i).getRect(), paint);
+                    //绘制人脸序号
+                    paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                    paint.setTextSize(faceInfoList.get(i).getRect().width() / 2);
+                    canvas.drawText("" + i, faceInfoList.get(i).getRect().left, faceInfoList.get(i).getRect().top, paint);
+
+                }
+            }
+
+            int faceProcessCode = compareEngine.process(bgr24, width, height, FaceEngine.CP_PAF_BGR24, faceInfoList, FaceEngine.ASF_AGE | FaceEngine.ASF_GENDER | FaceEngine.ASF_FACE3DANGLE);
+            Log.i(TAG, "processImage: " + faceProcessCode);
+            if (faceProcessCode != ErrorInfo.MOK) {
+                Toast.makeText(FaceRegisterActivity.this, "", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //年龄信息结果
+            List<AgeInfo> ageInfoList = new ArrayList<>();
+            //性别信息结果
+            List<GenderInfo> genderInfoList = new ArrayList<>();
+            //三维角度结果
+            List<Face3DAngle> face3DAngleList = new ArrayList<>();
+            //获取年龄、性别、三维角度
+            int ageCode = compareEngine.getAge(ageInfoList);
+            int genderCode = compareEngine.getGender(genderInfoList);
+            int face3DAngleCode = compareEngine.getFace3DAngle(face3DAngleList);
+
+            if ((ageCode | genderCode | face3DAngleCode) != ErrorInfo.MOK) {
+                Toast.makeText(FaceRegisterActivity.this, "面部检测失败", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            //人脸比对数据显示
+            if (faceInfoList.size() > 0) {
+                if (Global.faceIDFeature == null) {
+                    mainFeature = new FaceFeature();
+                    int res = compareEngine.extractFaceFeature(bgr24, width, height, FaceEngine.CP_PAF_BGR24, faceInfoList.get(0), mainFeature);
+                    if (res != ErrorInfo.MOK) {
+                        mainFeature = null;
+                    }
+
+                    uploadIdFaceInformation();
+
+                } else {
+                    FaceFeature faceFeature = new FaceFeature();
+                    int res = compareEngine.extractFaceFeature(bgr24, width, height, FaceEngine.CP_PAF_BGR24, faceInfoList.get(0), faceFeature);
+                    if (res == 0) {
+                        FaceSimilar faceSimilar = new FaceSimilar();
+                        int compareResult = compareEngine.compareFaceFeature(Global.faceIDFeature, faceFeature, faceSimilar);
+                        if (compareResult == ErrorInfo.MOK) {
+
+                            if (faceSimilar.getScore() > 0.8f) {
+                                // in case of success, mPhotoFile is exist.
+                                Toast.makeText(FaceRegisterActivity.this, "面部检测成功", Toast.LENGTH_SHORT).show();
+                                mainFeature = faceFeature;
+                                uploadIdFaceInformation();
+
+                            } else {
+                                Toast.makeText(FaceRegisterActivity.this, "面部不一样", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(FaceRegisterActivity.this, "面部检测失败", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            } else {
+                if (type == 0) {
+                    mainBimap = null;
+                }
+            }
+
+        } else {
+            Toast.makeText(FaceRegisterActivity.this, "面部检测失败", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

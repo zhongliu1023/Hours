@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.TextView;
 
+import com.arcsoft.face.FaceFeature;
+
 import java.util.ArrayList;
 
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
@@ -71,6 +73,12 @@ public class Global {
     public static String faceFeatureSavedUrl = "";
     public static String faceFeatureSavedImageUrl = "";
     public static String faceHash = "";
+
+    public static FaceFeature faceFeature = null;
+    public static FaceFeature faceIDFeature = null;
+    // to update face and ID information.
+    public static String faceFeatureImageUrl = "";
+    public static String faceIDFeatureImageUrl = "";
 
     public static int bookDownloadedPosition = 0;
     public static String readingNowOrHistory = "";
