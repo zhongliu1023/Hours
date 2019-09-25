@@ -278,15 +278,18 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     // for margin
     ImageView imgSmallMargin, imgMiddleMargin, imgBigMargin;
+//    int imgMarginValue = 0;
 
     // for lineHeight
     ImageView imgBigLineHeight, imgMiddleLineHeight, imgSmallLineHeight;
+//    int imgLineHeightValue = 0;
 
     // for doc background
     ImageView imgWhiteBrightness, imgBrownBrightness, imgGreenBrightness, imgBlackBrightness;
 
     // for drawerlayout.
     LinearLayout linCatalogBack, linCatalogCatalog, linCatalogBookmark, linCatalogRefresh;
+    ImageView imgCatalogBack, imgCatalogCatalog, imgCatalogBookmark, imgCatalogRefresh;
     ListView contentList;
     RecyclerView recyclerContentList;
     PageBookmarkAdapter pageBookmarkAdapter;
@@ -757,6 +760,56 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
         faceInitView();
 
+        if (Global.imgMarginValue == 2) {
+            imgBigMargin.setImageResource(R.drawable.margin_big2_icon);
+            imgMiddleMargin.setImageResource(R.drawable.margin_middle_icon);
+            imgSmallMargin.setImageResource(R.drawable.margin_small_icon);
+        } else if (Global.imgMarginValue == 1) {
+            imgBigMargin.setImageResource(R.drawable.margin_big_icon);
+            imgMiddleMargin.setImageResource(R.drawable.margin_middle2_icon);
+            imgSmallMargin.setImageResource(R.drawable.margin_small_icon);
+        } else {
+            imgBigMargin.setImageResource(R.drawable.margin_big_icon);
+            imgMiddleMargin.setImageResource(R.drawable.margin_middle_icon);
+            imgSmallMargin.setImageResource(R.drawable.margin_small2_icon);
+        }
+
+        if (Global.imgLineHeightValue == 2) {
+            imgBigLineHeight.setImageResource(R.drawable.spacing_big2_icon);
+            imgMiddleLineHeight.setImageResource(R.drawable.spacing_middle_icon);
+            imgSmallLineHeight.setImageResource(R.drawable.spacing_small_icon);
+        } else if (Global.imgLineHeightValue == 1) {
+            imgBigLineHeight.setImageResource(R.drawable.spacing_big_icon);
+            imgMiddleLineHeight.setImageResource(R.drawable.spacing_middle2_icon);
+            imgSmallLineHeight.setImageResource(R.drawable.spacing_small_icon);
+        } else {
+            imgBigLineHeight.setImageResource(R.drawable.spacing_big_icon);
+            imgMiddleLineHeight.setImageResource(R.drawable.spacing_middle_icon);
+            imgSmallLineHeight.setImageResource(R.drawable.spacing_small2_icon);
+        }
+
+        if (Global.imgBrightnessValue == 0) {
+            imgWhiteBrightness.setImageResource(R.drawable.brightness_white2_icon);
+            imgBrownBrightness.setImageResource(R.drawable.brightness_brown_icon);
+            imgGreenBrightness.setImageResource(R.drawable.brightness_green_icon);
+            imgBlackBrightness.setImageResource(R.drawable.brightness_black_icon);
+        } else if (Global.imgBrightnessValue == 1){
+            imgWhiteBrightness.setImageResource(R.drawable.brightness_white_icon);
+            imgBrownBrightness.setImageResource(R.drawable.brightness_brown2_icon);
+            imgGreenBrightness.setImageResource(R.drawable.brightness_green_icon);
+            imgBlackBrightness.setImageResource(R.drawable.brightness_black_icon);
+        } else if (Global.imgBrightnessValue == 2){
+            imgWhiteBrightness.setImageResource(R.drawable.brightness_white_icon);
+            imgBrownBrightness.setImageResource(R.drawable.brightness_brown_icon);
+            imgGreenBrightness.setImageResource(R.drawable.brightness_green2_icon);
+            imgBlackBrightness.setImageResource(R.drawable.brightness_black_icon);
+        } else if (Global.imgBrightnessValue == 3){
+            imgWhiteBrightness.setImageResource(R.drawable.brightness_white_icon);
+            imgBrownBrightness.setImageResource(R.drawable.brightness_brown_icon);
+            imgGreenBrightness.setImageResource(R.drawable.brightness_green_icon);
+            imgBlackBrightness.setImageResource(R.drawable.brightness_black2_icon);
+        }
+
         if (db.getBookStateData(focusBook.bookId) != null && !db.getBookStateData(focusBook.bookId).time.equals("")) {
 
             displayedTime = Long.parseLong(db.getBookStateData(focusBook.bookId).time);
@@ -798,6 +851,16 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         linCatalogBookmark = findViewById(R.id.lin_catalog_bookmark);
         linCatalogRefresh = findViewById(R.id.lin_catalog_refresh);
 
+        imgCatalogBack = findViewById(R.id.img_catalog_back);
+        imgCatalogCatalog = findViewById(R.id.img_catalog_catalog);
+        imgCatalogBookmark = findViewById(R.id.img_catalog_bookmark);
+        imgCatalogRefresh = findViewById(R.id.img_catalog_refresh);
+
+        imgWhiteBrightness = findViewById(R.id.imgWhiteBrightness);
+        imgBrownBrightness = findViewById(R.id.imgBrownBrightness);
+        imgGreenBrightness = findViewById(R.id.imgGreenBrightness);
+        imgBlackBrightness = findViewById(R.id.imgBlackBrightness);
+
         contentList = findViewById(R.id.contentList);
         recyclerContentList = findViewById(R.id.recycler_contentList);
 
@@ -805,9 +868,20 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     }
 
     public void drawerLayoutWork() {
+        // for drawerlayout work
+        linCatalogBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDrawerLayout.closeDrawers();
+            }
+        });
         linCatalogCatalog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                imgCatalogCatalog.setImageResource(R.drawable.catalog_catalog_icon);
+                imgCatalogBookmark.setImageResource(R.drawable.catalog_bookmark_icon);
+                imgCatalogRefresh.setImageResource(R.drawable.catalog_renovate_icon);
                 displayContentList();
             }
         });
@@ -817,6 +891,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             public void onClick(View view) {
                 contentList.setVisibility(View.GONE);
                 recyclerContentList.setVisibility(View.VISIBLE);
+
+                imgCatalogCatalog.setImageResource(R.drawable.catalog_catalog2_icon);
+                imgCatalogBookmark.setImageResource(R.drawable.catalog_bookmark3_icon);
+                imgCatalogRefresh.setImageResource(R.drawable.catalog_renovate_icon);
 
                 Log.i("HorizontalBookReading", "catalog bookmark");
 
@@ -833,6 +911,18 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 pageBookmarkAdapter = new PageBookmarkAdapter(HorizontalBookReadingActivity.this,  tmpobjects, dc, HorizontalBookReadingActivity.this);
                 recyclerContentList.setLayoutManager(new LinearLayoutManager(HorizontalBookReadingActivity.this));
                 recyclerContentList.setAdapter(pageBookmarkAdapter);
+            }
+        });
+
+        linCatalogRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                contentList.setVisibility(View.GONE);
+                recyclerContentList.setVisibility(View.GONE);
+
+                imgCatalogCatalog.setImageResource(R.drawable.catalog_catalog2_icon);
+                imgCatalogBookmark.setImageResource(R.drawable.catalog_bookmark_icon);
+                imgCatalogRefresh.setImageResource(R.drawable.catalog_renovate2_icon);
             }
         });
     }
@@ -1379,6 +1469,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgBigMargin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgMarginValue = 2;
+
                 BookCSS.get().marginTop = 20;
                 BookCSS.get().marginBottom = 20;
                 BookCSS.get().marginLeft = 20;
@@ -1392,6 +1484,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgMiddleMargin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgMarginValue = 1;
+
                 BookCSS.get().marginTop = 15;
                 BookCSS.get().marginBottom = 15;
                 BookCSS.get().marginLeft = 15;
@@ -1405,6 +1499,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgSmallMargin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgMarginValue = 0;
+
                 BookCSS.get().marginTop = 10;
                 BookCSS.get().marginBottom = 10;
                 BookCSS.get().marginLeft = 10;
@@ -1419,6 +1515,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgBigLineHeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgLineHeightValue = 2;
                 BookCSS.get().lineHeight = 20;
 
                 nullAdapter();
@@ -1430,6 +1527,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgMiddleLineHeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgLineHeightValue = 1;
+
                 BookCSS.get().lineHeight = 15;
 
                 nullAdapter();
@@ -1441,6 +1540,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         imgSmallLineHeight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgLineHeightValue = 0;
+
                 BookCSS.get().lineHeight = 12;
 
                 nullAdapter();
@@ -1512,10 +1613,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
 
         // for doc background
-        imgWhiteBrightness = findViewById(R.id.imgWhiteBrightness);
+
         imgWhiteBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgBrightnessValue = 0;
 
                 int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.white)));
                 int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
@@ -1530,10 +1632,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             }
         });
 
-        imgBrownBrightness = findViewById(R.id.imgBrownBrightness);
         imgBrownBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgBrightnessValue = 1;
 
                 int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.brown)));
                 int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
@@ -1550,11 +1652,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             }
         });
 
-        imgGreenBrightness = findViewById(R.id.imgGreenBrightness);
         imgGreenBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Global.imgBrightnessValue = 2;
 
                 int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.green)));
                 int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
@@ -1569,10 +1670,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         });
 
         // for day or night.
-        imgBlackBrightness = findViewById(R.id.imgBlackBrightness);
         imgBlackBrightness.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Global.imgBrightnessValue = 3;
 
                 int bg = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.black)));
                 int text = Color.parseColor("#"+Integer.toHexString(ContextCompat.getColor(HorizontalBookReadingActivity.this, R.color.white)));

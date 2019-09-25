@@ -81,6 +81,10 @@ public class Global {
 
     public static int pageNumber = 0;
 
+    public static int imgMarginValue = 0;
+    public static int imgLineHeightValue = 0;
+    public static int imgBrightnessValue = 0;
+
     public static void alert(Context context, String title, String message, String btnTitle) {
 
         AlertDlg dlg = new AlertDlg(context, R.style.AppTheme_Alert);

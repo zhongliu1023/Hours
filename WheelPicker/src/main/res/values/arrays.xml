@@ -5,22 +5,6 @@
         <item>电商2</item>
         <item>电商3</item>
         <item>电商4</item>
-        <item>电商5</item>
-        <item>电商6</item>
-        <item>电商7</item>
-        <item>电商8</item>
-        <item>电商9</item>
-        <item>电商10</item>
-        <item>电商11</item>
-        <item>电商12</item>
-        <item>电商13</item>
-        <item>电商14</item>
-        <item>电商15</item>
-        <item>电商16</item>
-        <item>电商17</item>
-        <item>电商18</item>
-        <item>电商19</item>
-        <item>电商20</item>
     </string-array>
     <string-array name="WheelArrayWeek">
         <item>Monday</item>

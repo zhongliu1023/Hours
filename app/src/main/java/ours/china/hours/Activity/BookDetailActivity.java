@@ -64,7 +64,7 @@ public class BookDetailActivity extends AppCompatActivity {
         txtAverageTime = findViewById(R.id.txtAverageTime);
         txtSpecifiedTime = findViewById(R.id.txtSpecifiedTime);
         bookSummary = findViewById(R.id.bookSummary);
-        ratingView = findViewById(R.id.ratingView);
+//        ratingView = findViewById(R.id.ratingView);
         txtDownloadButton = findViewById(R.id.txtDownloadButton);
 
         if (focusBook.bookImageLocalUrl.isEmpty()){

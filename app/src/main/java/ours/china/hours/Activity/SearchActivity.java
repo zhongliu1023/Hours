@@ -92,10 +92,13 @@ public class SearchActivity extends AppCompatActivity implements SearchItemInter
     }
 
     void replaceSearchBook(String keywords){
-        Fragment searchResultFragment = FragmentUtil.getFragmentByTagName(getSupportFragmentManager(), "searchResultFragment");
-        if (searchResultFragment == null) {
-            searchResultFragment = new SearchResultFragment(keywords);
-        }
+
+        // I will check again below code.
+//        Fragment searchResultFragment = FragmentUtil.getFragmentByTagName(getSupportFragmentManager(), "searchResultFragment");
+//        if (searchResultFragment == null) {
+//            searchResultFragment = new SearchResultFragment(keywords);
+//        }
+        Fragment searchResultFragment = new SearchResultFragment(keywords);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame, searchResultFragment, "searchResultFragment");

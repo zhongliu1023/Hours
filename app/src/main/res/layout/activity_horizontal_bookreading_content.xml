@@ -256,7 +256,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="5dp"
                     android:max="100"
-                    android:progressDrawable="@drawable/seekbar_bg"
+                    android:theme="@style/AppThemeTwo"
                     android:maxHeight="3dp"
                     android:minHeight="3dp"/>
 
@@ -457,7 +457,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:id="@+id/brightnessBottomBar"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_height="wrap_content">
 
             <TextView

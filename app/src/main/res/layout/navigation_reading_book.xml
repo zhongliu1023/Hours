@@ -17,9 +17,9 @@
 
             <ImageView
                 android:id="@+id/img_catalog_back"
-                android:layout_width="25dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/return_icon"/>
+                android:src="@drawable/return_icon" />
         </LinearLayout>
         <LinearLayout
             android:id="@+id/lin_catalog_catalog"
@@ -58,7 +58,7 @@
             android:padding="@dimen/getneral_padding_16">
 
             <ImageView
-                android:id="@+id/img_catalog_renovate"
+                android:id="@+id/img_catalog_refresh"
                 android:layout_width="25dp"
                 android:layout_height="match_parent"
                 android:src="@drawable/catalog_renovate_icon"/>
