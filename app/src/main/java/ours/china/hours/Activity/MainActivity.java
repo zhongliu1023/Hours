@@ -152,10 +152,17 @@ public class MainActivity  extends AppCompatActivity {
             fragmentManager.beginTransaction().add( R.id.frame_content, historyFragment).hide(historyFragment).commit();
             fragmentManager.beginTransaction().add( R.id.frame_content, personalFragment).hide(personalFragment).commit();
             activityFragment = homeFragment;
-            changedTabIcons(0);
+//            changedTabIcons(0);
 
         }
-        private void setListener() {
+
+    @Override
+    protected void onResume() {
+        changedTabIcons(0);
+        super.onResume();
+    }
+
+    private void setListener() {
 
             //Set su kien click
             linHome.setOnClickListener(new View.OnClickListener() {

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
@@ -29,10 +30,12 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
 
     private Context context;
     private List<Book> moreBooks;
+    private BookItemInterface bookItemInterface;
 
-    public MoreBookAdapter(Context context, List<Book> moreBooks) {
+    public MoreBookAdapter(Context context, List<Book> moreBooks, BookItemInterface bookItemInterface) {
         this.context = context;
         this.moreBooks = moreBooks;
+        this.bookItemInterface = bookItemInterface;
     }
 
     @NonNull
@@ -49,12 +52,14 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         final Book one = moreBooks.get(position);
 
         if (one.bookStatus.isAttention.equals("已下载")) {
+            holder.imgDownState.setVisibility(View.VISIBLE);
             holder.imgDownState.setImageResource(R.drawable.label2_icon);
         } else {
             holder.imgDownState.setVisibility(View.INVISIBLE);
         }
 
         if (one.bookStatus.isAttention.equals("已阅")) {
+            holder.imgReadState.setVisibility(View.VISIBLE);
             holder.imgReadState.setImageResource(R.drawable.label1_icon);
         } else {
             holder.imgReadState.setVisibility(View.INVISIBLE);
@@ -72,13 +77,7 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (!one.bookStatus.isAttention.equals("已下载")) {
-                    Intent intent = new Intent(context, BookDetailActivity.class);
-
-                    // here include book information.
-                    context.startActivity(intent);
-                }
+                bookItemInterface.onClickBookItem(one, position);
             }
         });
 

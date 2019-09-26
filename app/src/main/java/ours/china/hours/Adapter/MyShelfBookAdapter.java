@@ -20,6 +20,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MyShelfBook;
@@ -30,11 +31,13 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
     private Context context;
     private List<Book> myShelfBooks;
     private List<Book> myShelfBooksFiltered;
+    private BookItemInterface bookListener;
 
-    public MyShelfBookAdapter(Context context, List<Book> myShelfBooks) {
+    public MyShelfBookAdapter(Context context, List<Book> myShelfBooks, BookItemInterface bookListenenr) {
         this.context = context;
         this.myShelfBooks = myShelfBooks;
         this.myShelfBooksFiltered = myShelfBooks;
+        this.bookListener = bookListenenr;
     }
 
     @NonNull
@@ -53,6 +56,7 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
         holder.bookName.setText(one.bookName);
         if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
 
+            holder.imgDownState.setVisibility(View.VISIBLE);
             holder.imgDownState.setImageResource(R.drawable.download);
             holder.txtDownState.setText("已下载");
             Glide.with(context)
@@ -69,12 +73,20 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
         }
 
         if (one.bookStatus.isRead.equals("1")) {
+            holder.imgReadState.setVisibility(View.VISIBLE);
             holder.imgReadState.setImageResource(R.drawable.read);
         } else {
             holder.imgReadState.setVisibility(View.INVISIBLE);
         }
 
         holder.bookAuthor.setText(one.author);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bookListener.onClickBookItem(one, position);
+            }
+        });
 
     }
 

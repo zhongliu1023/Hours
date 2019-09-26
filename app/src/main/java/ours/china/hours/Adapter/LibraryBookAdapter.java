@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
+import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
@@ -26,10 +27,12 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
 
     private Context context;
     private List<Book> bookList;
+    private BookItemInterface bookItemInterface;
 
-    public LibraryBookAdapter(Context context, List<Book> mLibraryBooks) {
+    public LibraryBookAdapter(Context context, List<Book> mLibraryBooks, BookItemInterface bookItemInterface) {
         this.context = context;
         this.bookList = mLibraryBooks;
+        this.bookItemInterface = bookItemInterface;
     }
 
     @NonNull
@@ -47,6 +50,7 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         holder.bookName.setText(one.bookName);
         if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
 
+            holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
             Glide.with(context)
                     .load(one.bookImageLocalUrl)
@@ -61,10 +65,18 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         }
 
         if (one.bookStatus.isRead.equals("1")) {
+            holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                bookItemInterface.onClickBookItem(one, position);
+            }
+        });
 
     }
 

@@ -24,7 +24,8 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
-public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmentViewHolder> {
+public class
+BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmentViewHolder> {
     private static String TAG = "HomeBookAdapter";
 
     public List<Book> bookList;

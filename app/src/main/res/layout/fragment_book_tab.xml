@@ -48,6 +48,21 @@
                         android:hint="搜索书名、作者、出版社"
                         android:textColor="@color/home_background_color"/>
                 </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="32dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="14dp"
+                    android:layout_marginStart="8dp">
+                    <ImageView
+                        android:id="@+id/imgNewsCircle"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:src="@drawable/news_circle"/>
+                </RelativeLayout>
                 <ImageView
                     android:id="@+id/imageNews"
                     android:layout_width="27dp"

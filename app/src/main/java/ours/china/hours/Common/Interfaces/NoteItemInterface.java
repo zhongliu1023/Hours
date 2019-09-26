@@ -1,4 +1,7 @@
 package ours.china.hours.Common.Interfaces;
 
-public class NoteItemInterface {
+import ours.china.hours.BookLib.foobnix.model.AppBookmark;
+
+public interface NoteItemInterface {
+    public void onClickNoteItem(AppBookmark selectedNote, String pageNumber);
 }

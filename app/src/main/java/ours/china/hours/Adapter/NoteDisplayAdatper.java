@@ -47,6 +47,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.OutlineHelper;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
+import ours.china.hours.Common.Interfaces.NoteItemInterface;
 import ours.china.hours.Dialog.NoteDialog;
 import ours.china.hours.R;
 
@@ -63,12 +64,14 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
     NoteViewHolder focusHolder;
 
     OnCopyListiner onCopyListiner;
+    NoteItemInterface noteItemClickListener;
 
-    public NoteDisplayAdatper(Context context, ArrayList<AppBookmark> objects, DocumentController controller, OnCopyListiner listner) {
+    public NoteDisplayAdatper(Context context, ArrayList<AppBookmark> objects, DocumentController controller, OnCopyListiner listner, NoteItemInterface noteItemClickListener) {
         this.context = context;
         this.objects = objects;
         this.controller = controller;
         this.onCopyListiner = listner;
+        this.noteItemClickListener = noteItemClickListener;
 //        this.onRefresh = onRefresh;
     }
 
@@ -309,6 +312,13 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
                 noteDialog = new NoteDialog(context, R.style.AppTheme_Alert, "添加笔记", one.note, NoteDisplayAdatper.this);
                 noteDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 noteDialog.show();
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                noteItemClickListener.onClickNoteItem(one, pageNumber);
             }
         });
     }

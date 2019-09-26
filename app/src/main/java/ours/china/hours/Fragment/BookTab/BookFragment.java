@@ -133,6 +133,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     }
 
     public void init(View view) {
+        mNewsData = new ArrayList<>();
 
         selectedBookLists = new ArrayList<Book>();
         // for toolbar
@@ -229,7 +230,6 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                                         bookStatus.progress = oneObject.getString("progress");
                                         bookStatus.lastRead = oneObject.getString("lastRead");
                                         bookStatus.isRead = oneObject.getString("isRead");
-                                        bookStatus.isAttention = oneObject.getString("isAttention");
                                         bookStatus.collection = oneObject.getString("collection");
                                         bookStatus.notes = oneObject.getString("notes");
                                         bookStatus.bookmarks = oneObject.getString("bookmarks");
@@ -332,9 +332,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
 
     public void newsReferenceUIWork() {
-        mNewsData.clear();
+//        mNewsData.clear();
         mNewsData = NewsManagement.getFoucsNews(sessionManager);
-
         if (mNewsData.size() == 0) {
             imgNewsCircle.setVisibility(View.GONE);
         } else {

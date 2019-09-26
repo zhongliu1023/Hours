@@ -304,16 +304,16 @@ public class IdentifyActivity extends AppCompatActivity {
             @Override public void onClick(View view) {
 
                 if (mPhotoFile == null){
-                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "please set a image", getResources().getString(R.string.confirm));
+                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "请设置图片", getResources().getString(R.string.confirm));
                     return;
                 }
                 if (mPhotoBackFile == null){
-                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "please set a image", getResources().getString(R.string.confirm));
+                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "请设置图片", getResources().getString(R.string.confirm));
                     return;
                 }
 
                 if (mainFeature == null) {
-                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "please set a image", getResources().getString(R.string.confirm));
+                    Global.alert(IdentifyActivity.this, getResources().getString(R.string.app_name), "请设置图片", getResources().getString(R.string.confirm));
                     return;
                 }
 

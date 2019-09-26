@@ -9,9 +9,11 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -80,7 +82,9 @@ import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.bumptech.glide.request.target.ThumbnailImageViewTarget;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -94,6 +98,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -752,6 +757,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         // -- my definition. --
         colorPickValue = ColorCollection.yellow;
         tempColorPickValue = colorPickValue;
+
+
 
 
         uiInit();
@@ -2476,6 +2483,31 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             tempDisplayedTime = 0;
         }
 
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String receivedMessage = intent.getStringExtra("message");
+                String strAppBookmark = receivedMessage.substring(0, receivedMessage.lastIndexOf("+"));
+                String pageNumber = receivedMessage.substring(receivedMessage.lastIndexOf("+") + 1);
+
+                Log.i("HorizontalBookReading", "PageNumber =>" + pageNumber );
+
+                AppBookmark appBookmark = new AppBookmark();
+
+                Gson gson = new Gson();
+                Type type = new TypeToken<AppBookmark>() {
+                }.getType();
+                appBookmark = gson.fromJson(strAppBookmark, type);
+
+
+                dc.onGoToPage(Integer.parseInt(pageNumber));
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("note item click");
+        registerReceiver(receiver, filter);
+
         DocumentController.chooseFullScreen(this, AppState.get().fullScreenMode);
         DocumentController.doRotation(this);
 
@@ -2490,6 +2522,8 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         if (dc != null) {
             dc.goToPageByTTS();
         }
+
+
 
 
         handler.removeCallbacks(closeRunnable);

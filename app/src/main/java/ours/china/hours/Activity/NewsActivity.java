@@ -180,12 +180,13 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
 
     @Override
     public void onDelete() {
-        mNewsData.clear();
-        adatper.notifyDataSetChanged();
-
         for (NewsItem one : mNewsData) {
             db.insertNewsData(one);
         }
+
+        mNewsData.clear();
+        adatper.notifyDataSetChanged();
+
         NewsManagement.saveFoucsNews(mNewsData, sessionManager);
 
         noNews.setVisibility(View.VISIBLE);

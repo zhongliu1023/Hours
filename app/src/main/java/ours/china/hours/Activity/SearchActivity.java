@@ -1,7 +1,9 @@
 package ours.china.hours.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserManager;
+import android.support.v4.app.INotificationSideChannel;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -18,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
+
+import net.arnx.wmf2svg.Main;
 
 import org.w3c.dom.Text;
 
@@ -97,7 +101,9 @@ public class SearchActivity extends AppCompatActivity implements SearchItemInter
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
             }
         });
     }
