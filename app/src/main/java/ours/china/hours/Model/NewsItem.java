@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class NewsItem {
+    @SerializedName("newsId") @Expose public String newsId = "";
     @SerializedName("releaseTime") @Expose
     public String releaseTime = "";
     @SerializedName("title") @Expose public String title = "";

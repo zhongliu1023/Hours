@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import ours.china.hours.DB.DBController;
 import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.SelectFavorite;
 import ours.china.hours.R;
 
@@ -45,8 +47,13 @@ public class SelectFavoriteDialog extends Dialog {
     ListView lvFavoritesCollection;
     SelectFavoriteAdapter adapter;
 
-    ArrayList<String> mFavoriteCollections;
-    ArrayList<String> favorites;
+    ArrayList<String> mFavoriteFolderNameCollections;
+    ArrayList<String> favoriteFloderNameArrayList;
+
+    EditText addFavoriteFolderName;
+    TextView txtAddFolder;
+
+    ArrayList<Favorites> tempFavorites;
 
     int i = 0;
 
@@ -65,20 +72,27 @@ public class SelectFavoriteDialog extends Dialog {
         sessionManager = new SharedPreferencesManager(context);
         focusBooks = BookManagement.getBooks(sessionManager);
 
+        // get all favorite book in favorite.
+        tempFavorites = BookManagement.getFavorites(sessionManager);
+
         // init process
         txtCancel = findViewById(R.id.txtCancel);
         txtConfirm = findViewById(R.id.txtConfirm);
 
-        favorites = new ArrayList<>();
-        mFavoriteCollections = new ArrayList<>();
+        favoriteFloderNameArrayList = new ArrayList<>();
+        mFavoriteFolderNameCollections = new ArrayList<>();
         String[] temp = Global.fullFavorites.split(",");
-        mFavoriteCollections.addAll(Arrays.asList(temp));
+        mFavoriteFolderNameCollections.addAll(Arrays.asList(temp));
 
-        Log.i(TAG, mFavoriteCollections.toString());
+        Log.i(TAG, mFavoriteFolderNameCollections.toString());
 
         lvFavoritesCollection = findViewById(R.id.favoritesCollection);
-        adapter = new SelectFavoriteAdapter(context, mFavoriteCollections);
+        adapter = new SelectFavoriteAdapter(context, mFavoriteFolderNameCollections);
         lvFavoritesCollection.setAdapter(adapter);
+
+        // editText
+        addFavoriteFolderName = findViewById(R.id.addFavoriteFolderName);
+        txtAddFolder = findViewById(R.id.txtAddFolder);
     }
 
     public void event() {
@@ -89,11 +103,11 @@ public class SelectFavoriteDialog extends Dialog {
                 CheckedTextView checkedTextView = view.findViewById(R.id.checkTextView);
 
                 if (checkedTextView.isChecked()) {
-                    favorites.remove(mFavoriteCollections.get(i));
+                    favoriteFloderNameArrayList.remove(mFavoriteFolderNameCollections.get(i));
                     checkedTextView.setChecked(false);
                 } else {
                     checkedTextView.setChecked(true);
-                    favorites.add(mFavoriteCollections.get(i));
+                    favoriteFloderNameArrayList.add(mFavoriteFolderNameCollections.get(i));
                 }
             }
         });
@@ -110,12 +124,28 @@ public class SelectFavoriteDialog extends Dialog {
             public void onClick(View view) {
                 Global.showLoading(context, "generate_report");
 
+                // update Favorites list.
                 for (Book one : focusBooks) {
-                    for (String favorite : favorites) {
-                        if (one.bookStatus.collection.contains(favorite)) {
+                    for (String favoriteFolderName : favoriteFloderNameArrayList) {
+                        for (Favorites favorites : tempFavorites) {
+                            if (favorites.favorite.equals(favoriteFolderName)) {
+                                if (favorites.bookList.contains(one)) {
+                                    continue;
+                                } else {
+                                    favorites.bookList.add(one);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // update book's collection property.
+                for (Book one : focusBooks) {
+                    for (String favoriteFolderName : favoriteFloderNameArrayList) {
+                        if (one.bookStatus.collection.contains(favoriteFolderName)) {
 
                         } else {
-                            one.bookStatus.collection += "," + favorite;
+                            one.bookStatus.collection += "," + favoriteFolderName;
                         }
                     }
                 }
@@ -123,13 +153,35 @@ public class SelectFavoriteDialog extends Dialog {
                 apiWork();
             }
         });
+
+        txtAddFolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tempStr = addFavoriteFolderName.getText().toString();
+                if (tempStr.equals("")) {
+                    return;
+                }
+
+                Global.fullFavorites = Global.fullFavorites + "," + tempStr;
+
+                // add favorite.
+                Favorites favorites = new Favorites();
+                favorites.favorite = tempStr;
+                tempFavorites.add(favorites);
+
+                mFavoriteFolderNameCollections.add(tempStr);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     public void apiWork() {
         if (i == focusBooks.size()) {
-            Global.hideLoading();
-            Toast.makeText(context, "成功", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT).show();
             dismiss();
+            BookManagement.saveFavorites(tempFavorites, sessionManager);
+
+            Global.hideLoading();
             return;
         } else {
             Book one = focusBooks.get(i);
@@ -169,4 +221,6 @@ public class SelectFavoriteDialog extends Dialog {
                     });
         }
     }
+
+
 }

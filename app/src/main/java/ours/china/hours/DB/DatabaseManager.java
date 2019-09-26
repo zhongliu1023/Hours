@@ -14,6 +14,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public static final String bookTable = "bookTable";
     public static final String bookStateTable = "bookStateTable";
+    public static final String newsTable = "newsTable";
 
     // common column
     public static final String KEY_id = "id";
@@ -49,7 +50,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String KEY_libraryPosition = "libraryPosition";
 
     // for bookStateTable.
-
     public static final String KEY_pages = "pages";
     public static final String KEY_time = "time";
     public static final String KEY_progress = "progress";
@@ -59,6 +59,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String KEY_collection = "collection";
     public static final String KEY_notes = "notes";
     public static final String KEY_bookmarks = "bookmarks";
+
+    public static final String KEY_newsId = "newsId";
+    public static final String KEY_releaseTime = "releaseTime";
+    public static final String KEY_title = "title";
+    public static final String KEY_content = "content";
 
     public static final String CREATE_TABLE_BOOKS = "CREATE TABLE " + bookTable
             + "(" + KEY_id + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -106,6 +111,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
             + KEY_bookmarks + " TEXT"
             + ")";
 
+    public static final String CREATE_TABLE_NEWS = "CREATE TABLE " + newsTable
+            + "(" + KEY_id + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_newsId + " TEXT,"
+            + KEY_releaseTime + " TEXT,"
+            + KEY_title + " TEXT,"
+            + KEY_content + " TEXT"
+            + ")";
+
+    public static final String[] columnsNews = new String[] {
+            DatabaseManager.KEY_id,
+            DatabaseManager.KEY_newsId,
+            DatabaseManager.KEY_releaseTime,
+            DatabaseManager.KEY_title,
+            DatabaseManager.KEY_content
+    };
+
     public static final String[] columnsBookStatus = new String[] {
             DatabaseManager.KEY_id,
             DatabaseManager.KEY_bookId,
@@ -119,6 +140,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             DatabaseManager.KEY_notes,
             DatabaseManager.KEY_bookmarks
     };
+
     public static final String[] columnsBook = new String[] {
             DatabaseManager.KEY_id,
             DatabaseManager.KEY_bookId,
@@ -158,6 +180,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TABLE_BOOKS);
         db.execSQL(CREATE_TABLE_STATE_BOOKS);
+        db.execSQL(CREATE_TABLE_NEWS);
     }
 
     @Override
@@ -165,6 +188,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         Log.d("db", "update");
         db.execSQL("DROP TABLE IF EXISTS '" + bookTable + "'");
         db.execSQL("DROP TABLE IF EXISTS '" + bookStateTable + "'");
+        db.execSQL("DROP TABLE IF EXISTS '" + newsTable + "'");
         onCreate(db);
     }
 

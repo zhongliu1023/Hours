@@ -21,31 +21,39 @@ import com.bumptech.glide.Glide;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
+import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
 public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBookViewHolder> {
     private static String TAG = "HomeBookAdapter";
 
     public List<Book> bookList;
+    public List<Book> selectedbookList;
     BookItemInterface bookItemInterface;
+    BookItemEditInterface bookItemEditInterface;
 
     public Context context;
     public Activity activity;
 
-    public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface) {
+    public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface, BookItemEditInterface bookItemEditInterface) {
         this.bookList = bookList;
         this.context = context;
         this.activity = (Activity)context;
         this.bookItemInterface = bookItemInterface;
+        this.bookItemEditInterface = bookItemEditInterface;
+
+        selectedbookList = new ArrayList<>();
     }
 
     @NonNull
@@ -87,15 +95,28 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             holder.readStateImage.setVisibility(View.INVISIBLE);
         }
 
+        holder.bookImage.setBackground(null);
+        if (Global.bookAction == QueryBook.BookAction.SELECTTION){
+            if (selectedbookList.contains(one)){
+                holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
+            }
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 bookItemInterface.onClickBookItem(one, position);
-
-
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                bookItemEditInterface.onLongClickBookItem(one);
+                return true;
+            }
+        });
+
     }
 
     @Override
@@ -105,6 +126,11 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
 
     public void reloadBookList(List<Book> updatedBooklist){
         bookList = updatedBooklist;
+        notifyDataSetChanged();
+    }
+
+    public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
+        selectedbookList = updatedBookList;
         notifyDataSetChanged();
     }
 

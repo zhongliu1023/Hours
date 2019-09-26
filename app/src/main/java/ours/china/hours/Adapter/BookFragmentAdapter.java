@@ -101,7 +101,7 @@ public class BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapte
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                bookItemEditInterface.onLongClickBookItem();
+                bookItemEditInterface.onLongClickBookItem(one);
                 return true;
             }
         });

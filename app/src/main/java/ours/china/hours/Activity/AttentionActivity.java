@@ -196,8 +196,10 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
     }
 
     @Override
-    public void onLongClickBookItem() {
+    public void onLongClickBookItem(Book selectedBook) {
         Global.bookAction = QueryBook.BookAction.SELECTTION;
-        adapter.reloadBookList(mBookList);
+
+        selectedBookLists.add(selectedBook);
+        adapter.reloadBookListWithSelection(selectedBookLists);
     }
 }

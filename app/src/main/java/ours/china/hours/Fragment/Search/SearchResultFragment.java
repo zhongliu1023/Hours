@@ -184,7 +184,8 @@ public class SearchResultFragment extends Fragment {
                                     Gson gson = new Gson();
                                     Type type = new TypeToken<ArrayList<Book>>() {}.getType();
                                     myShelfBooks = gson.fromJson(dataArray.toString(), type);
-                                    myShelfBookAdapter.reloadBookList(myShelfBooks);
+                                    myShelfBookAdapter.reloadBookList(myShelfBooks, keyWords);
+
                                 } else {
                                     Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
                                 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,14 +25,16 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
 
-public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.ViewHolder> {
+public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.ViewHolder> implements Filterable {
 
     private Context context;
     private List<Book> myShelfBooks;
+    private List<Book> myShelfBooksFiltered;
 
     public MyShelfBookAdapter(Context context, List<Book> myShelfBooks) {
         this.context = context;
         this.myShelfBooks = myShelfBooks;
+        this.myShelfBooksFiltered = myShelfBooks;
     }
 
     @NonNull
@@ -44,7 +48,7 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Book one = myShelfBooks.get(position);
+        Book one = myShelfBooksFiltered.get(position);
 
         holder.bookName.setText(one.bookName);
         if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
@@ -76,12 +80,46 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
 
     @Override
     public int getItemCount() {
-        return myShelfBooks.size();
+        return myShelfBooksFiltered.size();
     }
 
-    public void reloadBookList(ArrayList<Book> updatedBooks){
+    public void reloadBookList(ArrayList<Book> updatedBooks, String keyword){
         myShelfBooks = updatedBooks;
-        notifyDataSetChanged();
+        MyShelfBookAdapter.this.getFilter().filter(keyword);
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String searchString = charSequence.toString();
+                if (searchString.isEmpty()) {
+                    myShelfBooksFiltered = myShelfBooks;
+                } else {
+                    List<Book> filteredList = new ArrayList<>();
+                    for (Book one : myShelfBooks) {
+                        if (one.bookName.toLowerCase().contains(searchString.toLowerCase())
+                                || one.author.toLowerCase().contains(searchString.toLowerCase())
+                                || one.publishingHouse.toLowerCase().contains(searchString.toLowerCase())) {
+                            filteredList.add(one);
+                        }
+                    }
+
+                    myShelfBooksFiltered = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = myShelfBooksFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                myShelfBooksFiltered = (ArrayList<Book>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

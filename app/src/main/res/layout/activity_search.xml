@@ -28,6 +28,7 @@
                     android:src="@drawable/return_icon"
                     android:layout_centerVertical="true"/>
                 <RelativeLayout
+                    android:id="@+id/relSearchBook"
                     android:layout_toStartOf="@id/txtSearch"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

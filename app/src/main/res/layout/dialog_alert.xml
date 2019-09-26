@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/button_back"
+    android:background="@drawable/button_back_white"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:padding="@dimen/getneral_padding_16"
-        android:background="@drawable/button_back">
+        android:padding="@dimen/getneral_padding_16">
 
         <TextView
             android:id="@+id/txt_dlgTitle"
@@ -19,7 +18,7 @@
             android:layout_height="wrap_content"
             android:text="Amaran"
             android:layout_marginBottom="@dimen/getneral_padding_8"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="18sp" />
 
         <TextView
@@ -30,23 +29,24 @@
             android:layout_marginBottom="@dimen/getneral_padding_8"
             android:text="Hello, Hello, Hello, hello hell, hiddddddddddddddddddddddd"
             android:textAlignment="center"
-            android:textColor="@color/white"/>
+            android:textColor="@color/black"/>
 
-        <ImageView
+        <TextView
             android:id="@+id/imageView47"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="@dimen/getneral_padding_8"
-            android:background="#8bead4" />
+            android:background="@color/seperator" />
 
         <Button
             android:id="@+id/btn_dlgOk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAllCaps="false"
+            android:background="@color/transparent"
             android:layout_marginTop="@dimen/getneral_padding_8"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/black"
             android:textSize="15sp" />
     </LinearLayout>
 </LinearLayout>

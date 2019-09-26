@@ -97,7 +97,7 @@ public class AttentionBookAdapter extends RecyclerView.Adapter<AttentionBookAdap
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                bookItemEditInterface.onLongClickBookItem();
+                bookItemEditInterface.onLongClickBookItem(one);
                 return true;
             }
         });

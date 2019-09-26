@@ -12,6 +12,7 @@ import ours.china.hours.BookLib.foobnix.pdf.search.view.BookshelfView;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.BookStatus;
 import ours.china.hours.Model.LocalBook;
+import ours.china.hours.Model.NewsItem;
 
 public class DBController {
 
@@ -85,6 +86,18 @@ public class DBController {
         database.insert(DatabaseManager.bookStateTable, null, values);
     }
 
+    public void insertNewsData(NewsItem data) {
+        database = dbManager.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DatabaseManager.KEY_newsId, data.newsId);
+        values.put(DatabaseManager.KEY_releaseTime, data.releaseTime);
+        values.put(DatabaseManager.KEY_title, data.title);
+        values.put(DatabaseManager.KEY_content, data.content);
+
+        database.insert(DatabaseManager.newsTable, null, values);
+    }
+
     public void updateBookDataWithDownloadData(Book data) {
         ContentValues values = new ContentValues();
 
@@ -98,6 +111,7 @@ public class DBController {
         database.update(DatabaseManager.bookTable, values, where, new String[]{data.bookId});
         database.close();
     }
+
     public void updateBookData(Book data) {
         ContentValues values = new ContentValues();
 
@@ -282,6 +296,7 @@ public class DBController {
         data.libraryPosition = cursor.getString(28);
         return data;
     }
+
     public BookStatus getBookStateData(String bookID) {
         database = dbManager.getWritableDatabase();
 
@@ -307,9 +322,31 @@ public class DBController {
         return data;
     }
 
+    public ArrayList<NewsItem> getAllNews() {
+        ArrayList<NewsItem> results = new ArrayList<>();
+        database = dbManager.getWritableDatabase();
+        Cursor cursor = database.rawQuery("select * from newsTable", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                NewsItem row = new NewsItem();
+
+                row.newsId = cursor.getString(1);
+                row.releaseTime = cursor.getString(2);
+                row.title = cursor.getString(3);
+                row.content = cursor.getString(4);
+
+                results.add(row);
+
+            } while (cursor.moveToNext());
+        }
+
+        return results;
+    }
+
     public ArrayList<Book> getAllData() {
-        ArrayList<Book> results = new ArrayList();
-        this.database = this.dbManager.getReadableDatabase();
+        ArrayList<Book> results = new ArrayList<>();
+        this.database = this.dbManager.getWritableDatabase();
         Cursor cursor = this.database.rawQuery("select * from bookTable", null);
         if (cursor.moveToFirst()) {
             do {

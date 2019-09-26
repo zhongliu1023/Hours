@@ -44,6 +44,7 @@ public class BookDetailsDialog extends Dialog {
     TextView bookName, bookAuthor, txtDeadlineDate, txtAverageTime, txtSpecifiedTime,bookSummary;
 //    RatingBar ratingView;
     TextView txtDownloadButton;
+    TextView txtTitle;
 
     ImageView starImage;
     int starImagePos = 0;
@@ -62,9 +63,14 @@ public class BookDetailsDialog extends Dialog {
     }
 
     private void initView() {
+        //
         db = new DBController(context);
         sessionManager = new SharedPreferencesManager(context);
         focusBook = BookManagement.getFocuseBook(sessionManager);
+
+        // for title
+        txtTitle = findViewById(R.id.txtTitle);
+        txtTitle.setText(focusBook.bookName);
 
         imgBack = findViewById(R.id.imgBack);
         bookCoverImg = findViewById(R.id.bookCoverImg);

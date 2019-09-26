@@ -7,7 +7,7 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/rect_news_alert"
+        android:background="@drawable/button_back_white"
         android:layout_centerInParent="true">
         <RelativeLayout
             android:layout_width="match_parent"
@@ -26,11 +26,12 @@
             android:background="@color/seperator"/>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp">
+            android:layout_height="50dp">
             <RelativeLayout
                 android:id="@+id/relCancel"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:padding="@dimen/getneral_padding_8"
                 android:layout_height="match_parent">
                 <TextView
                     android:layout_width="wrap_content"
@@ -48,6 +49,7 @@
                 android:id="@+id/relConfirm"
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:padding="@dimen/getneral_padding_8"
                 android:layout_height="match_parent">
                 <TextView
                     android:layout_width="wrap_content"

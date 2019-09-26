@@ -62,10 +62,12 @@ import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Dialog.SelectFavoriteDialog;
 import ours.china.hours.Fragment.HomeTab.HomeFragment;
 import ours.china.hours.Management.BookManagement;
+import ours.china.hours.Management.NewsManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.BookStatus;
 import ours.china.hours.Model.Favorites;
+import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -108,6 +110,10 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     BookDetailsDialog bookDetailsDialog;
 
     JSONObject statistics = null;
+
+    ArrayList<NewsItem> mNewsData;
+    ImageView imgNewsCircle;
+
     @Nullable
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,6 +141,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         txtToolbarComplete = view.findViewById(R.id.txtToolbarComplete);
         txtToolbarDownload = view.findViewById(R.id.txtToolbarDownload);
         txtToolbarFavorite = view.findViewById(R.id.txtToolbarFavortie);
+
+        imgNewsCircle = view.findViewById(R.id.imgNewsCircle);
 
         sessionManager = new SharedPreferencesManager(getActivity());
         // recyclerViewWork.
@@ -322,8 +330,23 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         BookManagement.saveFavorites(mFavorites, sessionManager);
     }
 
+
+    public void newsReferenceUIWork() {
+        mNewsData.clear();
+        mNewsData = NewsManagement.getFoucsNews(sessionManager);
+
+        if (mNewsData.size() == 0) {
+            imgNewsCircle.setVisibility(View.GONE);
+        } else {
+            imgNewsCircle.setVisibility(View.VISIBLE);
+        }
+    }
+
+
     @Override
     public void onResume() {
+        newsReferenceUIWork();
+
         super.onResume();
 
 //        this.mBookList = db.getAllData();
@@ -693,29 +716,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 selectedBookLists.add(selectedBook);
             }
             adapter.reloadBookListWithSelection(selectedBookLists);
-            if (selectedBookLists.size() > 0) {
-                txtToolbarFavorite.setEnabled(true);
-                txtToolbarDownload.setEnabled(true);
-
-                txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
-                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_90));
-
-            } else {
-                txtToolbarFavorite.setEnabled(false);
-                txtToolbarDownload.setEnabled(false);
-
-                txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
-                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
-            }
-
-            if (selectedBookLists.size() == 1 && selectedBookLists.get(0).bookLocalUrl.equals("") && selectedBookLists.get(0).bookImageLocalUrl.equals("")){
-                txtToolbarDownload.setText("下载");
-            } else if (judgeSelectedAllBooksIsDownloaded()) {
-                txtToolbarDownload.setText("删除");
-            } else {
-                txtToolbarDownload.setEnabled(false);
-                txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
-            }
+            toolbarAction();
 
         } else {
             if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
@@ -772,12 +773,44 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     }
 
     @Override
-    public void onLongClickBookItem() {
+    public void onLongClickBookItem(Book selectedBook) {
         Global.bookAction = QueryBook.BookAction.SELECTTION;
-        adapter.reloadBookList(searchedBookList);
+
+        selectedBookLists.add(selectedBook);
+        adapter.reloadBookListWithSelection(selectedBookLists);
+
+        // for toolbar.
+        toolbarAction();
 
         mainToolbar.setVisibility(View.GONE);
         otherToolbar.setVisibility(View.VISIBLE);
+    }
+
+    public void toolbarAction() {
+
+        if (selectedBookLists.size() > 0) {
+            txtToolbarFavorite.setEnabled(true);
+            txtToolbarDownload.setEnabled(true);
+
+            txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
+            txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+
+        } else {
+            txtToolbarFavorite.setEnabled(false);
+            txtToolbarDownload.setEnabled(false);
+
+            txtToolbarFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
+            txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+        }
+
+        if (selectedBookLists.size() == 1 && selectedBookLists.get(0).bookLocalUrl.equals("") && selectedBookLists.get(0).bookImageLocalUrl.equals("")){
+            txtToolbarDownload.setText("下载");
+        } else if (judgeSelectedAllBooksIsDownloaded()) {
+            txtToolbarDownload.setText("删除");
+        } else {
+            txtToolbarDownload.setEnabled(false);
+            txtToolbarDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+        }
     }
 
 

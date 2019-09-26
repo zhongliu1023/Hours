@@ -223,7 +223,7 @@ public class PasswordLoginFragment extends Fragment {
 
                                         } else {
                                             Global.hideLoading();
-                                            Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getContext(), "密码错误", Toast.LENGTH_SHORT).show();
                                         }
                                     } catch (JSONException ex) {
                                         ex.printStackTrace();
@@ -231,7 +231,7 @@ public class PasswordLoginFragment extends Fragment {
                                     }
 
                                 } else {
-                                    Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                                     Global.hideLoading();
                                 }
                             }

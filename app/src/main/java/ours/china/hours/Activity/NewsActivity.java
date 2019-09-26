@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 
 import ours.china.hours.Adapter.NewsListAdatper;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.DB.DBController;
+import ours.china.hours.DB.DatabaseManager;
+import ours.china.hours.Management.NewsManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.NewsItem;
@@ -54,6 +58,8 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
     private NewsListAdatper adatper;
 
     AlertDelete alert;
+    DBController db;
+    SharedPreferencesManager sessionManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,11 +69,17 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
         initControls();
         event();
 
-        getAllDataFromServer();
+//        getAllDataFromServer();
     }
 
     private void initControls() {
+        // for database operation.
+        db = new DBController(NewsActivity.this);
+        sessionManager = new SharedPreferencesManager(NewsActivity.this);
+
         // for listView
+        mNewsData = NewsManagement.getFoucsNews(sessionManager);
+
         mListView = findViewById(R.id.lstNewsContent);
         mListView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
         adatper = new NewsListAdatper(NewsActivity.this, mNewsData);
@@ -79,7 +91,7 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
 
                 SwipeMenuItem cancelItem = new SwipeMenuItem(NewsActivity.this);
                 cancelItem.setBackground(new ColorDrawable(getResources().getColor(R.color.lt_grey_alpha)));
-                cancelItem.setWidth(120);
+                cancelItem.setWidth(200);
                 cancelItem.setTitle("取消置顶");
                 cancelItem.setTitleColor(getResources().getColor(R.color.white));
                 cancelItem.setTitleSize(17);
@@ -88,7 +100,7 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
 
                 SwipeMenuItem deleteItem = new SwipeMenuItem(NewsActivity.this);
                 deleteItem.setBackground(new ColorDrawable(getResources().getColor(R.color.red)));
-                deleteItem.setWidth(120);
+                deleteItem.setWidth(200);
                 deleteItem.setTitle("删除");
                 deleteItem.setTitleColor(getResources().getColor(R.color.white));
                 deleteItem.setTitleSize(17);
@@ -103,11 +115,19 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 switch (index) {
                     case 0:
-                        Toast.makeText(NewsActivity.this, "Hello, this is cancel action", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(NewsActivity.this, "Hello, this is cancel action", Toast.LENGTH_LONG).show();
                         mListView.smoothCloseMenu();
                         break;
                     case 1:
                         mNewsData.remove(position);
+                        if (mNewsData == null || mNewsData.size() == 0) {
+                            noNews.setVisibility(View.VISIBLE);
+                        } else {
+                            noNews.setVisibility(View.GONE);
+                        }
+
+                        db.insertNewsData(mNewsData.get(position));
+                        NewsManagement.saveFoucsNews(mNewsData, sessionManager);
                         adatper.notifyDataSetChanged();
                         break;
                 }
@@ -162,6 +182,11 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
     public void onDelete() {
         mNewsData.clear();
         adatper.notifyDataSetChanged();
+
+        for (NewsItem one : mNewsData) {
+            db.insertNewsData(one);
+        }
+        NewsManagement.saveFoucsNews(mNewsData, sessionManager);
 
         noNews.setVisibility(View.VISIBLE);
     }

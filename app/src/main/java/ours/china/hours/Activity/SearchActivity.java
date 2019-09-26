@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.UserManager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -38,6 +39,7 @@ public class SearchActivity extends AppCompatActivity implements SearchItemInter
     public TextView txtSearch;
     SharedPreferencesManager sessionManager;
     ImageView imgBack;
+    RelativeLayout relSearchBook;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +77,15 @@ public class SearchActivity extends AppCompatActivity implements SearchItemInter
                 return false;
             }
         });
+
+        relSearchBook = findViewById(R.id.relSearchBook);
+        relSearchBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchBook.onActionViewExpanded();
+            }
+        });
+
         txtSearch = findViewById(R.id.txtSearch);
         txtSearch.setOnClickListener(new View.OnClickListener() {
             @Override

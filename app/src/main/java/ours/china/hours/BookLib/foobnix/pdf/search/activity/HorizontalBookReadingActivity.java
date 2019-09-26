@@ -1888,10 +1888,12 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 //        }
 
 
+        if (Integer.parseInt(maxPage) != 0) {
+            int pagePercent = page * 100 / Integer.parseInt(maxPage);
+            pagesReadingPercent.setText(getString(R.string.book_reading_percent, Integer.toString(pagePercent)) + "%");
+            Log.i("horizontalbookreading", "updateUI => end");
+        }
 
-        int pagePercent = page * 100 / Integer.parseInt(maxPage);
-        pagesReadingPercent.setText(getString(R.string.book_reading_percent, Integer.toString(pagePercent)) + "%");
-        Log.i("horizontalbookreading", "updateUI => end");
     }
 
 
