@@ -119,6 +119,7 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
                         mListView.smoothCloseMenu();
                         break;
                     case 1:
+                        db.insertNewsData(mNewsData.get(position));
                         mNewsData.remove(position);
                         if (mNewsData == null || mNewsData.size() == 0) {
                             noNews.setVisibility(View.VISIBLE);
@@ -126,7 +127,6 @@ public class NewsActivity extends AppCompatActivity implements AlertDelete.delet
                             noNews.setVisibility(View.GONE);
                         }
 
-                        db.insertNewsData(mNewsData.get(position));
                         NewsManagement.saveFoucsNews(mNewsData, sessionManager);
                         adatper.notifyDataSetChanged();
                         break;

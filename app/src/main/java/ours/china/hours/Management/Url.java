@@ -5,6 +5,8 @@ public class Url {
     public static String domainUrl = "http://49.233.43.122/";
     public static String baseUrl = "http://49.233.43.122/api/";
 
+    public static String refresh_token = baseUrl + "refresh_token";
+
     public static String loginUrl = baseUrl + "login_by_oauth";
     public static String faceLogin = baseUrl + "login_by_face";
 
@@ -52,4 +54,6 @@ public class Url {
     public static final String CLIENT_ID = "hours_reader";
     public static final String CLIENT_SECRET = "a55b8ca1-c6b5-4867-b0dc-766dfb41d073";
     public static final String SCOPE = "userinfo bookinfo readinfo";
+
+    public static final String filter_refresh_token = "update token";
 }

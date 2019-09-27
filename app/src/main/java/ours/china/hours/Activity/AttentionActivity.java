@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import ours.china.hours.Adapter.AttentionBookAdapter;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.foobnix.android.utils.LOG;
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
@@ -42,13 +44,15 @@ import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.QueryRequest;
 import ours.china.hours.R;
 
 public class AttentionActivity extends AppCompatActivity implements BookItemInterface, BookItemEditInterface {
     private final String TAG = "AttentionActivity";
 
     ImageView imgBack;
-    TextView txtDelete;
+    RelativeLayout mainToolbar, otherToolbar;
+    TextView txtToolbarComplete, txtToolbarDelete;
     SwipeRefreshLayout swipeRefreshLayout;
     RecyclerView recyclerAttention;
     AttentionBookAdapter adapter;
@@ -57,18 +61,38 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
     DBController db = null;
     BookDetailsDialog bookDetailsDialog;
 
-    ArrayList<Book> mBookList;
-    ArrayList<Book> selectedBookLists;
-    private QueryBook.Category category = QueryBook.Category.ATEENTION;
+    ArrayList<Book> mBookList = new ArrayList<>();
+    ArrayList<Book> selectedBookLists = new ArrayList<>();
+
+    private QueryBook.Category category = QueryBook.Category.ALL;
+    private QueryRequest req;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attention);
 
-        getDataFromServer();
         init();
+        getDataFromServer();
         event();
+    }
+
+
+    public void init() {
+
+        // primary state
+        mainToolbar = findViewById(R.id.mainToolbar);
+        otherToolbar = findViewById(R.id.otherToolbar);
+        txtToolbarComplete = findViewById(R.id.txtToolbarComplete);
+        txtToolbarDelete = findViewById(R.id.txtToolbarDelete);
+
+        // for recyclerView.
+        recyclerAttention = findViewById(R.id.recyclerAttention);
+        adapter = new AttentionBookAdapter(mBookList, AttentionActivity.this, this, this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(AttentionActivity.this, 3);
+        recyclerAttention.setLayoutManager(gridLayoutManager);
+        recyclerAttention.setAdapter(adapter);
+
     }
 
     public void getDataFromServer() {
@@ -100,9 +124,9 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
                                     Gson gson = new Gson();
                                     Type type = new TypeToken<ArrayList<Book>>() {}.getType();
                                     mBookList = gson.fromJson(dataArray.toString(), type);
-
+                                    getAttentionBookData();
                                 } else {
-                                    Toast.makeText(AttentionActivity.this, "错误", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(AttentionActivity.this, "无法从服务器获取数据。", Toast.LENGTH_SHORT).show();
                                 }
 
                             } catch (JSONException ex) {
@@ -116,46 +140,108 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
                 });
     }
 
-    public void init() {
+    public void getAttentionBookData() {
+        ArrayList<Book> tempBooks = new ArrayList<>();
+        for (Book one : mBookList) {
+            if (Global.currentUser.attentionBookIds.contains(one.bookId)) {
+                tempBooks.add(one);
+            }
+        }
 
-        // primary state
-        txtDelete = findViewById(R.id.txtDelete);
-        txtDelete.setEnabled(false);
-        txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
+        mBookList = tempBooks;
+        adapter.reloadBookList(mBookList);
+    }
 
-        // for recyclerView.
-        recyclerAttention = findViewById(R.id.recyclerAttention);
-        adapter = new AttentionBookAdapter(mBookList, AttentionActivity.this, this, this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(AttentionActivity.this, 3);
-        recyclerAttention.setLayoutManager(gridLayoutManager);
-        recyclerAttention.setAdapter(adapter);
+    public void reflectAttentionBooksStateToServer(String attentionBookIds) {
+        Global.showLoading(AttentionActivity.this,"generate_report");
+        Ion.with(this)
+                .load(Url.update_profile)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("attentionBookIds", attentionBookIds)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        Log.i(TAG, "result => " + result);
+                        Global.hideLoading();
 
-        // for edit state.
-        selectedBookLists = new ArrayList<Book>();
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+                                    Global.hideLoading();
+
+                                    Global.bookAction = QueryBook.BookAction.NONE;
+                                    selectedBookLists.clear();
+
+                                    adapter.reloadBookList(mBookList);
+
+                                    mainToolbar.setVisibility(View.VISIBLE);
+                                    otherToolbar.setVisibility(View.GONE);
+
+                                } else {
+                                    Toast.makeText(AttentionActivity.this, "无法从服务器获取数据。", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+                            Toast.makeText(AttentionActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
 
     }
+
 
     public void event() {
         imgBack = findViewById(R.id.imgBack);
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Global.bookAction == QueryBook.BookAction.NONE) {
-                    AttentionActivity.super.onBackPressed();
-                } else {
-                    Global.bookAction = QueryBook.BookAction.NONE;
-                    adapter.reloadBookList(mBookList);
-                }
+                finish();
             }
         });
 
-        txtDelete.setOnClickListener(new View.OnClickListener() {
+        txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (Book one : selectedBookLists) {
-//
-//                    one.bookStatus.isAttention = QueryBook.BookAttention.ATTENTION.toString();
+                Global.bookAction = QueryBook.BookAction.NONE;
+                selectedBookLists.clear();
 
+                mainToolbar.setVisibility(View.VISIBLE);
+                otherToolbar.setVisibility(View.GONE);
+
+                adapter.reloadBookList(mBookList);
+            }
+        });
+
+        txtToolbarDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JSONObject attentionBookIds = new JSONObject();
+
+                JSONArray tempArray = new JSONArray();
+                for (Book one : selectedBookLists) {
+                    mBookList.remove(one);
+                    tempArray.put(one.bookId);
+                }
+
+                try {
+                    attentionBookIds.put("req", QueryRequest.DELETE.toString());
+                    attentionBookIds.put("bookIds", tempArray.toString());
+
+                    Log.i(TAG, "Request parameter => " + attentionBookIds.toString());
+                    reflectAttentionBooksStateToServer(attentionBookIds.toString());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -186,11 +272,11 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
             adapter.reloadBookListWithSelection(selectedBookLists);
 
             if (selectedBookLists.size() == 0) {
-                txtDelete.setEnabled(false);
-                txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
+                txtToolbarDelete.setEnabled(false);
+                txtToolbarDelete.setTextColor(getResources().getColor(R.color.alpa_40));
             } else {
-                txtDelete.setEnabled(true);
-                txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
+                txtToolbarDelete.setEnabled(true);
+                txtToolbarDelete.setTextColor(getResources().getColor(R.color.alpa_90));
             }
         }
     }
@@ -199,7 +285,19 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
     public void onLongClickBookItem(Book selectedBook) {
         Global.bookAction = QueryBook.BookAction.SELECTTION;
 
+        mainToolbar.setVisibility(View.GONE);
+        otherToolbar.setVisibility(View.VISIBLE);
+
         selectedBookLists.add(selectedBook);
+
+        txtToolbarDelete.setEnabled(true);
+        txtToolbarDelete.setTextColor(getResources().getColor(R.color.alpa_90));
         adapter.reloadBookListWithSelection(selectedBookLists);
+    }
+
+    @Override
+    protected void onStop() {
+        Global.bookAction = QueryBook.BookAction.NONE;
+        super.onStop();
     }
 }

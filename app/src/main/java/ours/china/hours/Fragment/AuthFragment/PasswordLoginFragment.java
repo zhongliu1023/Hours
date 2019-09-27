@@ -213,6 +213,12 @@ public class PasswordLoginFragment extends Fragment {
                                             Global.access_token = resObj.getString("access_token");
                                             Global.refresh_token = resObj.getString("refresh_token");
 
+                                            // to update token
+                                            Intent intent = new Intent();
+                                            intent.setAction(Url.filter_refresh_token);
+                                            intent.putExtra("refresh_token", Global.refresh_token);
+                                            getActivity().sendBroadcast(intent);
+
                                             // save session data.
                                             currentUser.mobile = mobile;
                                             currentUser.password = password;

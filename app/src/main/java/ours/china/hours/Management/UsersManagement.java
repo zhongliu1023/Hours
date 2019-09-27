@@ -42,6 +42,7 @@ public class UsersManagement {
         uservo.faceHash = JsonUtil.getString(responseJsonObject, "faceHash");
         uservo.idCardFront = JsonUtil.getString(responseJsonObject, "idCardFront");
         uservo.idCardBack = JsonUtil.getString(responseJsonObject, "idCardBack");
+        uservo.attentionBookIds = JsonUtil.getString(responseJsonObject, "attentionBookIds");
         return uservo;
     }
     public static void saveCurrentUser(User userVo, SharedPreferencesManager sharedPreferencesManager){

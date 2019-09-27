@@ -3,6 +3,8 @@ package ours.china.hours.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+
 public class User {
     @SerializedName("userId") @Expose public String userId ="";
     @SerializedName("userSerial") @Expose public String userSerial ="";
@@ -27,5 +29,6 @@ public class User {
     @SerializedName("faceHash") @Expose public String faceHash ="";
     @SerializedName("idCardFront") @Expose public String idCardFront ="";
     @SerializedName("idCardBack") @Expose public String idCardBack ="";
+    @SerializedName("attentionBookIds") @Expose public String attentionBookIds = "";
     @SerializedName("lastReadBookId") @Expose public String lastReadBookId ="";
 }

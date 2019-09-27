@@ -235,6 +235,12 @@ public class Splash extends AppCompatActivity {
                                 Global.access_token = resObj.getString("access_token");
                                 Global.refresh_token = resObj.getString("refresh_token");
 
+                                // to update token
+                                Intent intent = new Intent();
+                                intent.setAction(Url.filter_refresh_token);
+                                intent.putExtra("refresh_token", Global.refresh_token);
+                                sendBroadcast(intent);
+
                                 getUserInfo();
 
                             } catch (JSONException ex) {

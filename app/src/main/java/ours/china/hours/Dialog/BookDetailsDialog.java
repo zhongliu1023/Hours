@@ -2,6 +2,7 @@ package ours.china.hours.Dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -28,8 +29,10 @@ import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.DownloadFile;
 import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
 public class BookDetailsDialog extends Dialog {
@@ -103,7 +106,7 @@ public class BookDetailsDialog extends Dialog {
         bookSummary.setText(focusBook.summary);
 
         starImage = findViewById(R.id.starImage);
-        if (focusBook.bookStatus.isAttention.equals(QueryBook.BookAttention.ATTENTION.toString())) {
+        if (Global.currentUser.attentionBookIds.contains(focusBook.bookId)) {
             starImage.setImageResource(R.drawable.collect2_icon);
             starImagePos = 1;
         } else {
@@ -126,6 +129,8 @@ public class BookDetailsDialog extends Dialog {
         txtDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                txtDownloadButton.setEnabled(false);
+
                 new DownloadImage(context, new ImageListener() {
                     @Override
                     public void onImagePath(String path) {
@@ -143,11 +148,11 @@ public class BookDetailsDialog extends Dialog {
                 if (starImagePos == 0) {
                     starImagePos = 1;
                     starImage.setImageResource(R.drawable.collect2_icon);
-                    focusBook.bookStatus.isAttention = QueryBook.BookAttention.ATTENTION.toString();
+                    addOrRemoveToAttentionWork(true);
                 } else if (starImagePos == 1) {
                     starImagePos = 0;
                     starImage.setImageResource(R.drawable.collect_icon);
-                    focusBook.bookStatus.isAttention = QueryBook.BookAttention.NONE.toString();
+                    addOrRemoveToAttentionWork(false);
                 }
             }
         });
@@ -220,14 +225,31 @@ public class BookDetailsDialog extends Dialog {
                 });
     }
 
-    public void addOrRemoveAttentionApiWork(boolean closeOrDownload) {
-        Global.showLoading(context, "generate_report");
+    public void addOrRemoveToAttentionWork(boolean addOrDelete) {
+        String req;
+        if (addOrDelete) {
+            req = "add";
+        } else {
+            req = "delete";
+        }
+
+        JSONObject tempObject = new JSONObject();
+        try {
+            tempObject.put("req", req);
+            tempObject.put("bookIds", focusBook.bookId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String attentionBookIds = tempObject.toString();
+        Log.i(TAG, attentionBookIds);
+
+
         Ion.with(context)
-                .load(Url.bookStateChangeOperation)
+                .load(Url.update_profile)
                 .setTimeout(10000)
                 .setBodyParameter("access_token", Global.access_token)
-                .setBodyParameter("bookId", focusBook.bookId)
-                .setBodyParameter("isAttention", focusBook.bookStatus.isAttention)
+                .setBodyParameter("attentionBookIds", attentionBookIds)
                 .asString()
                 .setCallback(new FutureCallback<String>() {
                     @Override
@@ -238,11 +260,12 @@ public class BookDetailsDialog extends Dialog {
                             try {
                                 JSONObject resObj = new JSONObject(result);
                                 if (resObj.getString("res").equals("success")) {
-                                    db.updateBookStateData(focusBook.bookStatus, focusBook.bookId);
-                                    onDownloadBookListner.onFinishDownload(focusBook, closeOrDownload);
-                                    dismiss();
+                                    Global.currentUser.attentionBookIds = resObj.getString("attentionBookIds");
+                                    UsersManagement.saveCurrentUser(Global.currentUser, sessionManager);
+
+                                    Log.i(TAG, "attentionBookIds => " + resObj.getString("attentionBookIds"));
                                 } else {
-                                    Toast.makeText(context, "失败", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(context, "失败", Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                             } catch (JSONException ex) {
@@ -250,8 +273,8 @@ public class BookDetailsDialog extends Dialog {
                             }
 
                         } else {
-                            Toast.makeText(context, "失败", Toast.LENGTH_SHORT).show();
-                            return;
+//                            Toast.makeText(context, "失败", Toast.LENGTH_SHORT).show();
+//                            return;
                         }
                     }
                 });

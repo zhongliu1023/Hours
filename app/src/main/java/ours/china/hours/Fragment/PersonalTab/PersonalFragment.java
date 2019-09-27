@@ -34,6 +34,7 @@ import com.bigkoo.alertview.OnItemClickListener;
 
 import java.util.ArrayList;
 
+import ours.china.hours.Activity.AttentionActivity;
 import ours.china.hours.Activity.Auth.LoginOptionActivity;
 import ours.china.hours.Activity.FavoritesActivity;
 import ours.china.hours.Activity.NewsActivity;
@@ -117,7 +118,7 @@ public class PersonalFragment extends Fragment {
 
         tvFrPersonalFav.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                Intent intentFav = new Intent(getContext(), FavoritesActivity.class);
+                Intent intentFav = new Intent(getContext(), AttentionActivity.class);
                 startActivity(intentFav);
             }
         });

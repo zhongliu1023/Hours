@@ -116,7 +116,6 @@
                 android:id="@+id/txtTypeBook"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="全都(9)"
                 android:textSize="@dimen/content_normal_size"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="10dp"
