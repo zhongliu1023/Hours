@@ -30,6 +30,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
@@ -42,16 +43,19 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
     public List<Book> selectedbookList;
     BookItemInterface bookItemInterface;
     BookItemEditInterface bookItemEditInterface;
+    PageLoadInterface pageLoadInterface;
 
     public Context context;
     public Activity activity;
 
-    public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface, BookItemEditInterface bookItemEditInterface) {
+    public HomeBookAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,
+                           BookItemEditInterface bookItemEditInterface, PageLoadInterface pageLoadInterface) {
         this.bookList = bookList;
         this.context = context;
         this.activity = (Activity)context;
         this.bookItemInterface = bookItemInterface;
         this.bookItemEditInterface = bookItemEditInterface;
+        this.pageLoadInterface = pageLoadInterface;
 
         selectedbookList = new ArrayList<>();
     }
@@ -62,6 +66,11 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.book_item, parent, false);
         return new HomeBookViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull HomeBookViewHolder holder, int position, @NonNull List<Object> payloads) {
+        super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -116,6 +125,14 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
                 return true;
             }
         });
+
+        if (getItemCount() == position + 1) {
+            if (pageLoadInterface != null) {
+                pageLoadInterface.scrollToLoad(getItemCount() / Global.perPage);
+            }
+        }
+
+
 
     }
 

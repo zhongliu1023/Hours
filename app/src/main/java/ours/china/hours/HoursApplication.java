@@ -81,16 +81,16 @@ public class HoursApplication extends Application {
                                     Global.refresh_token = resObj.getString("refresh_token");
                                     refresh_token = Global.refresh_token;
 
-                                    Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_SHORT).show();
 
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "网络通讯失败。", Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getApplicationContext(), "网络通讯失败。", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
                             }
                         } else {
-                            Toast.makeText(getApplicationContext(), "网络通讯失败。", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), "网络通讯失败。", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
