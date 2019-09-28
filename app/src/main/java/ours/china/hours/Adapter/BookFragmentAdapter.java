@@ -33,18 +33,16 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
     public List<Book> selectedbookList;
     BookItemInterface bookItemInterface;
     BookItemEditInterface bookItemEditInterface;
-    PageLoadInterface pageLoadInterface;
 
     public Context context;
     public Activity activity;
 
-    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface, PageLoadInterface pageLoadInterface) {
+    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface) {
         this.bookList = bookList;
         this.context = context;
         this.activity = (Activity)context;
         this.bookItemEditInterface = bookItemEditInterface;
         this.bookItemInterface = bookItemInterface;
-        this.pageLoadInterface = pageLoadInterface;
 
         this.selectedbookList = new ArrayList<Book>();
     }
@@ -110,11 +108,6 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
             }
         });
 
-        if (getItemCount() == position + 1) {
-            if (pageLoadInterface != null) {
-                pageLoadInterface.scrollToLoad(getItemCount() / Global.perPage);
-            }
-        }
 
     }
 

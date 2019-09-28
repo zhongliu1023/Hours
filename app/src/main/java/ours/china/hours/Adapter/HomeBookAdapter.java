@@ -126,9 +126,9 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             }
         });
 
-        if (getItemCount() == position + 1) {
+        if (getItemCount() >= Global.perPage && getItemCount() == position + 1) {
             if (pageLoadInterface != null) {
-                pageLoadInterface.scrollToLoad(getItemCount() / Global.perPage);
+                pageLoadInterface.scrollToLoad(position + 1);
             }
         }
 

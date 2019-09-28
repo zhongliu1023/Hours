@@ -229,6 +229,7 @@ public class FaceLoginFragment extends Fragment {
                     byteString.append(Byte.toString(b));
                 }
                 Global.faceHash = byteString.toString();
+                Global.faceHash = Global.faceHash.substring(0,100);
                 Log.i(TAG, "hash => " + Global.faceHash);
 
                 loginApiWork();
@@ -373,7 +374,7 @@ public class FaceLoginFragment extends Fragment {
                                 progressBar.setVisibility(View.VISIBLE);
                                 startScanFace();
                                 Global.hideLoading();
-                                Toast.makeText(getContext(), "所有数据已加载。", Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getContext(), "所有数据已加载。", Toast.LENGTH_LONG).show();
 
                                 FaceServer.getInstance().init(getActivity());
                             }
@@ -386,7 +387,7 @@ public class FaceLoginFragment extends Fragment {
                                 progressBar.setVisibility(View.VISIBLE);
                                 startScanFace();
                                 Global.hideLoading();
-                                Toast.makeText(getContext(), "你没有收到所有数据。", Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getContext(), "你没有收到所有数据。", Toast.LENGTH_LONG).show();
 
                                 FaceServer.getInstance().init(getActivity());
                             }
@@ -442,7 +443,6 @@ public class FaceLoginFragment extends Fragment {
                 .setBodyParameter("client_id", Url.CLIENT_ID)
                 .setBodyParameter("client_secret", Url.CLIENT_SECRET)
                 .setBodyParameter("scope", Url.SCOPE)
-
                 .setBodyParameter("username", electedPhoneNumber)
                 .setBodyParameter("face_hash", Global.faceHash)
                 .asJsonObject()
@@ -823,65 +823,6 @@ public class FaceLoginFragment extends Fragment {
         }
     }
 
-//
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//
-//        if (requestCode == requestNumber && !Global.faceImageLocalUrl.equals("")) {
-//            tempMobileNumber = Global.faceImageLocalUrl.substring(Global.faceImageLocalUrl.lastIndexOf('/') + 1);
-//            tempMobileNumber = tempMobileNumber.split(",")[0];
-//
-//            Log.i(TAG, "mobile number => " + tempMobileNumber);
-////            getDataFromServer();
-//            displayImage();
-//        }
-//    }
-
-//    void loginWithFaceInfo(){
-//        Ion.with(getActivity())
-//                .load(Url.faceLogin)
-//                .setTimeout(10000)
-//                .setBodyParameter("grant_type", "face")
-//                .setBodyParameter("client_id", Url.CLIENT_ID)
-//                .setBodyParameter("client_secret", Url.CLIENT_SECRET)
-//                .setBodyParameter("scope", Url.SCOPE)
-//                .setBodyParameter("face_hash", Global.faceHash)
-//                .asJsonObject()
-//                .setCallback(new FutureCallback<JsonObject>() {
-//                    @Override
-//                    public void onCompleted(Exception e, JsonObject result) {
-//
-//                        Log.i(TAG, "result => " + result);
-//                        if (e == null) {
-//                            JSONObject resObj = null;
-//                            try {
-//                                resObj = new JSONObject(result.toString());
-//
-//                                // save token and refresh token.
-//                                Global.access_token = resObj.getString("access_token");
-//                                Global.refresh_token = resObj.getString("refresh_token");
-//
-//                                UsersManagement.saveCurrentUser(currentUser, sessionManager);
-//
-//                                if (Global.access_token != null && !Global.access_token.equals("")) {
-//                                    getUserInfo();
-//                                } else {
-//                                    Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
-//                                    Global.hideLoading();
-//                                }
-//                            } catch (JSONException ex) {
-//                                ex.printStackTrace();
-//                                Global.hideLoading();
-//                            }
-//
-//                        } else {
-//                            Global.hideLoading();
-//                            Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-//    }
-
     void getUserInfo() {
         Ion.with(getActivity())
                 .load(Url.get_profile)
@@ -897,10 +838,18 @@ public class FaceLoginFragment extends Fragment {
                             try {
                                 resObj = new JSONObject(result.toString());
                                 User user = new UsersManagement().mapFetchProfileResponse(resObj);
+                                user.mobile = electedPhoneNumber;
+                                user.faceHash = Global.faceHash;
                                 UsersManagement.saveCurrentUser(user, sessionManager);
 
-                                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
-                                startActivity(intent);
+                                if (user.faceInfoUrl.isEmpty()){
+                                    Global.hideLoading();
+                                    Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                                    startActivity(intent);
+                                }
 
                             } catch (JSONException ex) {
                                 ex.printStackTrace();

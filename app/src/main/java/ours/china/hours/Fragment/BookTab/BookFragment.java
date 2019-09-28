@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -78,7 +77,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, PageLoadInterface {
+public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
 
     String tempPopupWindow2String = "默认";
 
@@ -94,7 +93,6 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     BookFragmentAdapter adapter;
     RelativeLayout maskLayer;
 
-    SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerBooksView;
     private RelativeLayout relTypeBook;
     ImageView imgSort;
@@ -134,6 +132,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
+
+        Global.showLoading(getContext(),"generate_report");
         getAllDataFromServer(0);
 
         return rootView;
@@ -156,7 +156,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
-        adapter = new BookFragmentAdapter(mBookList, getActivity(), this, this, this);
+        adapter = new BookFragmentAdapter(mBookList, getActivity(), this, this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
@@ -278,7 +278,6 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                         }
                     });
         } else {
-            swipeRefreshLayout.setEnabled(false);
             recyclerBooksView.setEnabled(true);
         }
 
@@ -410,6 +409,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             public void onClick(View view) {
                 txtTypeBook.setText(getString(R.string.popup3_all, Integer.toString(mBookList.size())));
                 searchedBookList = mBookList;
+                totalCount = searchedBookList.size();
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -425,6 +425,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                     }
                 }
 
+                totalCount = searchedBookList.size();
                 txtTypeBook.setText(getString(R.string.popup3_downloaded, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
@@ -441,6 +442,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                     }
                 }
 
+                totalCount = searchedBookList.size();
                 txtTypeBook.setText(getString(R.string.popup3_read, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
@@ -457,6 +459,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                     }
                 }
 
+                totalCount = searchedBookList.size();
                 txtTypeBook.setText(getString(R.string.popup3_unread, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
@@ -483,6 +486,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
 
@@ -495,6 +499,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.BOOKNAME;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -506,6 +511,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.AUTH0R;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -634,19 +640,6 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), SearchActivity.class);
                 getActivity().startActivity(intent);
-            }
-        });
-
-        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 1000);
             }
         });
 
@@ -854,14 +847,4 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         }
     }
 
-    @Override
-    public void scrollToLoad(int position) {
-//        if (Global.bookAction == QueryBook.BookAction.NONE) {
-//            if (category == QueryBook.Category.ALL) {
-//                if (totalCount > page * Global.perPage) {
-//                    getAllDataFromServer(page);
-//                }
-//            }
-//        }
-    }
 }

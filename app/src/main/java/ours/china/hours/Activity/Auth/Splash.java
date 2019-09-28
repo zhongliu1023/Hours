@@ -66,6 +66,11 @@ public class Splash extends AppCompatActivity {
     private static final String TAG = "Splash";
     private final int SPLASH_DISPLAY_LENGTH = 1000;
 
+    public String key_passwordOrHash = "";
+    public String value_passwordOrHash = "";
+    public String value_grant_type = "";
+    public String url = "";
+
     User currentUser = new User();
     SharedPreferencesManager sessionManager;
 
@@ -184,9 +189,20 @@ public class Splash extends AppCompatActivity {
         sessionManager = new SharedPreferencesManager(Splash.this);
         currentUser = UsersManagement.getCurrentUser(sessionManager);
 
-        if (!currentUser.userId.isEmpty()) {
+        if (!currentUser.userId.isEmpty() && !currentUser.password.equals("")) {
+            url = Url.loginUrl;
+            value_grant_type = "password";
+            key_passwordOrHash = "password";
+            value_passwordOrHash = currentUser.password;
             getDataFromServer();
-        } else {
+        } else if (!currentUser.userId.isEmpty() && currentUser.password.equals("")) {
+            url = Url.faceLogin;
+            value_grant_type = "face";
+            key_passwordOrHash = "face_hash";
+            value_passwordOrHash = currentUser.faceHash;
+            getDataFromServer();
+        }
+        else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -203,7 +219,6 @@ public class Splash extends AppCompatActivity {
 
         AppProfile.save(this);
         // -- end.
-
     }
 
     void gotoLoginView(){
@@ -211,17 +226,18 @@ public class Splash extends AppCompatActivity {
         startActivity(intent);
         Splash.this.finish();
     }
+
     public void getDataFromServer() {
         Global.showLoading(Splash.this,"generate_report");
         Ion.with(Splash.this)
-                .load(Url.loginUrl)
+                .load(url)
                 .setTimeout(10000)
-                .setBodyParameter("grant_type", "password")
+                .setBodyParameter("grant_type", value_grant_type)
                 .setBodyParameter("client_id", "hours_reader")
                 .setBodyParameter("client_secret", "a55b8ca1-c6b5-4867-b0dc-766dfb41d073")
                 .setBodyParameter("scope", "userinfo bookinfo readinfo")
                 .setBodyParameter("username", currentUser.mobile)
-                .setBodyParameter("password", currentUser.password)
+                .setBodyParameter(key_passwordOrHash, value_passwordOrHash)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override

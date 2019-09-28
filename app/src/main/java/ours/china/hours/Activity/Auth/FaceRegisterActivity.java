@@ -550,6 +550,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         }
 
         Log.i(TAG, "Update face info => " + Global.faceHash);
+        Global.faceHash = Global.faceHash.substring(0, 100);
 
         Global.showLoading(FaceRegisterActivity.this,"generate_report");
         String header = "Bearer " + Global.access_token;
