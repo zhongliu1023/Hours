@@ -56,6 +56,27 @@ public class QueryBook {
         }
     }
 
+    public enum BookShelfState {
+
+        ALL("all", 0),
+        DOWNLOADED("downloaded", 1),
+        READCOMPLETE("readcomplete", 2),
+        READCOME("readcome", 3),
+        FAVORITE("favorite", 4);
+
+        private String stringValue;
+        private int intValue;
+        private BookShelfState(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString(){
+            return stringValue;
+        }
+    }
+
     public enum BookAction {
         NONE("none", 0),
         SELECTTION("selection", 1);

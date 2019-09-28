@@ -19,6 +19,7 @@ import java.util.List;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
@@ -32,16 +33,18 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
     public List<Book> selectedbookList;
     BookItemInterface bookItemInterface;
     BookItemEditInterface bookItemEditInterface;
+    PageLoadInterface pageLoadInterface;
 
     public Context context;
     public Activity activity;
 
-    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface) {
+    public BookFragmentAdapter(List<Book> bookList, Context context, BookItemInterface bookItemInterface,  BookItemEditInterface bookItemEditInterface, PageLoadInterface pageLoadInterface) {
         this.bookList = bookList;
         this.context = context;
         this.activity = (Activity)context;
         this.bookItemEditInterface = bookItemEditInterface;
         this.bookItemInterface = bookItemInterface;
+        this.pageLoadInterface = pageLoadInterface;
 
         this.selectedbookList = new ArrayList<Book>();
     }
@@ -106,6 +109,12 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
                 return true;
             }
         });
+
+        if (getItemCount() == position + 1) {
+            if (pageLoadInterface != null) {
+                pageLoadInterface.scrollToLoad(getItemCount() / Global.perPage);
+            }
+        }
 
     }
 

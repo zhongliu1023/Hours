@@ -132,8 +132,6 @@ public class HomeBookAdapter extends RecyclerView.Adapter<HomeBookAdapter.HomeBo
             }
         }
 
-
-
     }
 
     @Override

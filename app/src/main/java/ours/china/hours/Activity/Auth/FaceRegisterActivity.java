@@ -549,6 +549,8 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             return;
         }
 
+        Log.i(TAG, "Update face info => " + Global.faceHash);
+
         Global.showLoading(FaceRegisterActivity.this,"generate_report");
         String header = "Bearer " + Global.access_token;
         File sourceFeatureFile = new File(Global.faceFeatureSavedUrl);

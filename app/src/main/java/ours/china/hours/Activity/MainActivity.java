@@ -276,7 +276,7 @@ public class MainActivity  extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(bookFragment).commit();
                     activityFragment = bookFragment;
-                    bookFragment.getAllDataFromServer();
+                    bookFragment.getAllDataFromServer(0);
 
                     break;
                 case 2:

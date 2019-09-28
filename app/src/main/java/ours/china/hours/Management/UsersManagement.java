@@ -1,5 +1,7 @@
 package ours.china.hours.Management;
 
+import android.content.SharedPreferences;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -81,5 +83,14 @@ public class UsersManagement {
         }.getType();
         String json = gson.toJson(flexStrings, type);
         sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.FLEX_STRINGS, json);
+    }
+
+    public static String getHashString(SharedPreferencesManager sharedPreferencesManager) {
+        String hashString = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.HASH);
+        return hashString;
+    }
+
+    public static void saveHashString(String hashString, SharedPreferencesManager sharedPreferencesManager) {
+        sharedPreferencesManager.setPrefernceValueString(SharedPreferencesKeys.HASH, hashString);
     }
 }

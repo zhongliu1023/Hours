@@ -56,6 +56,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
@@ -70,13 +71,14 @@ import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
 
 /**
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
+public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, PageLoadInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -100,10 +102,15 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     ImageView imgArrow;
     TextView txtTypeBook;
 
+    int favoriteFolderCount = 0;
+
+    private QueryBook.BookShelfState bookShelfState = QueryBook.BookShelfState.ALL;
+
     private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
     private QueryBook.Order order = QueryBook.Order.ASC;
     private QueryBook.Category category = QueryBook.Category.ALL;
     private int currentPage = 0;
+    int totalCount = 0;
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
@@ -127,7 +134,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
-        getAllDataFromServer();
+        getAllDataFromServer(0);
 
         return rootView;
     }
@@ -149,7 +156,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         // recyclerViewWork.
         recyclerBooksView = view.findViewById(R.id.recycler_books);
 
-        adapter = new BookFragmentAdapter(mBookList, getActivity(), this, this);
+        adapter = new BookFragmentAdapter(mBookList, getActivity(), this, this, this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 3);
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
@@ -180,93 +187,101 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         localBookList = db.getAllData();
 
     }
-    public void getAllDataFromServer() {
-        mBookList = new ArrayList<>();
-        searchedBookList = new ArrayList<>();
+    public void getAllDataFromServer(final int currentPage) {
+        if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
+            if (currentPage == 0) {
+                mBookList = new ArrayList<>();
+                searchedBookList = new ArrayList<>();
+            }
 
-        Map<String, List<String>> params = new HashMap<String, List<String>>();
-        params.put("order_by", Collections.singletonList(orderBy.toString()));
-        params.put("order", Collections.singletonList(order.toString()));
-        params.put("page", Collections.singletonList(Integer.toString(currentPage)));
-        params.put("statusOnly", Collections.singletonList("0"));
-        String keywords = "";
-        if (!keywords.isEmpty()){
-            params.put("keyword", Collections.singletonList(keywords));
-        }
-        params.put("category", Collections.singletonList(category.toString()));
+            Map<String, List<String>> params = new HashMap<String, List<String>>();
+            params.put("order_by", Collections.singletonList(orderBy.toString()));
+            params.put("order", Collections.singletonList(order.toString()));
+            params.put("page", Collections.singletonList(Integer.toString(currentPage)));
+            params.put("statusOnly", Collections.singletonList("0"));
+            String keywords = "";
+            if (!keywords.isEmpty()){
+                params.put("keyword", Collections.singletonList(keywords));
+            }
+            params.put("category", Collections.singletonList(category.toString()));
 
-        Ion.with(getActivity())
-                .load(Url.searchMyBookwithMobile)
-                .setTimeout(10000)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .setBodyParameters(params)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-                        Log.i("HomeFragment", "result => " + result);
-                        Global.hideLoading();
+            Ion.with(getActivity())
+                    .load(Url.searchMyBookwithMobile)
+                    .setTimeout(10000)
+                    .setBodyParameter(Global.KEY_token, Global.access_token)
+                    .setBodyParameters(params)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception error, JsonObject result) {
+                            Log.i("HomeFragment", "result => " + result);
+                            Global.hideLoading();
 
-                        if (error == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
+                            if (error == null) {
+                                JSONObject resObj = null;
+                                try {
+                                    resObj = new JSONObject(result.toString());
 
-                                if (resObj.getString("res").toLowerCase().equals("success")) {
+                                    if (resObj.getString("res").toLowerCase().equals("success")) {
 
-                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
-                                    String favorite = resObj.getString("collections");
-                                    BookManagement.saveFullFavorites(favorite, sessionManager);
-                                    Gson gson = new Gson();
-                                    Type type = new TypeToken<ArrayList<Book>>() {}.getType();
-                                    mBookList = gson.fromJson(dataArray.toString(), type);
+                                        JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                        String favorite = resObj.getString("collections");
+                                        BookManagement.saveFullFavorites(favorite, sessionManager);
+                                        Gson gson = new Gson();
+                                        Type type = new TypeToken<ArrayList<Book>>() {}.getType();
+                                        mBookList = gson.fromJson(dataArray.toString(), type);
 
-                                    for (int i = 0; i < dataArray.length(); i++) {
-                                        JSONObject oneObject = dataArray.getJSONObject(i);
-                                        BookStatus bookStatus = new BookStatus();
+                                        for (int i = 0; i < dataArray.length(); i++) {
+                                            JSONObject oneObject = dataArray.getJSONObject(i);
+                                            BookStatus bookStatus = new BookStatus();
 
-                                        bookStatus.pages = oneObject.getString("pages");
-                                        bookStatus.time = oneObject.getString("time");
-                                        bookStatus.progress = oneObject.getString("progress");
-                                        bookStatus.lastRead = oneObject.getString("lastRead");
-                                        bookStatus.isRead = oneObject.getString("isRead");
-                                        bookStatus.collection = oneObject.getString("collection");
-                                        bookStatus.notes = oneObject.getString("notes");
-                                        bookStatus.bookmarks = oneObject.getString("bookmarks");
-                                        mBookList.get(i).bookStatus = bookStatus;
+                                            bookStatus.pages = oneObject.getString("pages");
+                                            bookStatus.time = oneObject.getString("time");
+                                            bookStatus.progress = oneObject.getString("progress");
+                                            bookStatus.lastRead = oneObject.getString("lastRead");
+                                            bookStatus.isRead = oneObject.getString("isRead");
+                                            bookStatus.collection = oneObject.getString("collection");
+                                            bookStatus.notes = oneObject.getString("notes");
+                                            bookStatus.bookmarks = oneObject.getString("bookmarks");
+                                            mBookList.get(i).bookStatus = bookStatus;
 
-                                        if (db.getBookData(mBookList.get(i).bookId) == null){
-                                            db.insertData(mBookList.get(i));
-                                        }else{
-                                            db.updateBookData(mBookList.get(i));
-                                        }
-                                        BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
-                                        if (localBookStatus == null){
-                                            db.insertBookStateData(bookStatus, mBookList.get(i).bookId);
-                                        }else{
-                                            if (Long.parseLong(localBookStatus.time.isEmpty()?"0":localBookStatus.time) < Long.parseLong(bookStatus.time.isEmpty()?"0":bookStatus.time)){
-                                                db.updateBookStateData(bookStatus, mBookList.get(i).bookId);
+                                            if (db.getBookData(mBookList.get(i).bookId) == null){
+                                                db.insertData(mBookList.get(i));
+                                            }else{
+                                                db.updateBookData(mBookList.get(i));
+                                            }
+                                            BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
+                                            if (localBookStatus == null){
+                                                db.insertBookStateData(bookStatus, mBookList.get(i).bookId);
+                                            }else{
+                                                if (Long.parseLong(localBookStatus.time.isEmpty()?"0":localBookStatus.time) < Long.parseLong(bookStatus.time.isEmpty()?"0":bookStatus.time)){
+                                                    db.updateBookStateData(bookStatus, mBookList.get(i).bookId);
+                                                }
                                             }
                                         }
-                                    }
 
 //                                    searchedBookList = (ArrayList<Book>) mBookList.clone();
-                                    getTotalData();
+                                        getTotalData();
 
 
-                                } else {
-                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException ex) {
+                                    ex.printStackTrace();
                                 }
 
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
+                            } else {
+                                Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                             }
-
-                        } else {
-                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+        } else {
+            swipeRefreshLayout.setEnabled(false);
+            recyclerBooksView.setEnabled(true);
+        }
+
     }
 
     public void getTotalData() {
@@ -326,6 +341,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             mFavorites.add(favorites);
         }
 
+        favoriteFolderCount = mFavorites.size();
         txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(mFavorites.size())));
         BookManagement.saveFavorites(mFavorites, sessionManager);
     }
@@ -392,7 +408,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linAllBooks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("全都(1000)");
+                txtTypeBook.setText(getString(R.string.popup3_all, Integer.toString(mBookList.size())));
                 searchedBookList = mBookList;
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
@@ -402,13 +418,14 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linDownloaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("已下载");
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (!oneBook.bookLocalUrl.isEmpty()){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                txtTypeBook.setText(getString(R.string.popup3_downloaded, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -417,13 +434,14 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linRead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("已读");
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (oneBook.bookStatus != null && oneBook.bookStatus.isRead.equals("1")){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                txtTypeBook.setText(getString(R.string.popup3_read, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -432,13 +450,14 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linUnread.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (oneBook.bookStatus == null || !oneBook.bookStatus.isRead.equals("1")){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                txtTypeBook.setText(getString(R.string.popup3_unread, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -448,7 +467,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linFavorites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("收藏夹");
+                txtTypeBook.setText(getString(R.string.popup3_favorites, Integer.toString(favoriteFolderCount)));
                 maskLayer.setVisibility(View.GONE);
                 dismissPopupWindow1();
 
@@ -464,7 +483,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
-                getAllDataFromServer();
+                getAllDataFromServer(0);
                 popupWindow2.dismiss();
 
             }
@@ -476,7 +495,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.BOOKNAME;
-                getAllDataFromServer();
+                getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
         });
@@ -487,7 +506,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.AUTH0R;
-                getAllDataFromServer();
+                getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
         });
@@ -833,5 +852,16 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             adapter.reloadBookList(searchedBookList);
             gotoReadingViewFile();
         }
+    }
+
+    @Override
+    public void scrollToLoad(int position) {
+//        if (Global.bookAction == QueryBook.BookAction.NONE) {
+//            if (category == QueryBook.Category.ALL) {
+//                if (totalCount > page * Global.perPage) {
+//                    getAllDataFromServer(page);
+//                }
+//            }
+//        }
     }
 }

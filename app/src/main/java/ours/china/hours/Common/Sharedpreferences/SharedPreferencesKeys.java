@@ -19,6 +19,7 @@ public class SharedPreferencesKeys {
     public static final String FAVORITES = "FAVORITES";
     public static final String EMAIL_ID = "emailId";
     public static final String PASSWORD = "password";
+    public static final String HASH = "HASH";
 
     public static final String FOCUS_NEWSLIST = "FOCUS_NEWSLIST";
 

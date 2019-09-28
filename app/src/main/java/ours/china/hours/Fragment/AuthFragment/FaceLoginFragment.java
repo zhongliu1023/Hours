@@ -21,8 +21,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +59,7 @@ import ours.china.hours.FaceDetect.util.face.FaceListener;
 import ours.china.hours.FaceDetect.util.face.RequestFeatureStatus;
 import ours.china.hours.FaceDetect.widget.FaceRectView;
 import ours.china.hours.Management.UsersManagement;
+import ours.china.hours.Model.FaceInfo;
 import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
@@ -68,11 +71,18 @@ import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.bumptech.glide.Glide;
+import com.downloader.Error;
+import com.downloader.OnDownloadListener;
+import com.downloader.PRDownloader;
+import com.downloader.PRDownloaderConfig;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,6 +92,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -119,6 +130,11 @@ public class FaceLoginFragment extends Fragment {
     User currentUser = new User();
     SharedPreferencesManager sessionManager;
 
+    ImageView imgDetected;
+    RelativeLayout relButton;
+    Button btnTryAgain, btnLogin;
+
+
     private int afCode = -1;
     private View previewView;
     private static final int MAX_DETECT_NUM = 10;
@@ -145,23 +161,34 @@ public class FaceLoginFragment extends Fragment {
         return  new FaceLoginFragment();
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_face_login, container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        PRDownloaderConfig config = PRDownloaderConfig.newBuilder()
+                .setReadTimeout(30000)
+                .setConnectTimeout(30000)
+                .build();
+        PRDownloader.initialize(getContext().getApplicationContext(), config);
+
+        // for face
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getActivity().getWindow().getAttributes();
             attributes.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             getActivity().getWindow().setAttributes(attributes);
         }
+
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        FaceServer.getInstance().init(getActivity());
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_face_login, container, false);
 
         init(view);
-        event(view);
+        event();
         return view;
     }
 
@@ -170,13 +197,43 @@ public class FaceLoginFragment extends Fragment {
         progressBar = rootView.findViewById(R.id.progressbar);
         faceRectView = rootView.findViewById(R.id.face_rect_view);
         previewView = rootView.findViewById(R.id.texture_preview);
+        imgDetected = rootView.findViewById(R.id.imgDetected);
+        imgDetected.setVisibility(View.GONE);
+
+        relButton = rootView.findViewById(R.id.relButton);
+        btnTryAgain = rootView.findViewById(R.id.btnTryAgain);
+        btnLogin = rootView.findViewById(R.id.btnLogin);
 
         featureFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "features" + File.separator;
         featureImageFileDownloadDir = getContext().getFilesDir().getAbsolutePath() + File.separator + "register" + File.separator + "imgs" + File.separator;
-        if (!checkPermissions(NEEDED_PERMISSIONS)) {
-            ActivityCompat.requestPermissions(getActivity(), NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
-        }
 
+    }
+
+    public void event() {
+        btnTryAgain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                relButton.setVisibility(View.GONE);
+                imgDetected.setVisibility(View.GONE);
+                faceRectView.setVisibility(View.VISIBLE);
+
+                startScanFace();
+            }
+        });
+
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                StringBuilder byteString = new StringBuilder();
+                for(byte b : Global.faceFeature.getFeatureData()){
+                    byteString.append(Byte.toString(b));
+                }
+                Global.faceHash = byteString.toString();
+                Log.i(TAG, "hash => " + Global.faceHash);
+
+                loginApiWork();
+            }
+        });
     }
 
     public void startScanFace(){
@@ -188,29 +245,21 @@ public class FaceLoginFragment extends Fragment {
             initCamera();
         }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                register();
-            }
-        }, 3000);
     }
 
-    public void event(View view) {
-
-    }
     private void initEngine() {
         faceEngine = new FaceEngine();
-        afCode = faceEngine.init(getActivity(), FaceEngine.ASF_DETECT_MODE_VIDEO, ConfigUtil.getFtOrient(getActivity()),
+        afCode = faceEngine.init(getContext(), FaceEngine.ASF_DETECT_MODE_VIDEO, ConfigUtil.getFtOrient(getContext()),
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
         VersionInfo versionInfo = new VersionInfo();
         faceEngine.getVersion(versionInfo);
         Log.i(TAG, "initEngine:  init: " + afCode + "  version:" + versionInfo);
 
         if (afCode != ErrorInfo.MOK) {
-            Toast.makeText(getActivity(), getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.init_failed, afCode), Toast.LENGTH_SHORT).show();
         }
     }
+
     private void unInitEngine() {
 
         if (afCode == ErrorInfo.MOK) {
@@ -219,22 +268,189 @@ public class FaceLoginFragment extends Fragment {
         }
     }
 
-    public void displayImage() {
+
+//    public void getDataFromServer() {
+//        progressBar.setVisibility(View.VISIBLE);
+//        Ion.with(getActivity())
+//                .load(Url.faceLogin)
+//                .setTimeout(10000)
+//                .setBodyParameter("mobile", tempMobileNumber)
+//                .asJsonObject()
+//                .setCallback(new FutureCallback<JsonObject>() {
+//                    @Override
+//                    public void onCompleted(Exception e, JsonObject result) {
+//                        progressBar.setVisibility(View.INVISIBLE);
+//                        Log.i(TAG, "result => " + result);
+//
+//                        if (e == null) {
+//                            JSONObject resObj = null;
+//                            try {
+//                                resObj = new JSONObject(result.toString());
+//
+//                                if (resObj.getString("res").equals("success")) {
+//
+//                                    new Handler().postDelayed(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            Intent intent = new Intent(getActivity(), MainActivity.class);
+//                                            startActivity(intent);
+//                                        }
+//                                    }, 1000);
+//
+//                                } else {
+//                                    Toast.makeText(getActivity(), "Extra error", Toast.LENGTH_SHORT).show();
+//                                }
+//                            } catch (JSONException ex) {
+//                                ex.printStackTrace();
+//                            }
+//
+//                        } else {
+//                            Toast.makeText(getActivity(), "Api error", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
+//    }
+
+    ArrayList<FaceInfo> faceInfoArrayList;
+
+    public void getFaceDataFromServer() {
+        Global.showLoading(getContext(),"generate_report");
+        Ion.with(getActivity())
+            .load(Url.query_userface)
+            .setTimeout(10000)
+            .setBodyParameter("access_token", "")
+            .asJsonObject()
+            .setCallback(new FutureCallback<JsonObject>() {
+                @Override
+                public void onCompleted(Exception e, JsonObject result) {
+
+                    Log.i(TAG, "result => " + result);
+
+                    if (e == null) {
+                        JSONObject resObj = null;
+                        try {
+                            resObj = new JSONObject(result.toString());
+
+                            if (resObj.getString("res").equals("success")) {
+
+                                JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                Log.i(TAG, "count => " + dataArray.length());
+
+                                Gson gson = new Gson();
+                                Type type = new TypeToken<ArrayList<FaceInfo>>() {}.getType();
+                                faceInfoArrayList = gson.fromJson(dataArray.toString(), type);
+                                downloadAllFeatureFiles();
+                            } else {
+                                Toast.makeText(getActivity(), "发生错误", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+
+                    } else {
+                        Global.hideLoading();
+                        Toast.makeText(getActivity(), "发生错误", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
     }
 
-    public void getDataFromServer() {
-        progressBar.setVisibility(View.VISIBLE);
+    int downloadCount = 0;
+    int totalCount = 0;
+    public void downloadAllFeatureFiles() {
+        totalCount = faceInfoArrayList.size();
+
+        for (FaceInfo one : faceInfoArrayList) {
+            String fileName = one.faceInfoUrl.substring(one.faceInfoUrl.lastIndexOf('/') + 1);
+            PRDownloader.download(Url.domainUrl + one.faceInfoUrl, featureFileDownloadDir, fileName)
+                    .build()
+                    .start(new OnDownloadListener() {
+                        @Override
+                        public void onDownloadComplete() {
+                            Log.i(TAG, "downloading file => " + downloadCount);
+                            downloadCount++;
+                            if (downloadCount == totalCount) {
+                                progressBar.setVisibility(View.VISIBLE);
+                                startScanFace();
+                                Global.hideLoading();
+                                Toast.makeText(getContext(), "所有数据已加载。", Toast.LENGTH_LONG).show();
+
+                                FaceServer.getInstance().init(getActivity());
+                            }
+                        }
+
+                        @Override
+                        public void onError(Error error) {
+                            downloadCount++;
+                            if (downloadCount == totalCount) {
+                                progressBar.setVisibility(View.VISIBLE);
+                                startScanFace();
+                                Global.hideLoading();
+                                Toast.makeText(getContext(), "你没有收到所有数据。", Toast.LENGTH_LONG).show();
+
+                                FaceServer.getInstance().init(getActivity());
+                            }
+
+                        }
+                    });
+        }
+    }
+
+    public String electedPhoneNumber = "";
+    public void downloadImageFile(String faceFeatureLocalName) {
+        String imgDownloadUrl = "";
+        for (FaceInfo one : faceInfoArrayList) {
+            if (one.faceInfoUrl.contains(faceFeatureLocalName)) {
+                imgDownloadUrl = one.faceImageUrl;
+                electedPhoneNumber = one.mobile;
+                break;
+            }
+        }
+
+        Log.i(TAG, "imgDownloadUrl => " + imgDownloadUrl + "phoneNumber => " + electedPhoneNumber);
+        String imgFileLocalName = imgDownloadUrl.substring(imgDownloadUrl.lastIndexOf('/') + 1);
+
+        PRDownloader.download(Url.domainUrl + imgDownloadUrl, featureImageFileDownloadDir, imgFileLocalName)
+                .build()
+                .start(new OnDownloadListener() {
+                    @Override
+                    public void onDownloadComplete() {
+                        imgDetected.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
+                        faceRectView.setVisibility(View.INVISIBLE);
+
+                        relButton.setVisibility(View.VISIBLE);
+
+                        Glide.with(getContext())
+                                .load(featureImageFileDownloadDir + imgFileLocalName)
+                                .into(imgDetected);
+                    }
+
+                    @Override
+                    public void onError(Error error) {
+
+                    }
+                });
+    }
+
+    public void loginApiWork() {
+        Global.showLoading(getContext(),"generate_report");
         Ion.with(getActivity())
                 .load(Url.faceLogin)
                 .setTimeout(10000)
-                .setBodyParameter("mobile", tempMobileNumber)
+                .setBodyParameter("grant_type", "face")
+                .setBodyParameter("client_id", Url.CLIENT_ID)
+                .setBodyParameter("client_secret", Url.CLIENT_SECRET)
+                .setBodyParameter("scope", Url.SCOPE)
+
+                .setBodyParameter("username", electedPhoneNumber)
+                .setBodyParameter("face_hash", Global.faceHash)
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        Log.i(TAG, "result => " + result);
 
+                        Log.i(TAG, "result => " + result);
                         if (e == null) {
                             JSONObject resObj = null;
                             try {
@@ -242,30 +458,43 @@ public class FaceLoginFragment extends Fragment {
 
                                 if (resObj.getString("res").equals("success")) {
 
-                                    new Handler().postDelayed(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                                            startActivity(intent);
-                                        }
-                                    }, 1000);
+                                    // save token and refresh token.
+                                    Global.access_token = resObj.getString("access_token");
+                                    Global.refresh_token = resObj.getString("refresh_token");
+
+                                    // to update token
+                                    Intent intent = new Intent();
+                                    intent.setAction(Url.filter_refresh_token);
+                                    intent.putExtra("refresh_token", Global.refresh_token);
+                                    getActivity().sendBroadcast(intent);
+
+                                    // save session data.
+                                    currentUser.mobile = electedPhoneNumber;
+                                    currentUser.faceHash = Global.faceHash;
+                                    UsersManagement.saveCurrentUser(currentUser, sessionManager);
+
+                                    getUserInfo();
 
                                 } else {
-                                    Toast.makeText(getActivity(), "Extra error", Toast.LENGTH_SHORT).show();
+                                    Global.hideLoading();
+                                    Toast.makeText(getContext(), "密码错误", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
+                                Global.hideLoading();
                             }
 
                         } else {
-                            Toast.makeText(getActivity(), "Api error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
+                            Global.hideLoading();
                         }
                     }
                 });
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroy() {
+
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
@@ -276,7 +505,7 @@ public class FaceLoginFragment extends Fragment {
             synchronized (faceHelper) {
                 unInitEngine();
             }
-            ConfigUtil.setTrackId(getActivity(), faceHelper.getCurrentTrackId());
+            ConfigUtil.setTrackId(getContext(), faceHelper.getCurrentTrackId());
             faceHelper.release();
         } else {
             unInitEngine();
@@ -286,18 +515,20 @@ public class FaceLoginFragment extends Fragment {
             getFeatureDelayedDisposables.clear();
         }
         FaceServer.getInstance().unInit();
-        super.onDestroyView();
+        super.onDestroy();
     }
+
     private boolean checkPermissions(String[] neededPermissions) {
         if (neededPermissions == null || neededPermissions.length == 0) {
             return true;
         }
         boolean allGranted = true;
         for (String neededPermission : neededPermissions) {
-            allGranted &= ContextCompat.checkSelfPermission(getActivity(), neededPermission) == PackageManager.PERMISSION_GRANTED;
+            allGranted &= ContextCompat.checkSelfPermission(getContext(), neededPermission) == PackageManager.PERMISSION_GRANTED;
         }
         return allGranted;
     }
+
 
     private void initCamera() {
         DisplayMetrics metrics = new DisplayMetrics();
@@ -314,22 +545,8 @@ public class FaceLoginFragment extends Fragment {
             public void onFaceFeatureInfoGet(@Nullable final FaceFeature faceFeature, final Integer requestId) {
                 //FR成功
                 if (faceFeature != null) {
-                    if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.UNKNOWN) {
-                        getFeatureDelayedDisposables.add(Observable.timer(WAIT_LIVENESS_INTERVAL, TimeUnit.MILLISECONDS)
-                                .subscribe(new Consumer<Long>() {
-                                    @Override
-                                    public void accept(Long aLong) {
-                                        onFaceFeatureInfoGet(faceFeature, requestId);
-                                    }
-                                }));
-                    }
-                    //活体检测失败
-                    else {
-                        requestFeatureStatusMap.put(requestId, RequestFeatureStatus.NOT_ALIVE);
-                    }
-
+                    searchFace(faceFeature, requestId);
                 }
-                //FR 失败
                 else {
                     requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                 }
@@ -350,7 +567,7 @@ public class FaceLoginFragment extends Fragment {
                         .frThreadNum(MAX_DETECT_NUM)
                         .previewSize(previewSize)
                         .faceListener(faceListener)
-                        .currentTrackId(ConfigUtil.getTrackId(getActivity().getApplicationContext()))
+                        .currentTrackId(ConfigUtil.getTrackId(getContext().getApplicationContext()))
                         .build();
             }
 
@@ -365,9 +582,11 @@ public class FaceLoginFragment extends Fragment {
                     drawPreviewInfo(facePreviewInfoList);
                 }
                 registerFace(nv21, facePreviewInfoList);
+                clearLeftFace(facePreviewInfoList);
 
                 if (facePreviewInfoList != null && facePreviewInfoList.size() > 0 && previewSize != null) {
                     for (int i = 0; i < facePreviewInfoList.size(); i++) {
+
                         /**
                          * 对于每个人脸，若状态为空或者为失败，则请求FR（可根据需要添加其他判断以限制FR次数），
                          * FR回传的人脸特征结果在{@link FaceListener#onFaceFeatureInfoGet(FaceFeature, Integer)}中回传
@@ -414,6 +633,123 @@ public class FaceLoginFragment extends Fragment {
     }
 
 
+
+    private void searchFace(final FaceFeature frFace, final Integer requestId) {
+        Observable.create(new ObservableOnSubscribe<CompareResult>() {
+            @Override
+            public void subscribe(ObservableEmitter<CompareResult> emitter) {
+                CompareResult compareResult = FaceServer.getInstance().getTopOfFaceLib(frFace);
+                Log.i(TAG, compareResult.toString());
+
+                if (compareResult == null) {
+                    emitter.onError(null);
+                } else {
+                    emitter.onNext(compareResult);
+                }
+            }
+        })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<CompareResult>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(CompareResult compareResult) {
+                        if (compareResult == null || compareResult.getUserName() == null) {
+                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
+                            faceHelper.addName(requestId, "VISITOR " + requestId);
+                            return;
+                        }
+
+//                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
+                        if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
+                            boolean isAdded = false;
+                            if (compareResultList == null) {
+                                requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
+                                faceHelper.addName(requestId, "VISITOR " + requestId);
+
+                                Log.i(TAG, "compare result username => " + compareResult.getUserName());
+                                downloadImageFile(compareResult.getUserName());
+                                return;
+                            }
+                            for (CompareResult compareResult1 : compareResultList) {
+                                if (compareResult1.getTrackId() == requestId) {
+                                    isAdded = true;
+                                    break;
+                                }
+                            }
+                            if (!isAdded) {
+                                //对于多人脸搜索，假如最大显示数量为 MAX_DETECT_NUM 且有新的人脸进入，则以队列的形式移除
+                                if (compareResultList.size() >= MAX_DETECT_NUM) {
+                                    compareResultList.remove(0);
+                                }
+                                //添加显示人员时，保存其trackId
+                                compareResult.setTrackId(requestId);
+                                compareResultList.add(compareResult);
+
+                                Log.i(TAG, "compare result username => " + compareResult.getUserName());
+                                downloadImageFile(compareResult.getUserName());
+                                Log.i("What error", "I don't know");
+//                                String tempByteStr = new String(frFace.getFeatureData());
+//                                alerDialogWork(tempByteStr);
+                            }
+                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
+                            faceHelper.addName(requestId, compareResult.getUserName());
+
+                        } else {
+                            requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
+                            faceHelper.addName(requestId, "VISITOR " + requestId);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+
+
+    private void clearLeftFace(List<FacePreviewInfo> facePreviewInfoList) {
+        Set<Integer> keySet = requestFeatureStatusMap.keySet();
+        if (compareResultList != null) {
+            for (int i = compareResultList.size() - 1; i >= 0; i--) {
+                if (!keySet.contains(compareResultList.get(i).getTrackId())) {
+                    compareResultList.remove(i);
+                }
+            }
+        }
+        if (facePreviewInfoList == null || facePreviewInfoList.size() == 0) {
+            requestFeatureStatusMap.clear();
+            livenessMap.clear();
+            return;
+        }
+
+        for (Integer integer : keySet) {
+            boolean contained = false;
+            for (FacePreviewInfo facePreviewInfo : facePreviewInfoList) {
+                if (facePreviewInfo.getTrackId() == integer) {
+                    contained = true;
+                    break;
+                }
+            }
+            if (!contained) {
+                requestFeatureStatusMap.remove(integer);
+                livenessMap.remove(integer);
+            }
+        }
+
+    }
+
     private void drawPreviewInfo(List<FacePreviewInfo> facePreviewInfoList) {
         List<DrawInfo> drawInfoList = new ArrayList<>();
         for (int i = 0; i < facePreviewInfoList.size(); i++) {
@@ -445,14 +781,15 @@ public class FaceLoginFragment extends Fragment {
             }
         }
     }
+
+
     private void registerFace(final byte[] nv21, final List<FacePreviewInfo> facePreviewInfoList) {
-//        Toast.makeText(FaceRegisterActivity.this, "Hello", Toast.LENGTH_SHORT).show();
         if (registerStatus == REGISTER_STATUS_READY && facePreviewInfoList != null && facePreviewInfoList.size() > 0) {
             registerStatus = REGISTER_STATUS_PROCESSING;
             Observable.create(new ObservableOnSubscribe<Boolean>() {
                 @Override
                 public void subscribe(ObservableEmitter<Boolean> emitter) {
-                    boolean success = FaceServer.getInstance().registerNv21(getActivity(), nv21.clone(), previewSize.width, previewSize.height,
+                    boolean success = FaceServer.getInstance().registerNv21(getContext(), nv21.clone(), previewSize.width, previewSize.height,
                             facePreviewInfoList.get(0).getFaceInfo(), "registered " + faceHelper.getCurrentTrackId());
                     emitter.onNext(success);
                 }
@@ -468,18 +805,13 @@ public class FaceLoginFragment extends Fragment {
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(getActivity(), result, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
-
-                            if (result.equals("register success!")) {
-                                loginWithFaceInfo();
-                            }
-
                         }
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(getActivity(), "register failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "register failed!", Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
                         }
 
@@ -491,70 +823,66 @@ public class FaceLoginFragment extends Fragment {
         }
     }
 
-    private void register() {
-        if (registerStatus == REGISTER_STATUS_DONE) {
-            registerStatus = REGISTER_STATUS_READY;
-        }
-        Global.canGetFaceFeature = "yes";
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//
+//        if (requestCode == requestNumber && !Global.faceImageLocalUrl.equals("")) {
+//            tempMobileNumber = Global.faceImageLocalUrl.substring(Global.faceImageLocalUrl.lastIndexOf('/') + 1);
+//            tempMobileNumber = tempMobileNumber.split(",")[0];
+//
+//            Log.i(TAG, "mobile number => " + tempMobileNumber);
+////            getDataFromServer();
+//            displayImage();
+//        }
+//    }
 
-        if (requestCode == requestNumber && !Global.faceImageLocalUrl.equals("")) {
-            tempMobileNumber = Global.faceImageLocalUrl.substring(Global.faceImageLocalUrl.lastIndexOf('/') + 1);
-            tempMobileNumber = tempMobileNumber.split(",")[0];
+//    void loginWithFaceInfo(){
+//        Ion.with(getActivity())
+//                .load(Url.faceLogin)
+//                .setTimeout(10000)
+//                .setBodyParameter("grant_type", "face")
+//                .setBodyParameter("client_id", Url.CLIENT_ID)
+//                .setBodyParameter("client_secret", Url.CLIENT_SECRET)
+//                .setBodyParameter("scope", Url.SCOPE)
+//                .setBodyParameter("face_hash", Global.faceHash)
+//                .asJsonObject()
+//                .setCallback(new FutureCallback<JsonObject>() {
+//                    @Override
+//                    public void onCompleted(Exception e, JsonObject result) {
+//
+//                        Log.i(TAG, "result => " + result);
+//                        if (e == null) {
+//                            JSONObject resObj = null;
+//                            try {
+//                                resObj = new JSONObject(result.toString());
+//
+//                                // save token and refresh token.
+//                                Global.access_token = resObj.getString("access_token");
+//                                Global.refresh_token = resObj.getString("refresh_token");
+//
+//                                UsersManagement.saveCurrentUser(currentUser, sessionManager);
+//
+//                                if (Global.access_token != null && !Global.access_token.equals("")) {
+//                                    getUserInfo();
+//                                } else {
+//                                    Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
+//                                    Global.hideLoading();
+//                                }
+//                            } catch (JSONException ex) {
+//                                ex.printStackTrace();
+//                                Global.hideLoading();
+//                            }
+//
+//                        } else {
+//                            Global.hideLoading();
+//                            Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
+//    }
 
-            Log.i(TAG, "mobile number => " + tempMobileNumber);
-            getDataFromServer();
-            displayImage();
-        }
-    }
-
-    void loginWithFaceInfo(){
-        Ion.with(getActivity())
-                .load(Url.faceLogin)
-                .setTimeout(10000)
-                .setBodyParameter("grant_type", "face")
-                .setBodyParameter("client_id", Url.CLIENT_ID)
-                .setBodyParameter("client_secret", Url.CLIENT_SECRET)
-                .setBodyParameter("scope", Url.SCOPE)
-                .setBodyParameter("face_hash", Global.faceHash)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-
-                        Log.i(TAG, "result => " + result);
-                        if (e == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
-
-                                // save token and refresh token.
-                                Global.access_token = resObj.getString("access_token");
-                                Global.refresh_token = resObj.getString("refresh_token");
-
-                                UsersManagement.saveCurrentUser(currentUser, sessionManager);
-
-                                if (Global.access_token != null && !Global.access_token.equals("")) {
-                                    getUserInfo();
-                                } else {
-                                    Toast.makeText(getContext(), "Received data error", Toast.LENGTH_SHORT).show();
-                                    Global.hideLoading();
-                                }
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                                Global.hideLoading();
-                            }
-
-                        } else {
-                            Global.hideLoading();
-                            Toast.makeText(getContext(), "Unexpected error occured.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-    void getUserInfo(){
+    void getUserInfo() {
         Ion.with(getActivity())
                 .load(Url.get_profile)
                 .setTimeout(10000)
@@ -563,36 +891,29 @@ public class FaceLoginFragment extends Fragment {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
+                        Global.hideLoading();
                         if (e == null) {
                             JSONObject resObj = null;
                             try {
                                 resObj = new JSONObject(result.toString());
                                 User user = new UsersManagement().mapFetchProfileResponse(resObj);
-                                user.password = currentUser.password;
-                                featureImageUrl = user.faceImageUrl;
-                                featureFileUrl = user.faceInfoUrl;
                                 UsersManagement.saveCurrentUser(user, sessionManager);
 
-                                if (user.faceInfoUrl.isEmpty()){
-                                    Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
-                                    startActivity(intent);
-                                }else{
-                                    deleteAlreadyExistFiles();
-                                    new DownloadFeatureFile(getContext()).execute(user.faceInfoUrl);
-                                }
+                                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+                                startActivity(intent);
+
                             } catch (JSONException ex) {
-                                Global.hideLoading();
                                 ex.printStackTrace();
                                 Toast.makeText(getActivity(), ex.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                             }
 
                         } else {
-                            Global.hideLoading();
                             Toast.makeText(getActivity(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
+
     public void deleteAlreadyExistFiles() {
 
         try {
@@ -609,98 +930,100 @@ public class FaceLoginFragment extends Fragment {
         Log.i(TAG, "featureImageDir deleted");
 
     }
-    class DownloadFeatureFile extends AsyncTask<String, String, String> {
 
-        private Context context;
-        private String fileName;
-        private String folder;
+//    class DownloadFeatureFile extends AsyncTask<String, String, String> {
+//
+//        private Context context;
+//        private String fileName;
+//        private String folder;
+//
+//        public DownloadFeatureFile(Context context) {
+//            this.context = context;
+//        }
+//
+//        /* Access modifiers changed, original: protected */
+//        public void onPreExecute() {
+//            super.onPreExecute();
+//        }
+//
+//
+//        @Override
+//        protected String doInBackground(String... f_url) {
+//            int count;
+//            try {
+//                URL url = new URL(Url.domainUrl + f_url[0]);
+//                URLConnection connection = url.openConnection();
+//                connection.connect();
+//                // getting file length
+//                int lengthOfFile = connection.getContentLength();
+//
+//                fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
+//
+//                InputStream input = new BufferedInputStream(url.openStream(), 8192);
+//
+//                String dir = "";
+//
+//                if (isImage.equals("no")) {
+//                    dir = featureFileDownloadDir;
+//                } else if (isImage.equals("yes")) {
+//                    dir = featureImageFileDownloadDir;
+//                }
+//
+//                File directory = new File(dir);
+//                if (!directory.exists()) {
+//                    directory.mkdirs();
+//                }
+//
+//                OutputStream output = new FileOutputStream(featureFileDownloadDir + fileName);
+//                Log.i(TAG, "featureDownloadFileUrl => " + featureFileDownloadDir + fileName);
+//
+//                byte data[] = new byte[1024];
+//                long total = 0;
+//                while ((count = input.read(data)) != -1) {
+//                    total += count;
+//                    publishProgress("" + (int) ((total * 100) / lengthOfFile));
+//                    output.write(data, 0, count);
+//                }
+//                output.flush();
+//                output.close();
+//                input.close();
+//
+//                return "success";
+//
+//            } catch (Exception e) {
+//                Log.e("Error: ", e.getMessage());
+//            }
+//
+//            return "fail";
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String message) {
+//            super.onPostExecute(message);
+//            if (message.equals("success") && isImage.equals("no")) {
+//                Log.i(TAG, "feautre file download end");
+//
+//                isImage = "yes";
+//                new DownloadFeatureFile(getContext()).execute(featureImageUrl);
+//
+//            } else if (message.equals("success") && isImage.equals("yes")) {
+//
+//                Global.hideLoading();
+//                Log.i(TAG, "feature image file download end");
+//
+//                isImage = "no";
+//                Intent intent = new Intent(getContext(), MainActivity.class);
+//                startActivity(intent);
+//
+//                Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
+//            } else {
+//
+//                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
+//                startActivity(intent);
+//                Global.hideLoading();
+//                Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
-        public DownloadFeatureFile(Context context) {
-            this.context = context;
-        }
-
-        /* Access modifiers changed, original: protected */
-        public void onPreExecute() {
-            super.onPreExecute();
-        }
-
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            int count;
-            try {
-                URL url = new URL(Url.domainUrl + f_url[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                // getting file length
-                int lengthOfFile = connection.getContentLength();
-
-                fileName = f_url[0].substring(f_url[0].lastIndexOf('/') + 1);
-
-                InputStream input = new BufferedInputStream(url.openStream(), 8192);
-
-                String dir = "";
-
-                if (isImage.equals("no")) {
-                    dir = featureFileDownloadDir;
-                } else if (isImage.equals("yes")) {
-                    dir = featureImageFileDownloadDir;
-                }
-
-                File directory = new File(dir);
-                if (!directory.exists()) {
-                    directory.mkdirs();
-                }
-
-                OutputStream output = new FileOutputStream(featureFileDownloadDir + fileName);
-                Log.i(TAG, "featureDownloadFileUrl => " + featureFileDownloadDir + fileName);
-
-                byte data[] = new byte[1024];
-                long total = 0;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    publishProgress("" + (int) ((total * 100) / lengthOfFile));
-                    output.write(data, 0, count);
-                }
-                output.flush();
-                output.close();
-                input.close();
-
-                return "success";
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-            }
-
-            return "fail";
-        }
-
-        @Override
-        protected void onPostExecute(String message) {
-            super.onPostExecute(message);
-            if (message.equals("success") && isImage.equals("no")) {
-                Log.i(TAG, "feautre file download end");
-
-                isImage = "yes";
-                new DownloadFeatureFile(getContext()).execute(featureImageUrl);
-
-            } else if (message.equals("success") && isImage.equals("yes")) {
-
-                Global.hideLoading();
-                Log.i(TAG, "feature image file download end");
-
-                isImage = "no";
-                Intent intent = new Intent(getContext(), MainActivity.class);
-                startActivity(intent);
-
-                Toast.makeText(getContext(), "登录成功", Toast.LENGTH_SHORT).show();
-            } else {
-
-                Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
-                startActivity(intent);
-                Global.hideLoading();
-                Toast.makeText(getContext(), "登录失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 }

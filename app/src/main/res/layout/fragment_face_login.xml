@@ -5,6 +5,7 @@
     android:padding="@dimen/getneral_padding_16">
 
     <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:layout_marginTop="@dimen/margin_30"
@@ -19,16 +20,55 @@
             android:id="@+id/face_rect_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/imgDetected"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/mask_face_rec"/>
+
+
         <ProgressBar
             android:id="@+id/progressbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:indeterminateDrawable="@drawable/loading_face" />
     </FrameLayout>
+
+    <RelativeLayout
+        android:id="@+id/relButton"
+        android:visibility="gone"
+        android:layout_below="@id/frame"
+        android:layout_marginTop="@dimen/getneral_padding_16"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <Button
+            android:id="@+id/btnTryAgain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rect_button"
+            android:textColor="@color/white"
+            android:text="try again"
+            android:textAllCaps="true"
+            android:layout_marginStart="@dimen/getneral_padding_8" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="Login"
+            android:textColor="@color/white"
+            android:background="@drawable/rect_button" />
+
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
