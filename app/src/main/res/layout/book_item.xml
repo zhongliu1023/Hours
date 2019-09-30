@@ -34,6 +34,14 @@
                 android:src="@drawable/label1_icon"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_alignParentBottom="true" />
+
         </RelativeLayout>
     </RelativeLayout>
 

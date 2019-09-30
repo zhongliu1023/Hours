@@ -30,6 +30,7 @@ import ours.china.hours.BookLib.foobnix.model.AppState;
 import ours.china.hours.BookLib.foobnix.model.AppTemp;
 import ours.china.hours.BookLib.foobnix.pdf.search.activity.msg.MsgChangePaintWordsColor;
 import ours.china.hours.Common.ColorCollection;
+import ours.china.hours.Model.TextWordWithType;
 import ours.china.hours.R;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.BookCSS;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BrightnessHelper;
@@ -730,6 +731,35 @@ public class PageImaveView extends View {
                     drawWord(canvas, tw);
                 }
             }
+            List<TextWordWithType> selectedNotes = PageImageState.get().getSelectedNotes(pageNumber);
+            if (selectedNotes != null) {
+                for (TextWordWithType tw : selectedNotes) {
+
+                    Paint paintWrods = new Paint();
+                    switch (tw.type){
+                        case 0:
+                            paintWrods.setColor(Color.YELLOW);
+                            paintWrods.setAlpha(60);
+                            break;
+                        case 1:
+                            paintWrods.setColor(getResources().getColor(R.color.orange));
+                            paintWrods.setAlpha(60);
+                            break;
+                        case 2:
+                            paintWrods.setColor(getResources().getColor(R.color.tint_blue));
+                            paintWrods.setAlpha(60);
+                            break;
+                        case 3:
+                            paintWrods.setColor(getResources().getColor(R.color.pink));
+                            paintWrods.setAlpha(60);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    drawWordWithPaint(canvas, tw.textWord, paintWrods);
+                }
+            }
 
             if (AppState.get().isOLED && !AppState.get().isDayNotInvert /* && !TempHolder.get().isTextFormat */) {
                 canvas.drawRect(-dp1, 0, drawableWidth + dp1, drawableHeight, rect);
@@ -785,7 +815,7 @@ public class PageImaveView extends View {
         }
 
         if (colorPickValue == ColorCollection.blue) {
-            paintWrods.setColor(Color.BLUE);
+            paintWrods.setColor(getResources().getColor(R.color.tint_blue));
             paintWrods.setAlpha(60);
 
             invalidate();
@@ -799,7 +829,8 @@ public class PageImaveView extends View {
         }
 
         if (colorPickValue == ColorCollection.erase) {
-            paintWrods.setColor(getResources().getColor(R.color.transparent));
+            paintWrods.setColor(Color.BLUE);
+            paintWrods.setAlpha(60);
             invalidate();
         }
     }
@@ -888,6 +919,10 @@ public class PageImaveView extends View {
         c.drawRect(o, paintWrods);
     }
 
+    public void drawWordWithPaint(Canvas c, TextWord t, Paint paintWrods1) {
+        RectF o = transform(t, t.number);
+        c.drawRect(o, paintWrods1);
+    }
     public void drawLink(Canvas c, PageLink pl) {
         RectF o = transform(pl.sourceRect, pl.number);
         c.drawLine(o.left, o.bottom, o.right, o.bottom, paintWrods);
@@ -950,20 +985,27 @@ public class PageImaveView extends View {
             return null;
         }
 
+        float y1Tmp = y1;
+        float yInitTmp = yInit;
+        float x1Tmp = x1;
+        float xInitTmp = xInit;
         if (y1 < yInit) {
-            return null;
+            y1Tmp = yInit;
+            yInitTmp = y1;
+            x1Tmp = xInit;
+            xInitTmp = x1;
         }
 
-        boolean single = Math.abs(x1 - xInit) < MIN && Math.abs(y1 - yInit) < MIN;
+        boolean single = Math.abs(x1Tmp - xInitTmp) < MIN && Math.abs(y1Tmp - yInitTmp) < MIN;
 
         RectF tr = new RectF();
         imageMatrix().mapRect(tr);
 
-        float x = x1 - tr.left;
-        float y = y1 - tr.top;
+        float x = x1Tmp - tr.left;
+        float y = y1Tmp - tr.top;
 
-        xInit = xInit - tr.left;
-        yInit = yInit - tr.top;
+        xInit = xInitTmp - tr.left;
+        yInitTmp = yInitTmp - tr.top;
 
         float[] f = new float[9];
         imageMatrix().getValues(f);
@@ -973,11 +1015,11 @@ public class PageImaveView extends View {
         x = x / scaleX;
         y = y / scaleX;
 
-        xInit = xInit / scaleX;
-        yInit = yInit / scaleX;
+        xInitTmp = xInitTmp / scaleX;
+        yInitTmp = yInitTmp / scaleX;
 
-        RectF tapRect = new RectF(xInit, yInit, x, y);
-        if (yInit > y) {
+        RectF tapRect = new RectF(xInitTmp, yInitTmp, x, y);
+        if (yInitTmp > y) {
             tapRect.sort();
         }
 
@@ -990,7 +1032,7 @@ public class PageImaveView extends View {
 
         int firstNumber = 0;
         if (AppTemp.get().isDouble) {
-            firstNumber = xInit < drawableWidth / 2 ? 1 : 2;
+            firstNumber = xInitTmp < drawableWidth / 2 ? 1 : 2;
         }
         TempHolder.get().textFromPage = firstNumber;
 
@@ -1037,7 +1079,7 @@ public class PageImaveView extends View {
                         build.append(textWord.getWord() + " ");
                     }
                 } else {
-                    if (y > yInit) {
+                    if (y > yInitTmp) {
                         if (wordRect.top < tapRect.top && wordRect.bottom > tapRect.top && wordRect.right > tapRect.left) {
                             PageImageState.get().addWord(pageNumber, textWord);
                             build.append(textWord.getWord() + TxtUtils.space());

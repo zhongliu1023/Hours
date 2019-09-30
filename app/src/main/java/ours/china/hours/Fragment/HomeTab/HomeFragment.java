@@ -2,7 +2,10 @@ package ours.china.hours.Fragment.HomeTab;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
@@ -28,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -42,8 +46,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +60,9 @@ import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
+import ours.china.hours.BookLib.artifex.mupdf.fitz.Text;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
@@ -76,8 +84,14 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
+import ours.china.hours.Services.DownloadingService;
 import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
+
+import static ours.china.hours.Constants.ActivitiesCodes.CONNECTED_FILE_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.FINISHED_DOWNLOADING_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.PROGRESS_UPDATE_ACTION;
 
 /**
  * Created by liujie on 1/12/18.
@@ -96,7 +110,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     private RelativeLayout relTypeBook;
     private ImageView imgSort;
     private ImageView imgArrow;
-    private TextView txtTypeBook;
+    private TextView txtTypeBook, txtToolbarDownload;
     TextView allBooks;
     private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
     private QueryBook.Order order = QueryBook.Order.ASC;
@@ -109,7 +123,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     RelativeLayout mainToolbar, otherToolbar;
     RelativeLayout relSubTitle;
-    TextView txtToolbarComplete, txtToolbarDownload;
+    TextView txtToolbarComplete;
 
     BookDetailsDialog bookDetailsDialog;
 
@@ -136,6 +150,109 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         super.onCreate(savedInstanceState);
         isFirstLoading = true;
         getAllDataFromLocal();
+
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CONNECTED_FILE_ACTION);
+        filter.addAction(PROGRESS_UPDATE_ACTION);
+        filter.addAction(FINISHED_DOWNLOADING_ACTION);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String bookID = intent.getStringExtra("bookID");
+                        switch (intent.getAction()) {
+                            case CONNECTED_FILE_ACTION:
+                                connectedFile(bookID);
+                                break;
+                            case PROGRESS_UPDATE_ACTION:
+                                int progress = intent.getIntExtra("progress", -1);
+                                publishProgress(bookID, progress);
+                                break;
+                            case FINISHED_DOWNLOADING_ACTION:
+                                String path = intent.getStringExtra("path");
+                                finishedDownload(bookID, path);
+                                break;
+                        }
+                    }
+                }, filter);
+    }
+    private void connectedFile(String bookID) {
+        if (!Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = new BookFile(bookID, "");
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+    }
+    private void publishProgress(String bookID, int soFarBytes) {
+        if (Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = Global.mBookFiles.get(bookID);
+            bookFile.setProgress(soFarBytes);
+        }else {
+            BookFile bookFile = new BookFile(bookID, "");
+            bookFile.setProgress(soFarBytes);
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+    }
+    private void finishedDownload(String bookID, String path) {
+        if (Global.mBookFiles.containsKey(bookID)){
+            Global.mBookFiles.remove(bookID);
+        }else{
+            return;
+        }
+
+        Book focusBook = new Book();
+        for (Book one : mBookList) {
+            if (one.bookId.equals(bookID)) {
+                focusBook = one;
+                break;
+            }
+        }
+
+        int tempPosition = 0;
+        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+            tempPosition = 0;
+        } else {
+            tempPosition = AppDB.get().getAll().size();
+        }
+        focusBook.bookLocalUrl = path;
+        focusBook.libraryPosition = String.valueOf(tempPosition);
+        if (db.getBookData(focusBook.bookId) == null){
+            db.insertData(focusBook);
+        }else{
+            db.updateBookDataWithDownloadData(focusBook);
+        }
+        BookManagement.saveFocuseBook(focusBook, sessionManager);
+
+        if (!ExtUtils.isExteralSD(focusBook.bookLocalUrl)) {
+            FileMeta meta = AppDB.get().getOrCreate(focusBook.bookLocalUrl);
+            AppDB.get().updateOrSave(meta);
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+        }
+
+        Ion.with(getContext())
+                .load(Url.addToMybooks)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("bookId", focusBook.bookId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        if (error == null) {
+                            try {
+                                JSONObject resObject = new JSONObject(result.toString());
+                                if (resObject.getString("res").equals("success")||
+                                        (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
+
+                                    adapter.reloadBookList(mBookList);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -161,10 +278,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         relSubTitle = view.findViewById(R.id.relSubTitle);
         txtToolbarDownload = view.findViewById(R.id.txtToolbarDownload);
         txtToolbarComplete = view.findViewById(R.id.txtToolbarComplete);
-
         // for selected booklists
         selectedBookLists = new ArrayList<Book>();
-
         db = new DBController(getActivity());
         sessionManager = new SharedPreferencesManager(getActivity());
 
@@ -241,8 +356,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             if (currentPage == 0) {
                 mBookList = new ArrayList<>();
             }
-
-            Global.showLoading(getContext(),"generate_report");
             Map<String, List<String>> params = new HashMap<String, List<String>>();
             params.put("order_by", Collections.singletonList(orderBy.toString()));
             params.put("order", Collections.singletonList(order.toString()));
@@ -312,7 +425,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     public void getAllNews() {
         mLocalNewsData = db.getAllNews();
 
-//        Global.showLoading(getContext(),"generate_report");
         Ion.with(getContext())
                 .load(Url.get_notify)
                 .setTimeout(10000)
@@ -835,12 +947,36 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 ArrayList<Book> tempArrayList = new ArrayList<>();
 
                 for (Book one : selectedBookLists) {
-                    if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
+                    if (!one.bookLocalUrl.equals("")) {
                         continue;
                     } else {
                         tempArrayList.add(one);
                     }
                 }
+
+                mainToolbar.setVisibility(View.VISIBLE);
+                otherToolbar.setVisibility(View.GONE);
+                relSubTitle.setVisibility(View.VISIBLE);
+
+                selectedBookLists.clear();
+                adapter.reloadBookList(mBookList);
+
+                swipeRefreshLayout.setEnabled(true);
+                Global.bookAction = QueryBook.BookAction.NONE;
+                ArrayList<BookFile> bookFiles = new ArrayList<BookFile>();
+                for (Book book : tempArrayList){
+                    BookFile bookFile = new BookFile(book.bookId, Url.domainUrl + book.bookNameUrl);
+                    bookFiles.add(bookFile);
+
+                    if (!Global.mBookFiles.containsKey(book.bookId)){
+                        Global.mBookFiles.put(book.bookId, bookFile);
+                    }
+                }
+
+
+                Intent intent = new Intent(getContext(), DownloadingService.class);
+                intent.putParcelableArrayListExtra("bookFile", bookFiles);
+                getContext().startService(intent);
             }
         });
 
@@ -874,7 +1010,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             toolbarWork();
 
         } else {
-            if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+            if (!selectedBook.bookLocalUrl.equals("")) {
                 BookManagement.saveFocuseBook(selectedBook, sessionManager);
                 gotoReadingViewFile();
                 return;
@@ -882,7 +1018,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             BookManagement.saveFocuseBook(selectedBook, sessionManager);
 
             if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                bookDetailsDialog = new BookDetailsDialog(getActivity(), HomeFragment.this);
+                bookDetailsDialog = new BookDetailsDialog(getActivity(),position, HomeFragment.this);
                 bookDetailsDialog.show();
 
                 // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
@@ -907,7 +1043,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     }
 
     @Override
-    public void onFinishDownload(Book book, Boolean isSuccess) {
+    public void onFinishDownload(Book book, Boolean isSuccess, int position) {
         if (isSuccess){
             for (int i = 0; i < mBookList.size(); i++) {
                 Book one = mBookList.get(i);
@@ -923,6 +1059,17 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         }
     }
 
+    @Override
+    public void onStartDownload(Book book, int position) {
+
+        if (!Global.mBookFiles.containsKey(book.bookId)){
+            BookFile bookFile = new BookFile(book.bookId, Url.domainUrl + book.bookNameUrl);
+            Global.mBookFiles.put(book.bookId, bookFile);
+            Intent intent = new Intent(getContext(), DownloadingService.class);
+            intent.putParcelableArrayListExtra("bookFile", new ArrayList<BookFile>(Arrays.asList(bookFile)));
+            getContext().startService(intent);
+        }
+    }
     @Override
     public void onLongClickBookItem(Book selectedBook) {
         Global.bookAction = QueryBook.BookAction.SELECTTION;

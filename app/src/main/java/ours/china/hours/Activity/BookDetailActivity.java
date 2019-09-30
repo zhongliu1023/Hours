@@ -113,20 +113,20 @@ public class BookDetailActivity extends AppCompatActivity {
         });
     }
     void downloadFile(Book book){
-        new DownloadFile(BookDetailActivity.this, new ImageListener() {
-            @Override
-            public void onImagePath(String path) {
-                if (path.equals("")) {
-                    Toast.makeText(BookDetailActivity.this, "下载错误", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                book.bookLocalUrl = path;
-                BookManagement.saveFocuseBook(book, sessionManager);
-
-                txtDownloadButton.setVisibility(View.GONE);
-                resetBookInfoAfterDownloading();
-            }
-        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
+//        new DownloadFile(BookDetailActivity.this, new ImageListener() {
+//            @Override
+//            public void onImagePath(String path) {
+//                if (path.equals("")) {
+//                    Toast.makeText(BookDetailActivity.this, "下载错误", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                book.bookLocalUrl = path;
+//                BookManagement.saveFocuseBook(book, sessionManager);
+//
+//                txtDownloadButton.setVisibility(View.GONE);
+//                resetBookInfoAfterDownloading();
+//            }
+//        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
     }
 
     void resetBookInfoAfterDownloading(){

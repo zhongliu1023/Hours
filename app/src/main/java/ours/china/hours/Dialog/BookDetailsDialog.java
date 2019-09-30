@@ -54,11 +54,13 @@ public class BookDetailsDialog extends Dialog {
 
     DBController db = null;
     OnDownloadBookListenner onDownloadBookListner;
+    int position = 0;
 
-    public BookDetailsDialog(Context context, OnDownloadBookListenner listenner) {
+    public BookDetailsDialog(Context context,int position, OnDownloadBookListenner listenner) {
         super(context);
         this.context = context;
         this.onDownloadBookListner = listenner;
+        this.position = position;
         setContentView(R.layout.activity_bookdetail);
 
         initView();
@@ -121,7 +123,7 @@ public class BookDetailsDialog extends Dialog {
             @Override
             public void onClick(View view) {
 //                addOrRemoveAttentionApiWork(false);
-                onDownloadBookListner.onFinishDownload(focusBook, false);
+                onDownloadBookListner.onFinishDownload(focusBook, false, position);
                 dismiss();
             }
         });
@@ -129,16 +131,18 @@ public class BookDetailsDialog extends Dialog {
         txtDownloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtDownloadButton.setEnabled(false);
-
-                new DownloadImage(context, new ImageListener() {
-                    @Override
-                    public void onImagePath(String path) {
-                        focusBook.bookImageLocalUrl = path;
-                        BookManagement.saveFocuseBook(focusBook, sessionManager);
-                        downloadFile(focusBook);
-                    }
-                }).execute(Url.domainUrl + "/" + focusBook.coverUrl);
+                onDownloadBookListner.onStartDownload(focusBook, position);
+                dismiss();
+//                txtDownloadButton.setEnabled(false);
+//
+//                new DownloadImage(context, new ImageListener() {
+//                    @Override
+//                    public void onImagePath(String path) {
+//                        focusBook.bookImageLocalUrl = path;
+//                        BookManagement.saveFocuseBook(focusBook, sessionManager);
+//                        downloadFile(focusBook);
+//                    }
+//                }).execute(Url.domainUrl + "/" + focusBook.coverUrl);
             }
         });
 
@@ -160,20 +164,20 @@ public class BookDetailsDialog extends Dialog {
     }
 
     void downloadFile(Book book){
-        new DownloadFile(context, new ImageListener() {
-            @Override
-            public void onImagePath(String path) {
-                if (path.equals("")) {
-                    Toast.makeText(context, "下载错误", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                book.bookLocalUrl = path;
-                BookManagement.saveFocuseBook(book, sessionManager);
-
-                txtDownloadButton.setVisibility(View.GONE);
-                resetBookInfoAfterDownloading();
-            }
-        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
+//        new DownloadFile(context, new ImageListener() {
+//            @Override
+//            public void onImagePath(String path) {
+//                if (path.equals("")) {
+//                    Toast.makeText(context, "下载错误", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//                book.bookLocalUrl = path;
+//                BookManagement.saveFocuseBook(book, sessionManager);
+//
+//                txtDownloadButton.setVisibility(View.GONE);
+//                resetBookInfoAfterDownloading();
+//            }
+//        }).execute(Url.domainUrl + "/" + book.bookNameUrl);
     }
 
     void resetBookInfoAfterDownloading(){
@@ -214,7 +218,7 @@ public class BookDetailsDialog extends Dialog {
                                         (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
 
 //                                    addOrRemoveAttentionApiWork(true);
-                                    onDownloadBookListner.onFinishDownload(focusBook, true);
+                                    onDownloadBookListner.onFinishDownload(focusBook, true, position);
                                     dismiss();
                                 }
                             } catch (Exception ex) {
@@ -282,6 +286,7 @@ public class BookDetailsDialog extends Dialog {
     }
 
     public interface OnDownloadBookListenner {
-        void onFinishDownload(Book book, Boolean isSuccess);
+        void onFinishDownload(Book book, Boolean isSuccess, int position);
+        void onStartDownload(Book book, int position);
     }
 }

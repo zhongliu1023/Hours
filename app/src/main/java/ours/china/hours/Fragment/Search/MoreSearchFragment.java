@@ -195,7 +195,7 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
         BookManagement.saveFocuseBook(selectedBook, sessionManager);
 
         if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-            bookDetailsDialog = new BookDetailsDialog(getActivity(), MoreSearchFragment.this);
+            bookDetailsDialog = new BookDetailsDialog(getActivity(), position,MoreSearchFragment.this);
             bookDetailsDialog.show();
 
             // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
@@ -218,7 +218,11 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
     }
 
     @Override
-    public void onFinishDownload(Book book, Boolean isSuccess) {
+    public void onStartDownload(Book book, int position) {
+
+    }
+    @Override
+    public void onFinishDownload(Book book, Boolean isSuccess, int position) {
         if (isSuccess) {
             for (int i = 0; i < moreBooks.size(); i++) {
                 Book one = moreBooks.get(i);

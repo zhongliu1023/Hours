@@ -17,6 +17,7 @@ public class SharedPreferencesKeys {
     public static final String FLEX_STRINGS = "FLEX_STRINGS";
     public static final String COLLECTIONS = "COLLECTIONS";
     public static final String FAVORITES = "FAVORITES";
+    public static final String DOWNLOAD_BOOKFILES = "DOWNLOAD_BOOKFILES";
     public static final String EMAIL_ID = "emailId";
     public static final String PASSWORD = "password";
 

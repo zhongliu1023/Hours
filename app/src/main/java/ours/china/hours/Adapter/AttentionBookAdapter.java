@@ -23,7 +23,7 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
-public class AttentionBookAdapter extends RecyclerView.Adapter<AttentionBookAdapter.AttentionBookViewHolder> {
+public class AttentionBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
     private final String TAG = "AttentionBookAdapter";
 
     public List<Book> bookList;
@@ -43,14 +43,14 @@ public class AttentionBookAdapter extends RecyclerView.Adapter<AttentionBookAdap
 
     @NonNull
     @Override
-    public AttentionBookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BookViewAdapterHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.book_item, parent, false);
-        return new AttentionBookViewHolder(itemView);
+        return new BookViewAdapterHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AttentionBookViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BookViewAdapterHolder holder, int position) {
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
@@ -116,21 +116,5 @@ public class AttentionBookAdapter extends RecyclerView.Adapter<AttentionBookAdap
     public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
-    }
-
-    public class AttentionBookViewHolder extends RecyclerView.ViewHolder {
-        ImageView bookImage;
-        ImageView downloadStateImage;
-        ImageView readStateImage;
-        TextView bookName;
-
-        public AttentionBookViewHolder(View itemView) {
-            super(itemView);
-
-            bookImage = itemView.findViewById(R.id.item_book_image);
-            downloadStateImage = itemView.findViewById(R.id.downState);
-            readStateImage = itemView.findViewById(R.id.readState);
-            bookName = itemView.findViewById(R.id.item_bookName);
-        }
     }
 }

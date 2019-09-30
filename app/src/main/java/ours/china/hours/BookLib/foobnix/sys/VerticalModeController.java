@@ -815,6 +815,11 @@ public class VerticalModeController extends DocumentController {
     }
 
     @Override
+    public void doSearchInPage(String text, int page, int type, ResultResponse<Integer> result) {
+        ctr.doSearch(text, result);
+    }
+
+    @Override
     public void toPageDialog() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText number = new EditText(getActivity());

@@ -41,6 +41,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.model.AnnotationType;
 import ours.china.hours.BookLib.foobnix.pdf.info.model.OutlineLinkWrapper;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.AlertDialogs;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.MyPopupMenu;
+import ours.china.hours.BookLib.foobnix.pdf.search.activity.HorizontalBookReadingActivity;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.sys.TempHolder;
 import ours.china.hours.BookLib.foobnix.tts.TTSEngine;
@@ -626,8 +627,9 @@ public abstract class DocumentController {
             @Override
             public void run() {
                 ImageExtractor.clearCodeDocument();
-                activity.finish();
-                activity.startActivity(activity.getIntent());
+                ((HorizontalBookReadingActivity)activity).onRestartActivity();
+//                activity.finish();
+//                activity.startActivity(activity.getIntent());
             }
         });
     }
@@ -733,6 +735,7 @@ public abstract class DocumentController {
     }
 
     public abstract void doSearch(String text, ResultResponse<Integer> result);
+    public abstract void doSearchInPage(String text,int page,int type, ResultResponse<Integer> result);
 
     public Activity getActivity() {
         return activity;

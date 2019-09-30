@@ -34,6 +34,7 @@ import ours.china.hours.BookLib.foobnix.tts.TTSEngine;
 import ours.china.hours.BookLib.foobnix.tts.TTSNotification;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.FileMetaCore;
+import ours.china.hours.Model.TextWordWithType;
 
 import org.ebookdroid.common.settings.SettingsManager;
 import org.ebookdroid.core.PageSearcher;
@@ -592,6 +593,150 @@ public abstract class HorizontalModeController extends DocumentController {
         } catch (Exception e) {
             LOG.e(e);
         }
+    }
+    @Override
+    public void doSearchInPage(String text,int page,int type, final ours.china.hours.BookLib.foobnix.android.utils.ResultResponse<Integer> result){
+        if (searchTask != null && searchTask.getStatus() != CopyAsyncTask.Status.FINISHED) {
+//            return;
+        }
+
+        searchTask = new CopyAsyncTask() {
+
+            @Override
+            protected Object doInBackground(Object... params) {
+                try {
+//                    PageImageState.get().cleanSelectedNotes();
+                    String textLowCase = text.toLowerCase(Locale.US);
+                    String bookPath = getBookPath();
+                    int prev = -1;
+
+                    boolean nextWorld = false;
+                    String firstPart = "";
+                    TextWord firstWord = null;
+                    int firstWordIndex = 0;
+
+                    PageSearcher pageSearcher = new PageSearcher();
+                    pageSearcher.setTextForSearch(text);
+                    pageSearcher.setListener(new PageSearcher.OnWordSearched() {
+                        @Override
+                        public void onSearch(TextWord word, Object data) {
+                            if (!(data instanceof Integer))
+                                return;
+
+                            TextWordWithType textWordWithType = new TextWordWithType();
+                            textWordWithType.textWord = word;
+                            textWordWithType.type = type;
+
+                            Integer pageNumber = (Integer) data;
+                            LOG.d("Find on page_", pageNumber, text, word);
+                            List<TextWordWithType> selectedWords = PageImageState.get().getSelectedNotes(pageNumber);
+                            if (selectedWords == null || selectedWords.size() <= 0) {
+                                result.onResultRecive(pageNumber);
+                                LOG.d("Find on page", pageNumber, text);
+                            }
+                            if (selectedWords == null || !selectedWords.contains(textWordWithType)) {
+                                PageImageState.get().addNotes(pageNumber, word, type);
+                            }
+                        }
+                    });
+
+//                    for (int i = 0; i < getPageCount(); i++) {
+//                        if (!TempHolder.isSeaching) {
+//                            result.onResultRecive(Integer.MAX_VALUE);
+//                            return null;
+//                        }
+//
+//                        if (isClosed) {
+//                            TempHolder.isSeaching = false;
+//                            return null;
+//                        }
+                        if (page > 1) {
+                            result.onResultRecive(page * -1);
+                        }
+
+                        TextWord[][] pageText = getPageText(page);
+                        recyclePage(page);
+                        if (pageText == null) {
+
+                        }
+                        int index = 0;
+                        List<TextWord> find = new ArrayList<TextWord>();
+                        for (TextWord[] line : pageText) {
+                            find.clear();
+                            index = 0;
+                            for (TextWord word : line) {
+                                if (AppState.get().selectingByLetters) {
+                                    String it = String.valueOf(textLowCase.charAt(index));
+                                    if (word.w.toLowerCase(Locale.US).equals(it)) {
+                                        index++;
+                                        find.add(word);
+                                    } else {
+                                        index = 0;
+                                        find.clear();
+                                    }
+
+                                    if (index == text.length()) {
+                                        index = 0;
+                                        if (prev != page) {
+                                            result.onResultRecive(page);
+                                            prev = page;
+                                        }
+                                        for (TextWord t : find) {
+                                            PageImageState.get().addNotes(page, t, type);
+                                        }
+                                    }
+
+                                } else if (word.w.toLowerCase(Locale.US).contains(textLowCase)) {
+                                    LOG.d("Contains 1", word.w);
+                                    if (prev != page) {
+                                        result.onResultRecive(page);
+                                        prev = page;
+                                    }
+                                    PageImageState.get().addNotes(page, word, type);
+                                } else if (word.w.length() >= 3 && word.w.endsWith("-")) {
+                                    nextWorld = true;
+                                    firstWord = word;
+                                    firstWordIndex = page;
+                                    firstPart = word.w.replace("-", "");
+                                } else if (nextWorld && (firstPart + word.w.toLowerCase(Locale.US)).contains(text)) {
+                                    LOG.d("Contains 2", firstPart, word.w, text);
+                                    PageImageState.get().addNotes(firstWordIndex, firstWord, type);
+                                    PageImageState.get().addNotes(page, word, type);
+                                    nextWorld = false;
+                                    firstWord = null;
+                                    firstPart = "";
+                                    if (prev != firstWordIndex) {
+                                        result.onResultRecive(firstWordIndex);
+                                        prev = firstWordIndex;
+                                    }
+                                    if (prev != page) {
+                                        result.onResultRecive(page);
+                                        prev = page;
+                                    }
+
+                                } else if (nextWorld && TxtUtils.isNotEmpty(word.w)) {
+                                    nextWorld = false;
+                                    firstWord = null;
+                                }
+                                pageSearcher.addWord(new PageSearcher.WordData(word, page));
+                            }
+                        }
+
+//                    }
+                    result.onResultRecive(-1);
+                } catch (Exception e) {
+                    result.onResultRecive(-1);
+                }
+                TempHolder.isSeaching = false;
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object result) {
+                EventBus.getDefault().post(new InvalidateMessage());
+            }
+
+        }.execute();
     }
 
     @Override

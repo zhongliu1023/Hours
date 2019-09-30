@@ -146,6 +146,7 @@
             android:resizeableActivity="true"
             android:screenOrientation="behind"
             android:windowSoftInputMode="adjustPan"/>
+        <service android:name=".Services.DownloadingService"/>
         <service
             android:name=".BookLib.foobnix.ui2.BooksService"
             android:exported="false" />

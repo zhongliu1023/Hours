@@ -23,7 +23,7 @@ import ours.china.hours.Model.FavoriteDetailBook;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
 
-public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetailsAdatper.FavoritesDetailsViewHolder> {
+public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapterHolder> {
 
     public List<Book> bookList;
     public List<Book> selectedbookList;
@@ -40,14 +40,14 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
 
     @NonNull
     @Override
-    public FavoritesDetailsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BookViewAdapterHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.book_item, parent, false);
-        return new FavoritesDetailsViewHolder(itemView);
+        return new BookViewAdapterHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final FavoritesDetailsViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final BookViewAdapterHolder holder, final int position) {
         final Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
@@ -98,22 +98,6 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<FavoritesDetai
     public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
-    }
-
-    public class FavoritesDetailsViewHolder extends RecyclerView.ViewHolder {
-        ImageView bookImage;
-        ImageView downloadStateImage;
-        ImageView readStateImage;
-        TextView bookName;
-
-        public FavoritesDetailsViewHolder(View itemView) {
-            super(itemView);
-
-            bookImage = itemView.findViewById(R.id.item_book_image);
-            downloadStateImage = itemView.findViewById(R.id.downState);
-            readStateImage = itemView.findViewById(R.id.readState);
-            bookName = itemView.findViewById(R.id.item_bookName);
-        }
     }
 
     public interface addActionListener {

@@ -42,6 +42,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -198,6 +200,7 @@ import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Dialog.NoteDialog;
 import ours.china.hours.Dialog.SearchContentDialog;
+import ours.china.hours.Dialog.TranslateDialog;
 import ours.china.hours.FaceDetect.faceserver.CompareResult;
 import ours.china.hours.FaceDetect.faceserver.FaceServer;
 import ours.china.hours.FaceDetect.model.DrawInfo;
@@ -303,6 +306,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     RelativeLayout popupBack, popupYellow, popupOrange, popupBlue, popupPink, popupErase;
     RelativeLayout popupCopy, popupNote, popupSearch, popupTranslate, popupShare, popupColorPick;
     RelativeLayout popupSearchBook, popupSearchNet, popupSearchEncyclopedia;
+    WebView webViewTranslate;
 
     LinearLayout popupDefaultShow, popupSearchPart, popupColorPart;
     ImageView popupColorPickImage;
@@ -377,8 +381,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     PopupWindowHelper popupWindowHelper;
     SearchContentDialog searchContentDialog;
+    TranslateDialog translateDialog;
     NoteDialog noteDialog;
     int selectedNoteType = 0;
+    Bundle savedInstanceState;
     @Override
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
@@ -394,6 +400,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
         quickBookmark = getString(R.string.fast_bookmark);
         flippingTimer = 0;
 
@@ -412,7 +419,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         clickUtils = new ClickUtils();
 
         super.onCreate(savedInstanceState);
-
         boolean isTextFomat = ExtUtils.isTextFomat(getIntent());
 
         // AppTemp.get().isCut = false;
@@ -421,6 +427,9 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_horizontal_bookreading);
 
+        onCreateActivity();
+    }
+    public void onCreateActivity(){
         if (!Android6.canWrite(this)) {
             Android6.checkPermissions(this, true);
             return;
@@ -734,7 +743,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         BrightnessHelper.updateOverlay(overlay);
 
         tinUI();
-        LOG.d("INIT end", (float) (System.currentTimeMillis() - crateBegin) / 1000);
 
         anchor.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
@@ -831,7 +839,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
         Log.i("horizontalbookreading", "onCreate => end");
     }
-
     public void updateSeekBarColorAndSize() {
     }
 
@@ -993,12 +1000,30 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         }
     };
 
+    public void showPopupWindowForTranslation(final FrameLayout anchor, final HorizontalModeController controller, final String text) {
+        if (controller == null) {
+            return;
+        }
+        if (translateDialog != null){
+            translateDialog.onTranslate(text);
+        }else{
+            translateDialog = new TranslateDialog("Translate", anchor, 300, 400);
+            translateDialog.initDialog(this, controller, text);
+        }
+        translateDialog.show("TranslateContent");
+        Window rootWindow = getWindow();
+        Rect displayRect = new Rect();
+        rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
+
+    }
     public void showPopupWindow() {
 
         View popView;
         popView = LayoutInflater.from(HorizontalBookReadingActivity.this).inflate(R.layout.dragging_popup, null);
 
         // for popupWindow
+        webViewTranslate = popView.findViewById(R.id.webviewTranslate);
+        webViewTranslate.setVisibility(View.GONE);
         popupBack = popView.findViewById(R.id.popupBack);
         popupColorPickImage = popView.findViewById(R.id.popupColorPickImage);
 
@@ -1174,10 +1199,13 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         popupTranslate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                popupWindowHelper.dismiss();
-                String translateUrl = String.format("https://fanyi.baidu.com/?aldtype=85#en/zh/%s",AppState.get().selectedText.trim());
-
-                Urls.open(HorizontalBookReadingActivity.this, translateUrl);
+//                popupWindowHelper.dismiss();
+                webViewTranslate.setVisibility(View.VISIBLE);
+                String translateUrl = String.format("https://fanyi.baidu.com/?aldtype=85#en/zh/%s", AppState.get().selectedText.trim());
+                WebSettings webSettings = webViewTranslate.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                webViewTranslate.loadUrl(translateUrl);
+//                showPopupWindowForTranslation(anchor, dc, AppState.get().selectedText);
             }
         });
         popupSearch = popView.findViewById(R.id.popupSearch);
@@ -1235,7 +1263,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
 
         popupWindowHelper = new PopupWindowHelper(popView);
-        popupWindowHelper.showAsPopUp(anchorX);
+        if (anchorX.getY() < anchorY.getY()){
+            popupWindowHelper.showAsPopUp(anchorX);
+        }else{
+            popupWindowHelper.showAsPopUp(anchorY);
+        }
     }
 
     @Override
@@ -1249,14 +1281,26 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             bookmark.isF = false;
             bookmark.type = selectedNoteType;
             BookmarksData.get().add(bookmark);
+
+            TempHolder.isSeaching = true;
+            dc.doSearchInPage(bookmark.text, bookmark.getPage(Integer.parseInt(maxPage))-1, bookmark.type, new ResultResponse<Integer>() {
+                @Override
+                public boolean onResultRecive(final Integer pageNumber) {
+                    return false;
+                }
+            });
         }
     }
     public void searchMenu(final FrameLayout anchor, final HorizontalModeController controller, final String text) {
         if (controller == null) {
             return;
         }
-        searchContentDialog = new SearchContentDialog("search", anchor, 300, 400);
-        searchContentDialog.initDialog(this, HorizontalBookReadingActivity.this, controller, text);
+        if (searchContentDialog != null){
+            searchContentDialog.onSearch(text);
+        }else{
+            searchContentDialog = new SearchContentDialog("search", anchor, 300, 400);
+            searchContentDialog.initDialog(this, HorizontalBookReadingActivity.this, controller, text);
+        }
         searchContentDialog.show("SearchContent");
         Window rootWindow = getWindow();
         Rect displayRect = new Rect();
@@ -2416,6 +2460,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
+        onDestoryActivity();
+        super.onDestroy();
+    }
+    public void onDestoryActivity(){
         Log.i("horizontalbookreading", "onDestroy => start");
 
         if (loadinAsyncTask != null) {
@@ -2461,14 +2509,11 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         FaceServer.getInstance().unInit();
 
         Log.i("horizontalbookreading", "onDestroy => end");
-        super.onDestroy();
     }
-
 
     @Override
     protected void onResume() {
-        super.onResume();
-        Log.i("horizontalbookreading", "onResume => start");
+        super.onResume();Log.i("horizontalbookreading", "onResume => start");
 
         countTime = System.currentTimeMillis();       // this part is my definition for real time communication with api.
         faceDetectStartTime = 0;
@@ -2539,6 +2584,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 //            ttsActive.setVisibility(TxtUtils.visibleIf(TTSEngine.get().isTempPausing()));
 //        }
         Log.i("horizontalbookreading", "onResume => end");
+
     }
 
     @Override
@@ -2643,9 +2689,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 //            topReadTime.setTextColor(getResources().getColor(R.color.black));
             Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
         }
-
     }
-
     public static String fontImageClickTemp = "no";
     public static String brightnessImageClickTemp = "no";
 
@@ -2881,6 +2925,22 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             } else {
                 pagesBookmark.setImageResource(R.drawable.catalog_bookmark2_icon);
                 imgBookMark.setImageResource(R.drawable.catalog_bookmark2_icon);
+            }
+
+            PageImageState.get().cleanSelectedNotes();
+            ArrayList<AppBookmark> objects = new ArrayList<>(BookmarksData.get().getBookmarksByBook(dc.getCurrentBook()));
+            for (AppBookmark appBookmark : objects){
+                if (!appBookmark.isF){
+                    if (appBookmark.getPage(Integer.parseInt(maxPage))-1 == pos){
+                        TempHolder.isSeaching = true;
+                        dc.doSearchInPage(appBookmark.text, pos, appBookmark.type, new ResultResponse<Integer>() {
+                            @Override
+                            public boolean onResultRecive(final Integer pageNumber) {
+                                return false;
+                            }
+                        });
+                    }
+                }
             }
 
 
@@ -3633,11 +3693,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     @Override
     public void onSelectedContent(int page) {
         dc.onGoToPage(page);
-        searchContentDialog.closeDialog();
+//        searchContentDialog.closeDialog();
     }
 
     public void onDismissSearchDialog() {
         TempHolder.isSeaching = false;
     }
 
+    public void onRestartActivity(){
+        onDestoryActivity();
+        onCreateActivity();
+    }
 }

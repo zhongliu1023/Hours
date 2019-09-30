@@ -63,6 +63,7 @@ public class SearchContentDialog extends DragingPopup implements SearchedContent
 
     SearchedContentAdapter searchedContentAdapter;
     ArrayList<SearchContent> searchContents = new ArrayList<SearchContent>(){};
+    View onSearch;
 
     public SearchContentDialog(String title, FrameLayout anchor) {
         super(title, anchor);
@@ -124,7 +125,7 @@ public class SearchContentDialog extends DragingPopup implements SearchedContent
             }
         });
 
-        final View onSearch = view.findViewById(R.id.onSearch);
+        onSearch = view.findViewById(R.id.onSearch);
         TintUtil.setTintBg(onSearch);
 
         EditTextHelper.enableKeyboardSearch(searchEdit, new Runnable() {
@@ -242,12 +243,16 @@ public class SearchContentDialog extends DragingPopup implements SearchedContent
         });
     }
 
-    @Override
-    public void onClickContent(int pageNumber) {
-        onSelectContentListener.onSelectedContent(pageNumber);
+    public void onSearch(String searchText){
+        this.searchString = searchText;
+        searchEdit.setText(searchText);
+        onSearch.performClick();
     }
 
-
+    @Override
+    public void onClickContent(int pageNumber) {
+        documentController.onGoToPage(pageNumber+1);
+    }
     public interface OnSelectContentListener {
         void onSelectedContent(int page);
         void onDismissSearchDialog();

@@ -130,4 +130,6 @@ dependencies {
 
     implementation 'com.bigkoo:alertview:1.0.3'
     implementation 'cn.weidongjian.android:popupWindowHelper:0.5'
+
+    implementation 'com.liulishuo.filedownloader:library:1.7.6'
 }

@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.arcsoft.face.FaceFeature;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
@@ -21,12 +23,14 @@ import ours.china.hours.Dialog.OutDlg;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.Model.User;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
 
 public class Global {
 
     public static User currentUser = new User();
     public static String fullFavorites = "";
 
+    public static Map<String, BookFile> mBookFiles = new HashMap<String, BookFile>();
     public static QueryBook.BookAction bookAction = QueryBook.BookAction.NONE;
 
     boolean isShowingSpinner = false;

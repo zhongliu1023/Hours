@@ -1,7 +1,10 @@
 package ours.china.hours.Fragment.BookTab;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -40,6 +44,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +58,7 @@ import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.BookFragmentAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
@@ -70,7 +76,13 @@ import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
+import ours.china.hours.Services.DownloadingService;
 import pub.devrel.easypermissions.EasyPermissions;
+
+import static ours.china.hours.Constants.ActivitiesCodes.CONNECTED_FILE_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.FINISHED_DOWNLOADING_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.PROGRESS_UPDATE_ACTION;
 
 /**
  * Created by liujie on 1/12/18.
@@ -88,6 +100,9 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     ArrayList<Book> selectedBookLists;
     ArrayList<Book> searchedBookList;
     ArrayList<Favorites> mFavorites;
+
+
+    ArrayList<BookFile> mBookFiles;
 
     BookFragmentAdapter adapter;
     RelativeLayout maskLayer;
@@ -119,6 +134,108 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getAllDataFromLocalDB();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CONNECTED_FILE_ACTION);
+        filter.addAction(PROGRESS_UPDATE_ACTION);
+        filter.addAction(FINISHED_DOWNLOADING_ACTION);
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String bookID = intent.getStringExtra("bookID");
+                        switch (intent.getAction()) {
+                            case CONNECTED_FILE_ACTION:
+                                connectedFile(bookID);
+                                break;
+                            case PROGRESS_UPDATE_ACTION:
+                                int progress = intent.getIntExtra("progress", -1);
+                                publishProgress(bookID, progress);
+                                break;
+                            case FINISHED_DOWNLOADING_ACTION:
+                                String path = intent.getStringExtra("path");
+                                finishedDownload(bookID, path);
+                                break;
+                        }
+                    }
+                }, filter);
+    }
+    private void connectedFile(String bookID) {
+        if (!Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = new BookFile(bookID, "");
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+
+    }
+    private void publishProgress(String bookID, int soFarBytes) {
+        if (Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = Global.mBookFiles.get(bookID);
+            bookFile.setProgress(soFarBytes);
+        }else {
+            BookFile bookFile = new BookFile(bookID, "");
+            bookFile.setProgress(soFarBytes);
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+    }
+    private void finishedDownload(String bookID, String path) {
+        if (Global.mBookFiles.containsKey(bookID)){
+            Global.mBookFiles.remove(bookID);
+        }else{
+            return;
+        }
+
+        Book focusBook = new Book();
+        for (Book one : mBookList) {
+            if (one.bookId.equals(bookID)) {
+                focusBook = one;
+                break;
+            }
+        }
+
+        int tempPosition = 0;
+        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+            tempPosition = 0;
+        } else {
+            tempPosition = AppDB.get().getAll().size();
+        }
+        focusBook.bookLocalUrl = path;
+        focusBook.libraryPosition = String.valueOf(tempPosition);
+        if (db.getBookData(focusBook.bookId) == null){
+            db.insertData(focusBook);
+        }else{
+            db.updateBookDataWithDownloadData(focusBook);
+        }
+        BookManagement.saveFocuseBook(focusBook, sessionManager);
+
+        if (!ExtUtils.isExteralSD(focusBook.bookLocalUrl)) {
+            FileMeta meta = AppDB.get().getOrCreate(focusBook.bookLocalUrl);
+            AppDB.get().updateOrSave(meta);
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+        }
+
+        Ion.with(getContext())
+                .load(Url.addToMybooks)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("bookId", focusBook.bookId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        if (error == null) {
+                            try {
+                                JSONObject resObject = new JSONObject(result.toString());
+                                if (resObject.getString("res").equals("success")||
+                                        (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
+
+                                    adapter.reloadBookList(mBookList);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
     }
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -134,7 +251,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
     public void init(View view) {
         mNewsData = new ArrayList<>();
-
+        mBookFiles = new ArrayList<BookFile>();
+        mBookList = new ArrayList<Book>();
         selectedBookLists = new ArrayList<Book>();
         // for toolbar
         mainToolbar = view.findViewById(R.id.mainToolbar);
@@ -657,7 +775,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                     BookManagement.saveFocuseBook(selectedBookLists.get(0), sessionManager);
 
                     if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                        bookDetailsDialog = new BookDetailsDialog(getActivity(), BookFragment.this);
+                        bookDetailsDialog = new BookDetailsDialog(getActivity(),0, BookFragment.this);
                         bookDetailsDialog.show();
 
                         // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
@@ -728,7 +846,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
 
             if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                bookDetailsDialog = new BookDetailsDialog(getActivity(), BookFragment.this);
+                bookDetailsDialog = new BookDetailsDialog(getActivity(), position,BookFragment.this);
                 bookDetailsDialog.show();
 
                 // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
@@ -814,7 +932,17 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
 
     @Override
-    public void onFinishDownload(Book book, Boolean isSuccess) {
+    public void onStartDownload(Book book, int position) {
+        if (!Global.mBookFiles.containsKey(book.bookId)){
+            BookFile bookFile = new BookFile(book.bookId, Url.domainUrl + book.bookNameUrl);
+            Global.mBookFiles.put(book.bookId, bookFile);
+            Intent intent = new Intent(getContext(), DownloadingService.class);
+            intent.putParcelableArrayListExtra("bookFile", new ArrayList<BookFile>(Arrays.asList(bookFile)));
+            getContext().startService(intent);
+        }
+    }
+    @Override
+    public void onFinishDownload(Book book, Boolean isSuccess, int position) {
         if (isSuccess){
             for (int i = 0; i < mBookList.size(); i++) {
                 Book one = mBookList.get(i);

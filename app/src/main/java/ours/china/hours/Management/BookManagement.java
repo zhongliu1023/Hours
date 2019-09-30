@@ -15,6 +15,7 @@ import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Favorites;
+import ours.china.hours.Services.BookFile;
 
 public class BookManagement {
     public static void saveFocuseBook(Book book, SharedPreferencesManager sharedPreferencesManager){

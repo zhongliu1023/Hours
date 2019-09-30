@@ -38,18 +38,13 @@ import ours.china.hours.Model.Book;
 
 public class DownloadFile  extends AsyncTask<String, String, String> {
 
-    private ProgressDialog progressDialog;
     private String fileName;
     private String folder;
-    private boolean isDownloaded;
-    private Context context;
 
-    ImageListener imageListener;
+    OnDownloadStatusListenner onDownloadStatusListenner;
 
-    public DownloadFile(Context context, ImageListener imageListener) {
-
-        this.context = context;
-        this.imageListener = imageListener;
+    public DownloadFile(OnDownloadStatusListenner imageListener) {
+        this.onDownloadStatusListenner = imageListener;
 
     }
     /**
@@ -59,10 +54,6 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        this.progressDialog = new ProgressDialog(context);
-        this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        this.progressDialog.setCancelable(false);
-        this.progressDialog.show();
     }
 
     /**
@@ -70,6 +61,7 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
      */
     @Override
     protected String doInBackground(String... f_url) {
+        onDownloadStatusListenner.onStartDownload();
         int count;
         try {
             URL url = new URL(f_url[0]);
@@ -116,14 +108,19 @@ public class DownloadFile  extends AsyncTask<String, String, String> {
      * Updating progress bar
      */
     protected void onProgressUpdate(String... progress) {
-        // setting progress percentage
-        progressDialog.setProgress(Integer.parseInt(progress[0]));
+        onDownloadStatusListenner.onUpdateProgress(Integer.parseInt(progress[0]));
     }
 
 
     @Override
     protected void onPostExecute(String message) {
-        this.progressDialog.dismiss();
-        imageListener.onImagePath(message);
+        onDownloadStatusListenner.onFinishDownload(message);
+    }
+
+
+    public interface OnDownloadStatusListenner {
+        void onFinishDownload(String path);
+        void onStartDownload();
+        void onUpdateProgress(int progress);
     }
 }

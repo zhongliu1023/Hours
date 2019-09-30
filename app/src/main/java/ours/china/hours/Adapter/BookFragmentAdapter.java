@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,7 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
@@ -23,13 +26,15 @@ import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
 
 public class
-BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmentViewHolder> {
+BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
     private static String TAG = "HomeBookAdapter";
 
     public List<Book> bookList;
     public List<Book> selectedbookList;
+    public Map<String, BookFile> mBookFiles;
     BookItemInterface bookItemInterface;
     BookItemEditInterface bookItemEditInterface;
 
@@ -44,34 +49,48 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
         this.bookItemInterface = bookItemInterface;
 
         this.selectedbookList = new ArrayList<Book>();
+        this.mBookFiles = new HashMap<String, BookFile>();
     }
 
     @NonNull
     @Override
-    public BookFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public BookViewAdapterHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.book_item, parent, false);
-        return new BookFragmentViewHolder(itemView);
+        return new BookViewAdapterHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull BookFragmentViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BookViewAdapterHolder holder, int position) {
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
-        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
+        if (mBookFiles.containsKey(one.bookId)){
+            BookFile bookFile = mBookFiles.get(one.bookId);
+            holder.progressBar.setVisibility(View.VISIBLE);
+            if (bookFile.getIsDownloaded()){
+                holder.progressBar.setVisibility(View.INVISIBLE);
+                holder.downloadStateImage.setVisibility(View.VISIBLE);
+            }else{
+                holder.progressBar.setProgress(bookFile.getProgress());
+            }
+        }else{
+            holder.progressBar.setVisibility(View.INVISIBLE);
+        }
+        holder.downloadStateImage.setVisibility(View.INVISIBLE);
+        if (!one.bookLocalUrl.equals("")) {
 
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
+        }
+
+        if (!one.bookImageLocalUrl.equals("")){
             Glide.with(context)
                     .load(one.bookImageLocalUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
-        } else {
-
-            // for undownloaded book
-            holder.downloadStateImage.setVisibility(View.INVISIBLE);
+        }else{
             Glide.with(context)
                     .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
@@ -95,14 +114,22 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bookItemInterface.onClickBookItem(one, position);
+                if (!mBookFiles.containsKey(one.bookId)){
+                    bookItemInterface.onClickBookItem(one, position);
+                }else{
+                    Toast.makeText(context, "下载...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                bookItemEditInterface.onLongClickBookItem(one);
+                if (!mBookFiles.containsKey(one.bookId)){
+                    bookItemEditInterface.onLongClickBookItem(one);
+                }else{
+                    Toast.makeText(context, "下载...", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -123,21 +150,13 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
     }
-
-    public class BookFragmentViewHolder extends RecyclerView.ViewHolder {
-        ImageView bookImage;
-        ImageView downloadStateImage;
-        ImageView readStateImage;
-        TextView bookName;
-
-        public BookFragmentViewHolder(View itemView) {
-            super(itemView);
-
-            bookImage = itemView.findViewById(R.id.item_book_image);
-            downloadStateImage = itemView.findViewById(R.id.downState);
-            readStateImage = itemView.findViewById(R.id.readState);
-            bookName = itemView.findViewById(R.id.item_bookName);
+    public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
+        mBookFiles = updatedBookFiles;
+        for (int i = 0 ; i < bookList.size(); i ++){
+            Book book = bookList.get(i);
+            if (mBookFiles.containsKey(book.bookId)){
+                notifyItemChanged(i);
+            }
         }
     }
-
 }
