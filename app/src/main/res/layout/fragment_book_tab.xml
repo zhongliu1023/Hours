@@ -114,6 +114,7 @@
         android:layout_height="1dp"
         android:background="@color/seperator"/>
     <RelativeLayout
+        android:id="@+id/subToolbarLayout"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_tab_body_title_height">
         <RelativeLayout
@@ -194,18 +195,12 @@
                     android:text="小时"/>
             </LinearLayout>
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipe_refresh_layout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_books"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_books"
-                    android:layout_centerHorizontal="true"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                </androidx.recyclerview.widget.RecyclerView>
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                android:layout_height="match_parent">
+            </androidx.recyclerview.widget.RecyclerView>
 
         </LinearLayout>
 

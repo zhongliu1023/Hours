@@ -5,13 +5,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.FaceDetector;
 import android.widget.TextView;
 
 import com.arcsoft.face.FaceFeature;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 
 import ours.china.hours.BookLib.foobnix.model.AppBookmark;
 import ours.china.hours.BookLib.foobnix.pdf.info.wrapper.DocumentController;
@@ -140,7 +144,6 @@ public class Global {
 
     }
 
-
     public static void hideLoading()
     {
         if (mProgressDialog != null && mProgressDialog.isShowing())
@@ -148,5 +151,17 @@ public class Global {
             mProgressDialog.dismiss();
             mProgressDialog = null;
         }
+    }
+
+    public static String parseDate(String inputDateString, SimpleDateFormat inputDateFormat, SimpleDateFormat outputDateFormat) {
+        Date date = null;
+        String outputDateString = null;
+        try {
+            date = inputDateFormat.parse(inputDateString);
+            outputDateString = outputDateFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return outputDateString;
     }
 }

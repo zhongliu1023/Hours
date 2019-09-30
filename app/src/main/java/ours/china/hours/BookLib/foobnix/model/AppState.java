@@ -576,11 +576,11 @@ public class AppState {
     public boolean supportDOCX = true;
     public boolean supportMOBI = true;
     public boolean supportCBZ = false;
-    public boolean supportZIP = true;
+    public boolean supportZIP = false;
     public boolean supportArch = false;
     public boolean supportOther = false;
 
-    public boolean supportTXT = false;
+    public boolean supportTXT = true;
     public boolean isPreText = false;
     public boolean isLineBreaksText = false;
     public boolean isIgnoreAnnotatations = false;

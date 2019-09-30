@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.media.FaceDetector;
 import android.util.Base64;
 import android.util.Log;
 
@@ -131,6 +132,8 @@ public class FaceServer {
                     e.printStackTrace();
                 }
             }
+
+            Log.i("FaceLoginFragment", "Nnumber of feature file => " + faceRegisterInfoList.size());
         }
     }
 
@@ -450,16 +453,23 @@ public class FaceServer {
         float maxSimilar = 0;
         int maxSimilarIndex = -1;
         isProcessing = true;
+
+        Log.i("FaceLoginFragment", "getTopOfFaceLib => " + faceRegisterInfoList.size());
         for (int i = 0; i < faceRegisterInfoList.size(); i++) {
+            Log.i("FaceLoginFragment", "list" + i + " => " + faceRegisterInfoList.get(i).getName());
             tempFaceFeature.setFeatureData(faceRegisterInfoList.get(i).getFeatureData());
             faceEngine.compareFaceFeature(faceFeature, tempFaceFeature, faceSimilar);
             if (faceSimilar.getScore() > maxSimilar) {
                 maxSimilar = faceSimilar.getScore();
                 maxSimilarIndex = i;
             }
+
         }
         isProcessing = false;
         if (maxSimilarIndex != -1) {
+            Global.faceFeature = new FaceFeature();
+            Global.faceFeature.setFeatureData(faceRegisterInfoList.get(maxSimilarIndex).getFeatureData());
+            Log.i("FaceLoginFragment", "maxNumber => " + maxSimilarIndex);
             return new CompareResult(faceRegisterInfoList.get(maxSimilarIndex).getName(), maxSimilar);
         }
         return null;

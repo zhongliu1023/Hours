@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ours.china.hours.Activity.AttentionActivity;
 import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
@@ -133,6 +134,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     ImageView imgNewsCircle;
 
     int totalCount = 0;
+    int allCount = 0;
     int recommendCount = 0;
     int zhirenCount = 0;
     int renwenCount = 0;
@@ -141,6 +143,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     boolean isFirstLoading;
 
     boolean isLoading = false;
+    int first = 0;
 
 
     public HomeFragment() {
@@ -266,7 +269,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         popupWindowWork(inflater);
         event(rootView);
 
-        fetchBooksStatistics();
+        Global.showLoading(getContext(),"generate_report");
         getAllDataFromServer(0);
         getAllNews();
 
@@ -371,7 +374,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     @Override
     public void onPause() {
-        Global.bookAction = QueryBook.BookAction.NONE;
+        removeSelectedState();
         super.onPause();
     }
 
@@ -408,7 +411,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                         public void onCompleted(Exception error, JsonObject result) {
                             Log.i("HomeFragment", "result => " + result);
                             Global.hideLoading();
-//                            recyclerView.setEnabled(true);
                             swipeRefreshLayout.setRefreshing(false);
                             isLoading = false;
                             if (error == null) {
@@ -417,6 +419,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                     resObj = new JSONObject(result.toString());
 
                                     if (resObj.getString("res").toLowerCase().equals("success")) {
+                                        fetchBooksStatistics();
 
                                         JSONArray dataArray = new JSONArray(resObj.getString("list"));
                                         Gson gson = new Gson();
@@ -565,7 +568,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             ArrayList<Book> tempAttentionBooks = new ArrayList<>();
             ArrayList<String> collectionIds = new ArrayList<>();
             try {
-                JSONArray tempObject = new JSONArray(UsersManagement.getCurrentUser(sessionManager).attentionBookIds);
+                JSONArray tempObject = new JSONArray(Global.currentUser.attentionBookIds);
                 for (int i = 0; i < tempObject.length(); i++) {
                     collectionIds.add(tempObject.getString(i));
                 }
@@ -573,20 +576,18 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 Log.i("HomeFragment", "CollectionIds => " + collectionIds.toString());
 
                 for (Book one : mBookList) {
-                    for (String collectionId : collectionIds) {
-                        if (one.bookId.equals(collectionId)) {
-                            tempAttentionBooks.add(one);
-                            break;
-                        }
+                    if (Global.currentUser.attentionBookIds.contains(one.bookId)) {
+                        tempAttentionBooks.add(one);
+                        break;
                     }
                 }
 
                 mBookList = tempAttentionBooks;
+                Log.i("HomeFragment", "CollectionIds mBookList Count => " + mBookList.size());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-
 
         adapter.reloadBookList(mBookList);
     }
@@ -616,22 +617,33 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     void reloadStatistics(){
         try {
-            totalCount = Integer.valueOf(statistics.getString("totalBooks"));
+            allCount = Integer.valueOf(statistics.getString("totalBooks"));
+            totalCount = allCount;
+            if (first == 0) {
+                txtTypeBook.setText(getString(R.string.popup1_all, String.valueOf(totalCount)));
+                first = 1;
+            }
+
             recommendCount = Integer.valueOf(statistics.getString("recommended"));
             zhirenCount = Integer.valueOf(statistics.getString("recommended"));
             renwenCount = Integer.valueOf(statistics.getString("renwen"));
             wenxieCount = Integer.valueOf(statistics.getString("wenxie"));
 
-            txtTypeBook.setText(getString(R.string.popup1_all, String.valueOf(totalCount)));
             txtAllBook.setText(getString(R.string.popup1_all, String.valueOf(totalCount)));
             txtRecommended.setText(getString(R.string.popup1_recommned, String.valueOf(recommendCount)));
             txtNatural.setText(getString(R.string.popup1_natural, String.valueOf(zhirenCount)));
             txtHuman.setText(getString(R.string.popup1_human, String.valueOf(renwenCount)));
             txtLiterature.setText(getString(R.string.popup1_literature, String.valueOf(wenxieCount)));
 
-            JSONArray tempAttentionBookIds = new JSONArray(Global.currentUser.attentionBookIds);
-            numberOfAttentionBookIds  = tempAttentionBookIds.length();
-            txtFollow.setText(getString(R.string.popup1_follow, String.valueOf(numberOfAttentionBookIds)));
+            if (Global.currentUser.attentionBookIds.equals("")) {
+                txtFollow.setText(getString(R.string.popup1_follow, String.valueOf(0)));
+            } else {
+                JSONArray tempAttentionBookIds = new JSONArray(Global.currentUser.attentionBookIds);
+                numberOfAttentionBookIds  = tempAttentionBookIds.length();
+                Log.i("HomeFragment", "tempAttenBookIds => " + numberOfAttentionBookIds);
+                txtFollow.setText(getString(R.string.popup1_follow, String.valueOf(numberOfAttentionBookIds)));
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -695,6 +707,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     e.printStackTrace();
                 }
                 category= QueryBook.Category.ALL;
+
+                totalCount = allCount;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 dismissPopupWindow1();
             }
@@ -709,6 +724,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     e.printStackTrace();
                 }
                 category= QueryBook.Category.RECOMMEND;
+
+                totalCount = recommendCount;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 dismissPopupWindow1();
             }
@@ -723,6 +741,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     e.printStackTrace();
                 }
                 category= QueryBook.Category.ZHIREN;
+
+                totalCount = zhirenCount;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 dismissPopupWindow1();
             }
@@ -737,6 +758,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     e.printStackTrace();
                 }
                 category= QueryBook.Category.RENWEN;
+
+                totalCount = renwenCount;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 dismissPopupWindow1();
             }
@@ -751,6 +775,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     e.printStackTrace();
                 }
                 category= QueryBook.Category.WENXIE;
+
+                totalCount = wenxieCount;
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 dismissPopupWindow1();
             }
@@ -759,12 +786,17 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         relFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText(getString(R.string.popup1_follow, String.valueOf(numberOfAttentionBookIds)));
+//                txtTypeBook.setText(getString(R.string.popup1_follow, String.valueOf(numberOfAttentionBookIds)));
+//
+//                maskLayer.setVisibility(View.GONE);
+//                category = QueryBook.Category.ATEENTION;
+//
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer(0);
+//                dismissPopupWindow1();
 
-                maskLayer.setVisibility(View.GONE);
-                category = QueryBook.Category.ATEENTION;
-                getAllDataFromServer(0);
-                dismissPopupWindow1();
+                Intent intentFav = new Intent(getContext(), AttentionActivity.class);
+                startActivity(intentFav);
             }
         });
 
@@ -774,6 +806,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 tempPopupWindow2String = "默认";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
+
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -785,6 +819,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
+
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -796,6 +832,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.BOOKNAME;
+                order = QueryBook.Order.ASC;
+
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -807,6 +846,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.AUTH0R;
+                order = QueryBook.Order.DESC;
+
+                Global.showLoading(getContext(),"generate_report");
                 getAllDataFromServer(0);
                 popupWindow2.dismiss();
             }
@@ -953,16 +995,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                mainToolbar.setVisibility(View.VISIBLE);
-                otherToolbar.setVisibility(View.GONE);
-                relSubTitle.setVisibility(View.VISIBLE);
-
-                selectedBookLists.clear();
-                adapter.reloadBookList(mBookList);
-
-                swipeRefreshLayout.setEnabled(true);
-                Global.bookAction = QueryBook.BookAction.NONE;
+                removeSelectedState();
             }
         });
 
@@ -1013,6 +1046,35 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 startActivity(intent);
             }
         });
+
+        popupWindow1.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+
+        popupWindow2.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void removeSelectedState() {
+
+        mainToolbar.setVisibility(View.VISIBLE);
+        otherToolbar.setVisibility(View.GONE);
+        relSubTitle.setVisibility(View.VISIBLE);
+
+        selectedBookLists.clear();
+        adapter.reloadBookList(mBookList);
+
+        swipeRefreshLayout.setEnabled(true);
+        Global.bookAction = QueryBook.BookAction.NONE;
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -1137,15 +1199,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     }
 
     @Override
-    public void scrollToLoad(int page) {
+    public void scrollToLoad(int position) {
         if (Global.bookAction == QueryBook.BookAction.NONE) {
-            if (category == QueryBook.Category.ALL) {
-                if (totalCount > page * Global.perPage) {
-//                    getAllDataFromServer(page);
-                }
-            }
+
         }
-
-
     }
 }

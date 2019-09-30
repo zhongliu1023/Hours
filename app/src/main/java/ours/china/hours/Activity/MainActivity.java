@@ -197,7 +197,8 @@ public class MainActivity  extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
             if (resultCode == Activity.RESULT_OK) {
                 switch (requestCode) {
-                    case ActivityCodes.CROP_IMAGE:
+                    case ActivityCodes.CROP_IMAGE_FACE:
+                    case ActivityCodes.CROP_IMAGE_BACK:
                     case ActivityCodes.CROP_GALLERY:
                     case ActivityCodes.REQUEST_IMAGE_CAPTURE:
                     case ActivityCodes.REQUEST_IMAGE_GALLERY:
@@ -277,6 +278,7 @@ public class MainActivity  extends AppCompatActivity {
                     fragmentManager.beginTransaction().hide(activityFragment).show(bookFragment).commit();
                     activityFragment = bookFragment;
                     bookFragment.getAllDataFromServer();
+                    bookFragment.removeSelectedState();
 
                     break;
                 case 2:
@@ -326,6 +328,7 @@ public class MainActivity  extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(homeFragment).commit();
                     activityFragment = homeFragment;
+                    homeFragment.removeSelectedState();
 
                     break;
             }

@@ -30,7 +30,6 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -62,6 +61,7 @@ import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
@@ -75,9 +75,13 @@ import ours.china.hours.Model.BookStatus;
 import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.SortByAuthor;
+import ours.china.hours.Model.SortByPublishDate;
+import ours.china.hours.Model.SortByTitle;
 import ours.china.hours.R;
 import ours.china.hours.Services.BookFile;
 import ours.china.hours.Services.DownloadingService;
+import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static ours.china.hours.Constants.ActivitiesCodes.CONNECTED_FILE_ACTION;
@@ -88,7 +92,7 @@ import static ours.china.hours.Constants.ActivitiesCodes.PROGRESS_UPDATE_ACTION;
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
+public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, SelectFavoriteDialog.SelectFavoriteDialogInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -107,18 +111,23 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     BookFragmentAdapter adapter;
     RelativeLayout maskLayer;
 
-    SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerBooksView;
     private RelativeLayout relTypeBook;
+    private RelativeLayout subToolbar;
     ImageView imgSort;
     ImageView imgSearch;
     ImageView imgArrow;
     TextView txtTypeBook;
 
+    int favoriteFolderCount = 0;
+
+    private QueryBook.BookShelfState bookShelfState = QueryBook.BookShelfState.ALL;
+
     private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
     private QueryBook.Order order = QueryBook.Order.ASC;
     private QueryBook.Category category = QueryBook.Category.ALL;
     private int currentPage = 0;
+    int totalCount = 0;
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
@@ -244,6 +253,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
+
+        Global.showLoading(getContext(),"generate_report");
         getAllDataFromServer();
 
         return rootView;
@@ -257,6 +268,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         // for toolbar
         mainToolbar = view.findViewById(R.id.mainToolbar);
         otherToolbar = view.findViewById(R.id.otherToolbar);
+        subToolbar = view.findViewById(R.id.subToolbarLayout);
         txtToolbarComplete = view.findViewById(R.id.txtToolbarComplete);
         txtToolbarDownload = view.findViewById(R.id.txtToolbarDownload);
         txtToolbarFavorite = view.findViewById(R.id.txtToolbarFavortie);
@@ -299,92 +311,98 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
     }
     public void getAllDataFromServer() {
-        mBookList = new ArrayList<>();
-        searchedBookList = new ArrayList<>();
+        if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
 
-        Map<String, List<String>> params = new HashMap<String, List<String>>();
-        params.put("order_by", Collections.singletonList(orderBy.toString()));
-        params.put("order", Collections.singletonList(order.toString()));
-        params.put("page", Collections.singletonList(Integer.toString(currentPage)));
-        params.put("statusOnly", Collections.singletonList("0"));
-        String keywords = "";
-        if (!keywords.isEmpty()){
-            params.put("keyword", Collections.singletonList(keywords));
-        }
-        params.put("category", Collections.singletonList(category.toString()));
+            mBookList = new ArrayList<>();
+            searchedBookList = new ArrayList<>();
 
-        Ion.with(getActivity())
-                .load(Url.searchMyBookwithMobile)
-                .setTimeout(10000)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .setBodyParameters(params)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-                        Log.i("HomeFragment", "result => " + result);
-                        Global.hideLoading();
+            Map<String, List<String>> params = new HashMap<String, List<String>>();
+            params.put("order_by", Collections.singletonList(orderBy.toString()));
+            params.put("order", Collections.singletonList(order.toString()));
+            params.put("page", Collections.singletonList(Integer.toString(currentPage)));
+            params.put("statusOnly", Collections.singletonList("0"));
+            String keywords = "";
+            if (!keywords.isEmpty()){
+                params.put("keyword", Collections.singletonList(keywords));
+            }
+            params.put("category", Collections.singletonList(category.toString()));
 
-                        if (error == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
+            Ion.with(getActivity())
+                    .load(Url.searchMyBookwithMobile)
+                    .setTimeout(10000)
+                    .setBodyParameter(Global.KEY_token, Global.access_token)
+                    .setBodyParameters(params)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception error, JsonObject result) {
+                            Log.i("HomeFragment", "result => " + result);
+                            Global.hideLoading();
 
-                                if (resObj.getString("res").toLowerCase().equals("success")) {
+                            if (error == null) {
+                                JSONObject resObj = null;
+                                try {
+                                    resObj = new JSONObject(result.toString());
 
-                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
-                                    String favorite = resObj.getString("collections");
-                                    BookManagement.saveFullFavorites(favorite, sessionManager);
-                                    Gson gson = new Gson();
-                                    Type type = new TypeToken<ArrayList<Book>>() {}.getType();
-                                    mBookList = gson.fromJson(dataArray.toString(), type);
+                                    if (resObj.getString("res").toLowerCase().equals("success")) {
 
-                                    for (int i = 0; i < dataArray.length(); i++) {
-                                        JSONObject oneObject = dataArray.getJSONObject(i);
-                                        BookStatus bookStatus = new BookStatus();
+                                        JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                        String favorite = resObj.getString("collections");
+                                        BookManagement.saveFullFavorites(favorite, sessionManager);
+                                        Gson gson = new Gson();
+                                        Type type = new TypeToken<ArrayList<Book>>() {}.getType();
+                                        mBookList = gson.fromJson(dataArray.toString(), type);
 
-                                        bookStatus.pages = oneObject.getString("pages");
-                                        bookStatus.time = oneObject.getString("time");
-                                        bookStatus.progress = oneObject.getString("progress");
-                                        bookStatus.lastRead = oneObject.getString("lastRead");
-                                        bookStatus.isRead = oneObject.getString("isRead");
-                                        bookStatus.collection = oneObject.getString("collection");
-                                        bookStatus.notes = oneObject.getString("notes");
-                                        bookStatus.bookmarks = oneObject.getString("bookmarks");
-                                        mBookList.get(i).bookStatus = bookStatus;
+                                        for (int i = 0; i < dataArray.length(); i++) {
+                                            JSONObject oneObject = dataArray.getJSONObject(i);
+                                            BookStatus bookStatus = new BookStatus();
 
-                                        if (db.getBookData(mBookList.get(i).bookId) == null){
-                                            db.insertData(mBookList.get(i));
-                                        }else{
-                                            db.updateBookData(mBookList.get(i));
-                                        }
-                                        BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
-                                        if (localBookStatus == null){
-                                            db.insertBookStateData(bookStatus, mBookList.get(i).bookId);
-                                        }else{
-                                            if (Long.parseLong(localBookStatus.time.isEmpty()?"0":localBookStatus.time) < Long.parseLong(bookStatus.time.isEmpty()?"0":bookStatus.time)){
-                                                db.updateBookStateData(bookStatus, mBookList.get(i).bookId);
+                                            bookStatus.pages = oneObject.getString("pages");
+                                            bookStatus.time = oneObject.getString("time");
+                                            bookStatus.progress = oneObject.getString("progress");
+                                            bookStatus.lastRead = oneObject.getString("lastRead");
+                                            bookStatus.isRead = oneObject.getString("isRead");
+                                            bookStatus.collection = oneObject.getString("collection");
+                                            bookStatus.notes = oneObject.getString("notes");
+                                            bookStatus.bookmarks = oneObject.getString("bookmarks");
+                                            mBookList.get(i).bookStatus = bookStatus;
+
+                                            if (db.getBookData(mBookList.get(i).bookId) == null){
+                                                db.insertData(mBookList.get(i));
+                                            }else{
+                                                db.updateBookData(mBookList.get(i));
+                                            }
+                                            BookStatus localBookStatus= db.getBookStateData(mBookList.get(i).bookId);
+                                            if (localBookStatus == null){
+                                                db.insertBookStateData(bookStatus, mBookList.get(i).bookId);
+                                            }else{
+                                                if (Long.parseLong(localBookStatus.time.isEmpty()?"0":localBookStatus.time) < Long.parseLong(bookStatus.time.isEmpty()?"0":bookStatus.time)){
+                                                    db.updateBookStateData(bookStatus, mBookList.get(i).bookId);
+                                                }
                                             }
                                         }
-                                    }
 
 //                                    searchedBookList = (ArrayList<Book>) mBookList.clone();
-                                    getTotalData();
+                                        getTotalData();
 
 
-                                } else {
-                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException ex) {
+                                    ex.printStackTrace();
                                 }
 
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
+                            } else {
+                                Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                             }
-
-                        } else {
-                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+        } else {
+            recyclerBooksView.setEnabled(true);
+        }
+
     }
 
     public void getTotalData() {
@@ -444,7 +462,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             mFavorites.add(favorites);
         }
 
-        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(mFavorites.size())));
+        favoriteFolderCount = collections.length;
+        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(favoriteFolderCount)));
         BookManagement.saveFavorites(mFavorites, sessionManager);
     }
 
@@ -510,8 +529,9 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linAllBooks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("全都(1000)");
+                txtTypeBook.setText(getString(R.string.popup3_all, Integer.toString(mBookList.size())));
                 searchedBookList = mBookList;
+                totalCount = searchedBookList.size();
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -520,13 +540,15 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linDownloaded.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("已下载");
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (!oneBook.bookLocalUrl.isEmpty()){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                totalCount = searchedBookList.size();
+                txtTypeBook.setText(getString(R.string.popup3_downloaded, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -535,13 +557,15 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linRead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("已读");
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (oneBook.bookStatus != null && oneBook.bookStatus.isRead.equals("1")){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                totalCount = searchedBookList.size();
+                txtTypeBook.setText(getString(R.string.popup3_read, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -550,13 +574,15 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linUnread.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 searchedBookList.clear();
                 for (Book oneBook : mBookList){
                     if (oneBook.bookStatus == null || !oneBook.bookStatus.isRead.equals("1")){
                         searchedBookList.add(oneBook);
                     }
                 }
+
+                totalCount = searchedBookList.size();
+                txtTypeBook.setText(getString(R.string.popup3_unread, Integer.toString(searchedBookList.size())));
                 adapter.reloadBookList(searchedBookList);
                 dismissPopupWindow1();
             }
@@ -566,7 +592,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         linFavorites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                txtTypeBook.setText("收藏夹");
+                txtTypeBook.setText(getString(R.string.popup3_favorites, Integer.toString(favoriteFolderCount)));
                 maskLayer.setVisibility(View.GONE);
                 dismissPopupWindow1();
 
@@ -582,7 +608,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
-                getAllDataFromServer();
+
+                Collections.sort(searchedBookList, new SortByPublishDate());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
 
             }
@@ -594,7 +624,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.BOOKNAME;
-                getAllDataFromServer();
+
+                Collections.sort(searchedBookList, new SortByTitle());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
             }
         });
@@ -605,7 +639,13 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.AUTH0R;
-                getAllDataFromServer();
+
+                Log.i("BookFragment", "SearchedBookList => " + searchedBookList.toString());
+                Collections.sort(searchedBookList, new SortByAuthor());
+                Log.i("BookFragment", "SearchedBookList => " + searchedBookList.toString());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
             }
         });
@@ -736,19 +776,6 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             }
         });
 
-        swipeRefreshLayout = rootView.findViewById(R.id.swipe_refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, 1000);
-            }
-        });
-
         txtToolbarDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -796,7 +823,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             public void onClick(View view) {
                 BookManagement.setBooks(selectedBookLists, sessionManager);
 
-                SelectFavoriteDialog dialog = new SelectFavoriteDialog(getContext());
+                SelectFavoriteDialog dialog = new SelectFavoriteDialog(getContext(), BookFragment.this);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
@@ -805,16 +832,36 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainToolbar.setVisibility(View.VISIBLE);
-                otherToolbar.setVisibility(View.GONE);
-
-                selectedBookLists.clear();
-                adapter.reloadBookList(searchedBookList);
-
-
-                Global.bookAction = QueryBook.BookAction.NONE;
+                removeSelectedState();
             }
         });
+
+        popupWindow1.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+
+        popupWindow2.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));;
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void removeSelectedState() {
+        mainToolbar.setVisibility(View.VISIBLE);
+        subToolbar.setVisibility(View.VISIBLE);
+        otherToolbar.setVisibility(View.GONE);
+
+        selectedBookLists.clear();
+        adapter.reloadBookList(searchedBookList);
+
+        Global.bookAction = QueryBook.BookAction.NONE;
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -878,7 +925,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     @Override
     public void onPause() {
         super.onPause();
-        Global.bookAction = QueryBook.BookAction.NONE;
+        removeSelectedState();
     }
 
     void gotoReadingViewFile(){
@@ -898,6 +945,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
         // for toolbar.
         toolbarAction();
+        subToolbar.setVisibility(View.GONE);
 
         mainToolbar.setVisibility(View.GONE);
         otherToolbar.setVisibility(View.VISIBLE);
@@ -961,5 +1009,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             adapter.reloadBookList(searchedBookList);
             gotoReadingViewFile();
         }
+    }
+
+    @Override
+    public void afterDialogDismissWork() {
+        String[] collections = Global.fullFavorites.split(",");
+        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(collections.length)));
     }
 }

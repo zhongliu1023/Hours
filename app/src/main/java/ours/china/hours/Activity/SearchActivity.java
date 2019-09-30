@@ -97,6 +97,7 @@ public class SearchActivity extends AppCompatActivity implements SearchItemInter
                 replaceSearchBook(searchBook.getQuery().toString());
             }
         });
+
         imgBack = findViewById(R.id.imgBack);
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override

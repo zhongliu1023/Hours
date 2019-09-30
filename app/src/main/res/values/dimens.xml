@@ -32,10 +32,10 @@
     <dimen name="popup_window_width">120dp</dimen>
 
     <dimen name="book_item_width">120dp</dimen>
-    <dimen name="book_item_height">180dp</dimen>
 
     <dimen name="searchbar_height">55dp</dimen>
     <dimen name="myshelf_book_item_height">160dp</dimen>
+    <dimen name="book_item_height">150dp</dimen>
 
     <!--  for state fragment  -->
     <dimen name="chart_height">150dp</dimen>

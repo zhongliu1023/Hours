@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -51,13 +56,24 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
         final Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
-        if (!one.bookLocalUrl.isEmpty()) {
+        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
+
+            // for downloaded book
+            holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
-            Glide.with(context)
-                    .load(one.bookImageLocalUrl)
-                    .placeholder(R.drawable.book_image)
-                    .into(holder.bookImage);
+//            Glide.with(context)
+//                    .load(one.bookImageLocalUrl)
+//                    .placeholder(R.drawable.book_image)
+//                    .into(holder.bookImage);
+
+            // in case of dump image.
+            int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
+            FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
+            String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
         } else {
+
+            // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
                     .load(Url.domainUrl + "/" + one.coverUrl)
@@ -65,7 +81,8 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
                     .into(holder.bookImage);
         }
 
-        if (!one.bookStatus.isRead.equals("1")) {
+        if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
+            holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
         } else {
             holder.readStateImage.setVisibility(View.INVISIBLE);

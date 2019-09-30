@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -40,6 +41,7 @@ import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
@@ -48,17 +50,20 @@ import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
 import ours.china.hours.R;
+import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class MoreSearchFragment extends Fragment implements BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
+public class MoreSearchFragment extends Fragment implements BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, PageLoadInterface {
+    private final String TAG = "MoreSearchFragment";
 
     ArrayList<Book> moreBooks;
     MoreBookAdapter adapter;
     RecyclerView moreSearchRecyclerView;
+    SwipeRefreshLayout swipe_refresh_layout;
 
     TextView txtBack;
     String keyWords = "";
-
+    int totalCount;
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
@@ -81,7 +86,9 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
         recyclerViewInit(view);
         event(view);
 
-        getAllLibraryBooksFromServer();
+        Global.showLoading(getContext(),"generate_report");
+        getTotalCountFromServer();
+        getAllLibraryBooksFromServer(0);
         return view;
     }
 
@@ -90,11 +97,11 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
         db = new DBController(getActivity());
         sessionManager = new SharedPreferencesManager(getActivity());
 
-
+        swipe_refresh_layout = view.findViewById(R.id.swipe_refresh_layout);
         moreSearchRecyclerView = view.findViewById(R.id.more_search_result);
 
         moreBooks = new ArrayList<>();
-        adapter = new MoreBookAdapter(getActivity(), moreBooks, this);
+        adapter = new MoreBookAdapter(getActivity(), moreBooks, this, this);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getActivity());
         moreSearchRecyclerView.setLayoutManager(manager);
 
@@ -111,52 +118,119 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
 
             }
         });
+
+        swipe_refresh_layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getAllLibraryBooksFromServer(0);
+            }
+        });
     }
 
-    public void getAllLibraryBooksFromServer() {
-        moreBooks = new ArrayList<>();
+    public void getTotalCountFromServer() {
+        if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
+            Map<String, List<String>> params = new HashMap<String, List<String>>();
+            params.put("keyword", Collections.singletonList(keyWords));
 
-        Global.showLoading(getContext(),"generate_report");
-        Map<String, List<String>> params = new HashMap<String, List<String>>();
-        params.put("keyword", Collections.singletonList(keyWords));
+            Ion.with(getActivity())
+                    .load(Url.searchAllBookwithMobile)
+                    .setTimeout(10000)
+                    .setBodyParameter(Global.KEY_token, Global.access_token)
+                    .setBodyParameters(params)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception error, JsonObject result) {
+                            Log.i("HomeFragment", "result => " + result);
 
-        Ion.with(getActivity())
-                .load(Url.searchAllBookwithMobile)
-                .setTimeout(10000)
-                .setBodyParameter(Global.KEY_token, Global.access_token)
-                .setBodyParameters(params)
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception error, JsonObject result) {
-                        Log.i("HomeFragment", "result => " + result);
-                        Global.hideLoading();
+                            if (error == null) {
+                                JSONObject resObj = null;
+                                try {
+                                    resObj = new JSONObject(result.toString());
 
-                        if (error == null) {
-                            JSONObject resObj = null;
-                            try {
-                                resObj = new JSONObject(result.toString());
+                                    if (resObj.getString("res").toLowerCase().equals("success")) {
 
-                                if (resObj.getString("res").toLowerCase().equals("success")) {
+                                        JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                        Gson gson = new Gson();
+                                        Type type = new TypeToken<ArrayList<Book>>() {
+                                        }.getType();
 
-                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
-                                    Gson gson = new Gson();
-                                    Type type = new TypeToken<ArrayList<Book>>() {}.getType();
-                                    moreBooks = gson.fromJson(dataArray.toString(), type);
-                                    getTotalData();
-                                } else {
-                                    Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                        ArrayList<Book> tempBooks = gson.fromJson(dataArray.toString(), type);
+                                        totalCount = tempBooks.size();
+
+                                    } else {
+//                                        Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException ex) {
+                                    ex.printStackTrace();
                                 }
 
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
+                            } else {
+//                                Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                             }
-
-                        } else {
-                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+        }
+    }
+
+    public void getAllLibraryBooksFromServer(int currentPage) {
+        if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
+            if (currentPage == 0) {
+                moreBooks = new ArrayList<>();
+            }
+
+            Map<String, List<String>> params = new HashMap<String, List<String>>();
+            params.put("page", Collections.singletonList(Integer.toString(currentPage)));
+            params.put("perPage", Collections.singletonList(Integer.toString(Global.perPage)));
+            params.put("keyword", Collections.singletonList(keyWords));
+
+            Ion.with(getActivity())
+                    .load(Url.searchAllBookwithMobile)
+                    .setTimeout(10000)
+                    .setBodyParameter(Global.KEY_token, Global.access_token)
+                    .setBodyParameters(params)
+                    .asJsonObject()
+                    .setCallback(new FutureCallback<JsonObject>() {
+                        @Override
+                        public void onCompleted(Exception error, JsonObject result) {
+                            Log.i("Mo", "result => " + result);
+                            Global.hideLoading();
+                            swipe_refresh_layout.setRefreshing(false);
+
+                            if (error == null) {
+                                JSONObject resObj = null;
+                                try {
+                                    resObj = new JSONObject(result.toString());
+
+                                    if (resObj.getString("res").toLowerCase().equals("success")) {
+
+                                        JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                        Gson gson = new Gson();
+                                        Type type = new TypeToken<ArrayList<Book>>() {
+                                        }.getType();
+
+                                        ArrayList<Book> tempBookList = gson.fromJson(dataArray.toString(), type);
+                                        moreBooks.addAll(tempBookList);
+
+                                        getTotalData();
+                                    } else {
+                                        Toast.makeText(getActivity(), "错误", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException ex) {
+                                    ex.printStackTrace();
+                                }
+
+                            } else {
+                                Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        } else {
+            swipe_refresh_layout.setEnabled(false);
+            moreSearchRecyclerView.setEnabled(true);
+        }
     }
 
 
@@ -236,6 +310,15 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
             }
 
             adapter.reloadBookList(moreBooks);
+        }
+    }
+
+    @Override
+    public void scrollToLoad(int position) {
+        if (position < totalCount) {
+
+            Global.showLoading(getContext(),"generate_report");
+            getAllLibraryBooksFromServer(position / Global.perPage);
         }
     }
 }

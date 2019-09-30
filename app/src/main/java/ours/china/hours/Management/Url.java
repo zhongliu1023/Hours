@@ -9,6 +9,8 @@ public class Url {
 
     public static String loginUrl = baseUrl + "login_by_oauth";
     public static String faceLogin = baseUrl + "login_by_face";
+    public static String query_userface = baseUrl + "query_userface";
+
 
     public static String verifyCode = baseUrl + "request_account";
     public static String confirmVerify = baseUrl + "register_account";

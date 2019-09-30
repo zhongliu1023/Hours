@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="图书馆搜索结果"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:layout_centerVertical="true"/>
         <TextView
             android:id="@+id/txtMoreSearch"
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:text="查看更多"
             android:textColor="@color/pink"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="5dp"/>
@@ -28,7 +28,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/getneral_padding_16">
+        android:padding="@dimen/getneral_padding_8">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/library_search_result"
@@ -38,17 +38,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
         android:background="@color/seperator"/>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/getneral_padding_16">
+        android:padding="@dimen/getneral_padding_8">
         <TextView
             android:id="@+id/my_bookshelf_search_result_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="我的书架搜索结果"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/my_bookshelf_search_result"

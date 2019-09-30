@@ -20,8 +20,14 @@ import java.util.List;
 import java.util.Map;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
@@ -91,10 +97,14 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }else{
-            Glide.with(context)
-                    .load(Url.domainUrl + "/" + one.coverUrl)
-                    .placeholder(R.drawable.book_image)
-                    .into(holder.bookImage);
+//            Glide.with(context)
+//                    .load(Url.domainUrl + "/" + one.coverUrl)
+//                    .placeholder(R.drawable.book_image)
+//                    .into(holder.bookImage);
+            int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
+            FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
+            String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
         }
 
         if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
@@ -133,6 +143,7 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
                 return true;
             }
         });
+
 
     }
 

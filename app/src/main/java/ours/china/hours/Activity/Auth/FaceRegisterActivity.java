@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.solver.GoalRow;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -174,6 +175,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         setContentView(R.layout.activity_face_register);
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getWindow().getAttributes();
@@ -431,11 +433,12 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(FaceRegisterActivity.this, result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
                                 try {
+
+                                    Toast.makeText(FaceRegisterActivity.this, "面对发现成功。上传..", Toast.LENGTH_SHORT).show();
                                     mainBimap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(Global.faceFeatureSavedImageUrl)));
                                     Log.i(TAG, "mainBitmap => " + mainBimap);
                                 } catch (IOException e) {
@@ -549,6 +552,9 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
             return;
         }
 
+        Log.i(TAG, "Update face info => " + Global.faceHash);
+        Global.faceHash = Global.faceHash.substring(0, 100);
+
         Global.showLoading(FaceRegisterActivity.this,"generate_report");
         String header = "Bearer " + Global.access_token;
         File sourceFeatureFile = new File(Global.faceFeatureSavedUrl);
@@ -572,7 +578,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 
                                 if (resObj.getString("res").equals("success")) {
 
-                                    Global.identify = getResources().getString(R.string.identify_success);
+                                    Global.faceState = getResources().getString(R.string.identify_success);
                                     Global.faceFeature = mainFeature;
                                     Toast.makeText(FaceRegisterActivity.this, "认证成功", Toast.LENGTH_LONG).show();
 
@@ -582,7 +588,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                                     FaceRegisterActivity.super.onBackPressed();
 
                                 } else {
-                                    Toast.makeText(FaceRegisterActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(FaceRegisterActivity.this, "与服务器通信时发生错误。", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();

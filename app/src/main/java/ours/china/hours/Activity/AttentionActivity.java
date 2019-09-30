@@ -1,5 +1,6 @@
 package ours.china.hours.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -42,6 +43,7 @@ import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Management.Url;
+import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.Model.QueryRequest;
@@ -79,6 +81,7 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
 
 
     public void init() {
+        sessionManager = new SharedPreferencesManager(AttentionActivity.this);
 
         // primary state
         mainToolbar = findViewById(R.id.mainToolbar);
@@ -177,6 +180,9 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
                                     Global.bookAction = QueryBook.BookAction.NONE;
                                     selectedBookLists.clear();
 
+                                    Global.currentUser.attentionBookIds = resObj.getString("attentionBookIds");
+                                    UsersManagement.saveCurrentUser(Global.currentUser, sessionManager);
+
                                     adapter.reloadBookList(mBookList);
 
                                     mainToolbar.setVisibility(View.VISIBLE);
@@ -205,20 +211,16 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                Intent intent = new Intent(AttentionActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         });
 
         txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Global.bookAction = QueryBook.BookAction.NONE;
-                selectedBookLists.clear();
-
-                mainToolbar.setVisibility(View.VISIBLE);
-                otherToolbar.setVisibility(View.GONE);
-
-                adapter.reloadBookList(mBookList);
+                removeSelectedState();
             }
         });
 
@@ -230,14 +232,16 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
                 JSONArray tempArray = new JSONArray();
                 for (Book one : selectedBookLists) {
                     mBookList.remove(one);
-                    tempArray.put(one.bookId);
+                    tempArray.put(Integer.parseInt(one.bookId));
                 }
+//                String tempArrayString = tempArray.toString().replace("\\", "");
 
                 try {
                     attentionBookIds.put("req", QueryRequest.DELETE.toString());
-                    attentionBookIds.put("bookIds", tempArray.toString());
+                    attentionBookIds.put("bookIds", tempArray);
 
                     Log.i(TAG, "Request parameter => " + attentionBookIds.toString());
+
                     reflectAttentionBooksStateToServer(attentionBookIds.toString());
 
                 } catch (JSONException e) {
@@ -258,6 +262,16 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
                 }, 1000);
             }
         });
+    }
+
+    public void removeSelectedState() {
+        Global.bookAction = QueryBook.BookAction.NONE;
+        selectedBookLists.clear();
+
+        mainToolbar.setVisibility(View.VISIBLE);
+        otherToolbar.setVisibility(View.GONE);
+
+        adapter.reloadBookList(mBookList);
     }
 
     @Override
@@ -296,8 +310,17 @@ public class AttentionActivity extends AppCompatActivity implements BookItemInte
     }
 
     @Override
+    protected void onPause() {
+
+        removeSelectedState();
+        super.onPause();
+    }
+
+    @Override
     protected void onStop() {
-        Global.bookAction = QueryBook.BookAction.NONE;
+
         super.onStop();
     }
+
+
 }

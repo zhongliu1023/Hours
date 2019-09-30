@@ -38,7 +38,7 @@
         android:background="@color/seperator"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/book_item_height"
+        android:layout_height="wrap_content"
         android:padding="@dimen/getneral_padding_16">
         <ImageView
             android:id="@+id/bookCoverImg"
@@ -143,7 +143,7 @@
                             android:layout_height="wrap_content"
                             android:text="22"
                             android:layout_marginStart="@dimen/getneral_padding_8"
-                            android:layout_marginEnd="@dimen/getneral_padding_8"
+                            android:layout_marginEnd="@dimen/getneral_padding_4"
                             android:textColor="@color/pink"
                             android:textSize="@dimen/sw360_standard_fontsize_10"/>
 
@@ -168,7 +168,7 @@
                             android:layout_height="wrap_content"
                             android:text="55"
                             android:layout_marginStart="@dimen/getneral_padding_8"
-                            android:layout_marginEnd="@dimen/getneral_padding_8"
+                            android:layout_marginEnd="@dimen/getneral_padding_4"
                             android:textColor="@color/pink"
                             android:textSize="@dimen/sw360_standard_fontsize_10"/>
                         <TextView

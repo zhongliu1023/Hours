@@ -14,7 +14,6 @@
             android:id="@+id/txtAllBooks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="全都"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
     <View
@@ -32,8 +31,7 @@
             android:id="@+id/txtDownloaded"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="已下载(9)"/>
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -50,8 +48,7 @@
             android:id="@+id/txtRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="已读(2)"/>
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -68,8 +65,7 @@
             android:id="@+id/txtUnread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="未读(7)"/>
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -86,8 +82,7 @@
             android:id="@+id/txtFavorites"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:text="收藏夹(2)"/>
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
 </LinearLayout>

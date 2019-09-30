@@ -60,8 +60,6 @@ public class LoginOptionActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-
     }
 
 
@@ -91,7 +89,7 @@ public class LoginOptionActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(tab.getPosition());
                 if (tab.getPosition() == 1 && !isAlreadyStarted){
                     isAlreadyStarted = true;
-                    faceLoginFragment.startScanFace();
+                    faceLoginFragment.getFaceDataFromServer();
                 }
             }
 
