@@ -1,13 +1,19 @@
 package ours.china.hours.Activity.Auth;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
@@ -27,6 +33,12 @@ public class LoginOptionActivity extends AppCompatActivity {
     private FaceLoginFragment faceLoginFragment;
     private boolean isAlreadyStarted = false;
 
+    private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
+    private static final String[] NEEDED_PERMISSIONS = new String[]{
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,10 +47,27 @@ public class LoginOptionActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         initUI();
-        addFragment();
-        setTextSize();
+
+        if (!checkPermissions(NEEDED_PERMISSIONS)) {
+            ActivityCompat.requestPermissions(LoginOptionActivity.this, NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
+        } else {
+
+            addFragment();
+            setTextSize();
+        }
+
    }
 
+    private boolean checkPermissions(String[] neededPermissions) {
+        if (neededPermissions == null || neededPermissions.length == 0) {
+            return true;
+        }
+        boolean allGranted = true;
+        for (String neededPermission : neededPermissions) {
+            allGranted &= ContextCompat.checkSelfPermission(LoginOptionActivity.this, neededPermission) == PackageManager.PERMISSION_GRANTED;
+        }
+        return allGranted;
+    }
 
     private void initUI(){
 
@@ -136,5 +165,22 @@ public class LoginOptionActivity extends AppCompatActivity {
 //            }
 //        });
 //     https://stackoverflow.com/questions/44244469/how-to-change-selected-tab-title-textsize-in-android
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == ACTION_REQUEST_PERMISSIONS) {
+            boolean isAllGranted = true;
+            for (int grantResult : grantResults) {
+                isAllGranted &= (grantResult == PackageManager.PERMISSION_GRANTED);
+            }
+            if (isAllGranted) {
+                addFragment();
+                setTextSize();
+            } else {
+                Toast.makeText(LoginOptionActivity.this, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

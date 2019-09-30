@@ -108,24 +108,18 @@ public class HomeBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder>
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
-        }
 
-        if (!one.bookImageLocalUrl.equals("")){
-            Glide.with(context)
-                    .load(one.bookImageLocalUrl)
-                    .placeholder(R.drawable.book_image)
-                    .into(holder.bookImage);
-        }else{
-
-//            Glide.with(context)
-//                    .load(Url.domainUrl + "/" + one.coverUrl)
-//                    .placeholder(R.drawable.book_image)
-//                    .into(holder.bookImage);
             int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
             FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
             String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
             ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
+        }else{
+            Glide.with(context)
+                    .load(Url.domainUrl + "/" + one.coverUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
         }
+
         if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
             holder.readStateImage.setVisibility(View.VISIBLE);
             holder.readStateImage.setImageResource(R.drawable.read);
