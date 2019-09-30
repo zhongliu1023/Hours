@@ -433,11 +433,12 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(FaceRegisterActivity.this, result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
 
                             if (result.equals("register success!")) {
                                 try {
+
+                                    Toast.makeText(FaceRegisterActivity.this, "面对发现成功。上传..", Toast.LENGTH_SHORT).show();
                                     mainBimap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.fromFile(new File(Global.faceFeatureSavedImageUrl)));
                                     Log.i(TAG, "mainBitmap => " + mainBimap);
                                 } catch (IOException e) {
@@ -587,7 +588,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
                                     FaceRegisterActivity.super.onBackPressed();
 
                                 } else {
-                                    Toast.makeText(FaceRegisterActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(FaceRegisterActivity.this, "与服务器通信时发生错误。", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();

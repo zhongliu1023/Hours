@@ -15,7 +15,7 @@
     <string name="face_register">register</string>
     <string name="face_liveness_detect">liveness detect</string>
     <string name="init_failed">init failed,code is %d</string>
-    <string name="permission_denied">permission denied!</string>
+    <string name="permission_denied">没有权限!</string>
     <string name="active_success">active success</string>
     <string name="already_activated">already activated</string>
     <string name="active_failed">active failed,code is %d</string>

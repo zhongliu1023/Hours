@@ -809,7 +809,7 @@ public class FaceLoginFragment extends Fragment {
                         @Override
                         public void onNext(Boolean success) {
                             String result = success ? "register success!" : "register failed!";
-                            Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
                             registerStatus = REGISTER_STATUS_DONE;
                         }
 

@@ -503,7 +503,7 @@ public class IdentifyActivity extends AppCompatActivity {
                                     IdentifyActivity.super.onBackPressed();
 
                                 } else {
-                                    Toast.makeText(IdentifyActivity.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(IdentifyActivity.this, "与服务器通信时发生错误。", Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
