@@ -145,7 +145,7 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
         txtComplete = findViewById(R.id.txtComplete);
         txtDelete = findViewById(R.id.txtDelete);
 //        txtAddFavorite = findViewById(R.id.txtAddFavorite);
-        txtDownload = findViewById(R.id.txtDownload);
+//        txtDownload = findViewById(R.id.txtDownload);
         txtCancel = findViewById(R.id.txtCancel);
         txtFooterAddFavorite = findViewById(R.id.txtFooterAddFavorite);
         myBookShelfToolbar = findViewById(R.id.myBookShelfToolbar);
@@ -206,12 +206,12 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
                 txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
 //                txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
-                txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+//                txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
 
                 // toolbar's primary state
                 txtDelete.setEnabled(false);
 //                txtAddFavorite.setEnabled(false);
-                txtDownload.setEnabled(false);
+//                txtDownload.setEnabled(false);
 
                 // for select item
                 Global.editStateOfFavoritesDetails = "yes";
@@ -480,20 +480,20 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
             if (selectedBookLists.size() > 0) {
                 txtDelete.setEnabled(true);
 //                txtAddFavorite.setEnabled(true);
-                txtDownload.setEnabled(true);
+//                txtDownload.setEnabled(true);
 
                 txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
 //                txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_90));
-                txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+//                txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
 
             } else {
                 txtDelete.setEnabled(false);
 //                txtAddFavorite.setEnabled(false);
-                txtDownload.setEnabled(false);
+//                txtDownload.setEnabled(false);
 
                 txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
 //                txtAddFavorite.setTextColor(getResources().getColor(R.color.alpa_40));
-                txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+//                txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
             }
         }
 
@@ -603,11 +603,11 @@ public class FavoritesDetailActivity extends AppCompatActivity implements Favori
 
                                 if (selectedBookLists.size() == 0) {
                                     txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
-                                    txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+//                                    txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
 
                                     // toolbar's primary state
                                     txtDelete.setEnabled(false);
-                                    txtDownload.setEnabled(false);
+//                                    txtDownload.setEnabled(false);
                                 }
                             }
                         }

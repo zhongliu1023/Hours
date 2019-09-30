@@ -225,7 +225,7 @@ public class FaceLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 StringBuilder byteString = new StringBuilder();
-                if (Global.faceIDFeature == null) {
+                if (Global.faceFeature == null) {
                     return;
                 }
                 for(byte b : Global.faceFeature.getFeatureData()){
@@ -662,7 +662,7 @@ public class FaceLoginFragment extends Fragment {
                     public void onNext(CompareResult compareResult) {
                         if (compareResult == null || compareResult.getUserName() == null) {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                            faceHelper.addName(requestId, "VISITOR " + requestId);
+//                            faceHelper.addName(requestId, "VISITOR " + requestId);
                             return;
                         }
 
@@ -671,7 +671,7 @@ public class FaceLoginFragment extends Fragment {
                             boolean isAdded = false;
                             if (compareResultList == null) {
                                 requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                                faceHelper.addName(requestId, "VISITOR " + requestId);
+//                                faceHelper.addName(requestId, "VISITOR " + requestId);
 
                                 Log.i(TAG, "compare result username => " + compareResult.getUserName());
                                 downloadImageFile(compareResult.getUserName());
@@ -703,7 +703,7 @@ public class FaceLoginFragment extends Fragment {
 
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
-                            faceHelper.addName(requestId, "VISITOR " + requestId);
+//                            faceHelper.addName(requestId, "VISITOR " + requestId);
                         }
                     }
 
