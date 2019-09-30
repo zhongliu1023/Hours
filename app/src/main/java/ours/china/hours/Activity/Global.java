@@ -78,8 +78,8 @@ public class Global {
     public static String faceFeatureSavedImageUrl = "";
     public static String faceHash = "";
 
-    public static FaceFeature faceFeature = new FaceFeature();
-    public static FaceFeature faceIDFeature = new FaceFeature();
+    public static FaceFeature faceFeature = null;
+    public static FaceFeature faceIDFeature = null;
     // to update face and ID information.
     public static String faceFeatureImageUrl = "";
     public static String faceIDFeatureImageUrl = "";

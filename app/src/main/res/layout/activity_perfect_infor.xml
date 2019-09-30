@@ -79,7 +79,9 @@
                         android:layout_weight="7"
                         android:background="@android:color/transparent"
                         android:gravity="end|center_vertical"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/content_normal_size"
+                        android:maxLines="1"
                         android:hint="@string/information_name_hint" />
                 </LinearLayout>
                 <TextView
@@ -120,6 +122,7 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:drawableRight="@drawable/ic_right"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_veri_hint"/>
@@ -163,6 +166,7 @@
                         android:gravity="right|center_vertical"
                         android:drawableRight="@drawable/ic_right"
                         android:background="@android:color/transparent"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_face_veri_hint"/>
                 </LinearLayout>
@@ -197,15 +201,17 @@
                         android:textColor="@android:color/black"
                         android:textSize="@dimen/content_normal_size"
                         android:text="@string/school"/>
-                    <EditText
+                    <TextView
                         android:id="@+id/edPerfectSchool"
                         android:layout_width="0dp"
                         android:layout_weight="7"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:textSize="@dimen/content_normal_size"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
-                        android:hint="@string/school_hint"/>
+                        android:text="@string/school_hint"
+                        android:maxLines="1"/>
                 </LinearLayout>
                 <TextView
                     android:layout_width="match_parent"
@@ -246,6 +252,7 @@
                         android:gravity="right|center_vertical"
                         android:drawableRight="@drawable/ic_right"
                         android:textSize="@dimen/content_normal_size"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:hint="@string/information_class_hint"/>
                 </LinearLayout>
@@ -287,7 +294,9 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:textSize="@dimen/content_normal_size"
+                        android:maxLines="1"
                         android:background="@android:color/transparent"
+                        android:textColor="@color/black"
                         android:hint="@string/information_name_hint"/>
                 </LinearLayout>
                 <TextView

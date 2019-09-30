@@ -34,8 +34,8 @@ import ours.china.hours.R;
 
 public class PerfectInforActivity extends AppCompatActivity{
 
-    private EditText edPerfectName, edPerfectSchool, edPerfectStudId;
-    private TextView tvPerfectIdentify, tvPerfectFace, tvPerfectClass;
+    private EditText edPerfectName, edPerfectStudId;
+    private TextView tvPerfectIdentify, tvPerfectFace, tvPerfectClass, edPerfectSchool;
     private Button btnPerfectSubmit, btnPerfectDone;
     private ImageButton btnDown, btnUp;
     private ImageView imgPerfectBack;
@@ -79,7 +79,7 @@ public class PerfectInforActivity extends AppCompatActivity{
         edPerfectName = (EditText)findViewById(R.id.edPerfectName);
         tvPerfectIdentify = (TextView)findViewById(R.id.tvPerfectidentify);
         tvPerfectFace = (TextView)findViewById(R.id.tvPerfectface);
-        edPerfectSchool = (EditText)findViewById(R.id.edPerfectSchool);
+        edPerfectSchool = (TextView)findViewById(R.id.edPerfectSchool);
         tvPerfectClass = (TextView)findViewById(R.id.tvPerfectClass);
         edPerfectStudId = (EditText) findViewById(R.id.edPerfectStudId);
         btnPerfectSubmit = (Button)findViewById(R.id.btnPerfectSubmit);
@@ -141,10 +141,12 @@ public class PerfectInforActivity extends AppCompatActivity{
 
         if (!Global.identify.equals(getResources().getString(R.string.identify_success))){
             Toast.makeText(this, "请正确输入您的ID。", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (!Global.faceState.equals(getResources().getString(R.string.identify_success))) {
             Toast.makeText(this, "正确注册你的脸", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         String school = edPerfectSchool.getText().toString();
@@ -165,7 +167,13 @@ public class PerfectInforActivity extends AppCompatActivity{
         }
 
         if (classs.equals("")){
-            Global.alert(PerfectInforActivity.this, getResources().getString(R.string.perfect_info), getResources().getString(R.string.studId), getResources().getString(R.string.confirm));
+            Global.alert(PerfectInforActivity.this, getResources().getString(R.string.perfect_info), getResources().getString(R.string.information_class), getResources().getString(R.string.confirm));
+            edPerfectStudId.requestFocus();
+            return;
+        }
+
+        if (studId.equals("")) {
+            Global.alert(PerfectInforActivity.this, getResources().getString(R.string.perfect_info), "请填写学号", getResources().getString(R.string.confirm));
             edPerfectStudId.requestFocus();
             return;
         }

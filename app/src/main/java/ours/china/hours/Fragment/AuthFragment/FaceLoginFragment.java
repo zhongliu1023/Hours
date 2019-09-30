@@ -225,6 +225,9 @@ public class FaceLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 StringBuilder byteString = new StringBuilder();
+                if (Global.faceIDFeature == null) {
+                    return;
+                }
                 for(byte b : Global.faceFeature.getFeatureData()){
                     byteString.append(Byte.toString(b));
                 }

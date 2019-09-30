@@ -14,12 +14,12 @@
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
-    <TextView
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/margin_50"
-    android:text="@string/select_photo"
-        android:gravity="center"
-    android:textSize="@dimen/font_size_18"/>
+<!--    <TextView-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="@dimen/margin_50"-->
+<!--    android:text="@string/select_photo"-->
+<!--        android:gravity="center"-->
+<!--    android:textSize="@dimen/font_size_18"/>-->
 
     <TextView
         android:id="@+id/tvIdentyPhoto"

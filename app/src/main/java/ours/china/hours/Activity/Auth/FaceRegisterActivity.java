@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.solver.GoalRow;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -174,6 +175,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
         setContentView(R.layout.activity_face_register);
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getWindow().getAttributes();
@@ -575,7 +577,7 @@ public class FaceRegisterActivity extends AppCompatActivity implements ViewTreeO
 
                                 if (resObj.getString("res").equals("success")) {
 
-                                    Global.identify = getResources().getString(R.string.identify_success);
+                                    Global.faceState = getResources().getString(R.string.identify_success);
                                     Global.faceFeature = mainFeature;
                                     Toast.makeText(FaceRegisterActivity.this, "认证成功", Toast.LENGTH_LONG).show();
 

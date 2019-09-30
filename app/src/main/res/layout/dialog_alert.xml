@@ -42,11 +42,11 @@
         <Button
             android:id="@+id/btn_dlgOk"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:textAllCaps="false"
             android:background="@color/transparent"
             android:layout_marginTop="@dimen/getneral_padding_8"
             android:textColor="@color/black"
-            android:textSize="15sp" />
+            android:textSize="@dimen/sw360_standard_fontsize_16" />
     </LinearLayout>
 </LinearLayout>

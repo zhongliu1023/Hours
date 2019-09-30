@@ -335,10 +335,12 @@ public class IdentifyActivity extends AppCompatActivity {
         Intent intent = new Intent(IdentifyActivity.this, CameraCrop.class);
         if (i == 0){
             intent.putExtra("type", 0);
+            startActivityForResult(intent, ActivityCodes.CROP_IMAGE_FACE);
         }else if (i == 1){
             intent.putExtra("type", 1);
+            startActivityForResult(intent, ActivityCodes.CROP_IMAGE_BACK);
         }
-        startActivityForResult(intent, ActivityCodes.CROP_IMAGE);
+
 
     }
 
@@ -432,9 +434,8 @@ public class IdentifyActivity extends AppCompatActivity {
                     }
                     imgBtnIdentifyBack.setVisibility(View.INVISIBLE);
                     Glide.with(IdentifyActivity.this).load(mPhotoBackFile).apply(new RequestOptions().placeholder(R.drawable.id_back_icon)).into(imgIdentyBack);
-                } else if (requestCode == ActivityCodes.CROP_IMAGE){
-                    if (data.getStringExtra("cropImagePath") != null) {
-//
+                } else if (requestCode == ActivityCodes.CROP_IMAGE_FACE){
+                    if (data.getStringExtra("cropImagePath") != null) {//
 
                         String imagePath = data.getStringExtra("cropImagePath");
                         Log.i(TAG, "CropImagePath => " + imagePath);
@@ -451,10 +452,20 @@ public class IdentifyActivity extends AppCompatActivity {
                             processImage(mainBimap);
 
                             Log.i("IdentifyActivity", "mPhotoFile = " + mPhotoFile.getAbsolutePath() + "mainBitmap = " + mainBimap);
-                        }else{
-                            mPhotoBackFile = imgFile;
-                            imgIdentyBack.setImageURI(Uri.fromFile(imgFile));
                         }
+//                        else{
+//                            mPhotoBackFile = imgFile;
+//                            imgIdentyBack.setImageURI(Uri.fromFile(imgFile));
+//                        }
+                    }
+                } else if (requestCode == ActivityCodes.CROP_IMAGE_BACK) {
+                    if (data.getStringExtra("cropImagePath") != null) {
+                        String imagePath = data.getStringExtra("cropImagePath");
+                        Log.i(TAG, "CropImagePath => " + imagePath);
+                        File imgFile = new File(imagePath);
+
+                        mPhotoBackFile = imgFile;
+                        imgIdentyBack.setImageURI(Uri.fromFile(imgFile));
                     }
                 }
         }

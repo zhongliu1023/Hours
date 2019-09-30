@@ -197,7 +197,8 @@ public class MainActivity  extends AppCompatActivity {
             super.onActivityResult(requestCode, resultCode, data);
             if (resultCode == Activity.RESULT_OK) {
                 switch (requestCode) {
-                    case ActivityCodes.CROP_IMAGE:
+                    case ActivityCodes.CROP_IMAGE_FACE:
+                    case ActivityCodes.CROP_IMAGE_BACK:
                     case ActivityCodes.CROP_GALLERY:
                     case ActivityCodes.REQUEST_IMAGE_CAPTURE:
                     case ActivityCodes.REQUEST_IMAGE_GALLERY:

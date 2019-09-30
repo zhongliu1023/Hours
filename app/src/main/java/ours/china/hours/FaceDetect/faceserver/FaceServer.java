@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.media.FaceDetector;
 import android.util.Base64;
 import android.util.Log;
 
@@ -466,6 +467,7 @@ public class FaceServer {
         }
         isProcessing = false;
         if (maxSimilarIndex != -1) {
+            Global.faceFeature = new FaceFeature();
             Global.faceFeature.setFeatureData(faceRegisterInfoList.get(maxSimilarIndex).getFeatureData());
             Log.i("FaceLoginFragment", "maxNumber => " + maxSimilarIndex);
             return new CompareResult(faceRegisterInfoList.get(maxSimilarIndex).getName(), maxSimilar);
