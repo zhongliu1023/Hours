@@ -83,6 +83,8 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.bigkoo.alertview.AlertView;
+import com.bigkoo.alertview.OnItemClickListener;
 import com.bumptech.glide.request.target.ThumbnailImageViewTarget;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -121,6 +123,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import ours.china.hours.Activity.Auth.ForgotPassActivity;
+import ours.china.hours.Activity.Auth.LoginOptionActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NoteActivity;
 import ours.china.hours.Adapter.PageBookmarkAdapter;
@@ -193,6 +196,7 @@ import ours.china.hours.BookLib.foobnix.tts.TtsStatus;
 import ours.china.hours.BookLib.foobnix.ui2.MainTabs2;
 import ours.china.hours.BookLib.foobnix.ui2.MyContextWrapper;
 import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
+import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.BookLib.nostra13.universalimageloader.utils.L;
 import ours.china.hours.Common.ColorCollection;
@@ -1919,9 +1923,14 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             int minutes = seconds / 60;
             int hours = minutes / 60;
             seconds = seconds % 60;
-            topReadTime.setText(getString(R.string.readTimeStop, hours, minutes, seconds));
+            topReadTime.setText(getString(R.string.readTime, hours, minutes, seconds));
+
 
             Log.i("HorizontalBookReading", "readTime display => " + db.getBookStateData(focusBook.bookId).time);
+        }
+
+        if (focusBook.bookStatus.isRead.equals("1")){
+            topReadTime.setTextColor(getResources().getColor(R.color.tint_blue));
         }
 
 
@@ -1940,11 +1949,73 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
 
         if (Integer.parseInt(maxPage) != 0) {
-            int pagePercent = page * 100 / Integer.parseInt(maxPage);
+            int pagePercent = (page+1) * 100 / Integer.parseInt(maxPage);
             pagesReadingPercent.setText(getString(R.string.book_reading_percent, Integer.toString(pagePercent)) + "%");
             Log.i("horizontalbookreading", "updateUI => end");
-        }
 
+            String[] pageArray = focusBook.bookStatus.pages.split(",");
+            boolean isFinishedReading = false;
+            if (focusBook.pageCount.isEmpty() || focusBook.pageCount.equals("0")){
+                isFinishedReading = false;
+            }else if (pageArray.length == Integer.parseInt(focusBook.pageCount)){
+                isFinishedReading = true;
+            }
+
+            if (isFinishedReading){
+                if (pagePercent == 100 && !focusBook.bookStatus.isRead.equals("1")){
+                    focusBook.bookStatus.isRead = "1";
+                    db.updateBookTimeAndReadingState(focusBook.bookStatus, focusBook.bookId);
+                    new AlertView.Builder().setContext(HorizontalBookReadingActivity.this).setTitle(getString(R.string.app_name))
+                            .setMessage(getString(R.string.cofirm_min_times))
+                            .setDestructive(getString(R.string.cancel))
+                            .setOthers(new String[]{getString(R.string.confirm)})
+                            .setStyle(AlertView.Style.Alert).setOnItemClickListener(new OnItemClickListener() {
+                        @Override
+                        public void onItemClick(Object o, int position) {
+                            if (position == 1){
+                                Ion.with(HorizontalBookReadingActivity.this)
+                                        .load(Url.bookStateChangeOperation)
+                                        .setTimeout(10000)
+                                        .setBodyParameter("access_token", Global.access_token)
+                                        .setBodyParameter("time", focusBook.bookStatus.time)
+                                        .setBodyParameter("isRead", "1")
+                                        .setBodyParameter("bookId", focusBook.bookId)
+                                        .setBodyParameter("pages", focusBook.bookStatus.pages)
+                                        .setBodyParameter("bookmarks", focusBook.bookStatus.bookmarks)
+                                        .setBodyParameter("lastRead", focusBook.bookStatus.lastRead)
+                                        .setBodyParameter("progress", focusBook.bookStatus.progress)
+                                        .asString()
+                                        .setCallback(new FutureCallback<String>() {
+                                            @Override
+                                            public void onCompleted(Exception e, String result) {
+                                                Log.i("horizontalbookreading", "real time api result" + result);
+                                                String temp;
+
+                                                if (e == null) {
+                                                    JSONObject resObj = null;
+                                                    try {
+                                                        resObj = new JSONObject(result.toString());
+                                                        temp = resObj.getString("res");         // if operation is done successfully, get "succe".  if not, get "false"
+                                                        unInitEngine();
+                                                        if (cameraHelper != null) {
+                                                            cameraHelper.release();
+                                                            cameraHelper = null;
+                                                        }
+                                                        topReadTime.setTextColor(getResources().getColor(R.color.tint_blue));
+                                                    } catch (JSONException ex) {
+                                                        ex.printStackTrace();
+                                                    }
+
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+                    }).build().show();
+                }
+            }
+
+        }
     }
 
 
@@ -3266,6 +3337,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
      * 初始化引擎
      */
     private void initEngine() {
+        if (focusBook.bookStatus.isRead.equals("1")){return;}
         faceEngine = new FaceEngine();
         afCode = faceEngine.init(this, FaceEngine.ASF_DETECT_MODE_VIDEO, ConfigUtil.getFtOrient(this),
                 16, MAX_DETECT_NUM, FaceEngine.ASF_FACE_RECOGNITION | FaceEngine.ASF_FACE_DETECT | FaceEngine.ASF_LIVENESS);
@@ -3301,6 +3373,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     }
 
     private void initCamera() {
+        if (focusBook.bookStatus.isRead.equals("1")){return;}
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -3536,7 +3609,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
 
     public void bookStateChangeApiOperation() {
 
-        if (ConnectivityHelper.isConnectedToNetwork(HorizontalBookReadingActivity.this)) {
+        if (ConnectivityHelper.isConnectedToNetwork(HorizontalBookReadingActivity.this) && !focusBook.bookStatus.isRead.equals("1")) {
 
             Log.e("horizontalbookreading", "HHHHHHHH");
             Log.i("horizontalbookreading", Global.KEY_token + ":" + Global.access_token);

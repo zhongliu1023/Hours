@@ -33,6 +33,7 @@ import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -115,7 +116,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     private QueryBook.OrderBy orderBy = QueryBook.OrderBy.PUBLISHDATE;
     private QueryBook.Order order = QueryBook.Order.ASC;
     private QueryBook.Category category = QueryBook.Category.ALL;
-//    private int currentPage = 0;
+    private int currentPage = 0;
 
     SharedPreferencesManager sessionManager;
     DBController db = null;
@@ -138,6 +139,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     int wenxieCount = 0;
     int numberOfAttentionBookIds = 0;
     boolean isFirstLoading;
+
+    boolean isLoading = false;
 
 
     public HomeFragment() {
@@ -258,6 +261,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_tab, container, false);
 
+        isLoading = false;
         init(rootView);
         popupWindowWork(inflater);
         event(rootView);
@@ -290,7 +294,28 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
         recyclerBooksView.setLayoutManager(gridLayoutManager);
         recyclerBooksView.setAdapter(adapter);
+        recyclerBooksView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
 
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == mBookList.size() - 1) {
+                        //bottom of list!
+                        currentPage++;
+                        getAllDataFromServer(currentPage);
+                        isLoading = true;
+                    }
+                }
+            }
+        });
 //        recyclerBooksView.setLayoutManager(gridLayoutManager);
 //        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.temp_spaec);
 
@@ -385,7 +410,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                             Global.hideLoading();
 //                            recyclerView.setEnabled(true);
                             swipeRefreshLayout.setRefreshing(false);
-
+                            isLoading = false;
                             if (error == null) {
                                 JSONObject resObj = null;
                                 try {
@@ -1116,7 +1141,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         if (Global.bookAction == QueryBook.BookAction.NONE) {
             if (category == QueryBook.Category.ALL) {
                 if (totalCount > page * Global.perPage) {
-                    getAllDataFromServer(page);
+//                    getAllDataFromServer(page);
                 }
             }
         }

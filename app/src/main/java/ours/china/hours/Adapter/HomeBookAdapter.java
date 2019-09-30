@@ -160,9 +160,6 @@ public class HomeBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder>
                 pageLoadInterface.scrollToLoad(getItemCount() / Global.perPage);
             }
         }
-
-
-
     }
 
     @Override

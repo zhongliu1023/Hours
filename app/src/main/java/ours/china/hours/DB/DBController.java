@@ -217,6 +217,18 @@ public class DBController {
         database.close();
     }
 
+    public void updateBookTimeAndReadingState(BookStatus data, String bookID) {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(DatabaseManager.KEY_time, data.time);
+        updateValues.put(DatabaseManager.KEY_isRead, data.isRead);
+
+        String where = DatabaseManager.KEY_bookId + " = ?";
+        database = dbManager.getReadableDatabase();
+
+        database.update(DatabaseManager.bookStateTable, updateValues, where, new String[]{bookID});
+        database.close();
+    }
+
     public void updateBookmarksState(BookStatus data, String bookID) {
         ContentValues updateValues = new ContentValues();
         updateValues.put(DatabaseManager.KEY_bookmarks, data.bookmarks);
