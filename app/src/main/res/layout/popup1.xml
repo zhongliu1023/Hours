@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:text="全都"/>
+            android:text="全都(0)"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/getneral_padding_16"
-            android:text="推荐(5)"/>
+            android:text="推荐(0)"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:text="自然科学(9)"/>
+            android:text="自然科学(0)"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/getneral_padding_16"
-            android:text="人文社科(2)"/>
+            android:text="人文社科(0)"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:text="文学艺术 (7)"/>
+            android:text="文学艺术 (0)"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
@@ -105,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:text="关注 (5)"/>
+            android:text="关注 (0)"/>
     </RelativeLayout>
 
 </LinearLayout>

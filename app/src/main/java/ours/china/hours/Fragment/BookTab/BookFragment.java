@@ -69,6 +69,9 @@ import ours.china.hours.Model.BookStatus;
 import ours.china.hours.Model.Favorites;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
+import ours.china.hours.Model.SortByAuthor;
+import ours.china.hours.Model.SortByPublishDate;
+import ours.china.hours.Model.SortByTitle;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -77,7 +80,7 @@ import pub.devrel.easypermissions.EasyPermissions;
  * Created by liujie on 1/12/18.
  */
 
-public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner {
+public class BookFragment extends Fragment implements BookItemEditInterface, BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, SelectFavoriteDialog.SelectFavoriteDialogInterface {
 
     String tempPopupWindow2String = "默认";
 
@@ -95,6 +98,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
     private RecyclerView recyclerBooksView;
     private RelativeLayout relTypeBook;
+    private RelativeLayout subToolbar;
     ImageView imgSort;
     ImageView imgSearch;
     ImageView imgArrow;
@@ -134,7 +138,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         event(rootView);
 
         Global.showLoading(getContext(),"generate_report");
-        getAllDataFromServer(0);
+        getAllDataFromServer();
 
         return rootView;
     }
@@ -146,6 +150,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         // for toolbar
         mainToolbar = view.findViewById(R.id.mainToolbar);
         otherToolbar = view.findViewById(R.id.otherToolbar);
+        subToolbar = view.findViewById(R.id.subToolbar);
         txtToolbarComplete = view.findViewById(R.id.txtToolbarComplete);
         txtToolbarDownload = view.findViewById(R.id.txtToolbarDownload);
         txtToolbarFavorite = view.findViewById(R.id.txtToolbarFavortie);
@@ -187,12 +192,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         localBookList = db.getAllData();
 
     }
-    public void getAllDataFromServer(final int currentPage) {
+    public void getAllDataFromServer() {
         if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
-            if (currentPage == 0) {
-                mBookList = new ArrayList<>();
-                searchedBookList = new ArrayList<>();
-            }
+
+            mBookList = new ArrayList<>();
+            searchedBookList = new ArrayList<>();
 
             Map<String, List<String>> params = new HashMap<String, List<String>>();
             params.put("order_by", Collections.singletonList(orderBy.toString()));
@@ -340,8 +344,8 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             mFavorites.add(favorites);
         }
 
-        favoriteFolderCount = mFavorites.size();
-        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(mFavorites.size())));
+        favoriteFolderCount = collections.length;
+        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(favoriteFolderCount)));
         BookManagement.saveFavorites(mFavorites, sessionManager);
     }
 
@@ -486,8 +490,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "最近";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.PUBLISHDATE;
-                Global.showLoading(getContext(),"generate_report");
-                getAllDataFromServer(0);
+
+                Collections.sort(searchedBookList, new SortByPublishDate());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
 
             }
@@ -499,8 +506,11 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "标题";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.BOOKNAME;
-                Global.showLoading(getContext(),"generate_report");
-                getAllDataFromServer(0);
+
+                Collections.sort(searchedBookList, new SortByTitle());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
             }
         });
@@ -511,8 +521,13 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
                 tempPopupWindow2String = "作者";
                 maskLayer.setVisibility(View.GONE);
                 orderBy= QueryBook.OrderBy.AUTH0R;
-                Global.showLoading(getContext(),"generate_report");
-                getAllDataFromServer(0);
+
+                Log.i("BookFragment", "SearchedBookList => " + searchedBookList.toString());
+                Collections.sort(searchedBookList, new SortByAuthor());
+                Log.i("BookFragment", "SearchedBookList => " + searchedBookList.toString());
+//                Global.showLoading(getContext(),"generate_report");
+//                getAllDataFromServer();
+                adapter.reloadBookList(searchedBookList);
                 popupWindow2.dismiss();
             }
         });
@@ -690,7 +705,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
             public void onClick(View view) {
                 BookManagement.setBooks(selectedBookLists, sessionManager);
 
-                SelectFavoriteDialog dialog = new SelectFavoriteDialog(getContext());
+                SelectFavoriteDialog dialog = new SelectFavoriteDialog(getContext(), BookFragment.this);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }
@@ -699,16 +714,36 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         txtToolbarComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainToolbar.setVisibility(View.VISIBLE);
-                otherToolbar.setVisibility(View.GONE);
-
-                selectedBookLists.clear();
-                adapter.reloadBookList(searchedBookList);
-
-
-                Global.bookAction = QueryBook.BookAction.NONE;
+                removeSelectedState();
             }
         });
+
+        popupWindow1.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+
+        popupWindow2.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                imgArrow.setImageDrawable(getResources().getDrawable(R.drawable.pulldown_icon));;
+                maskLayer.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    public void removeSelectedState() {
+        mainToolbar.setVisibility(View.VISIBLE);
+        subToolbar.setVisibility(View.VISIBLE);
+        otherToolbar.setVisibility(View.GONE);
+
+        selectedBookLists.clear();
+        adapter.reloadBookList(searchedBookList);
+
+        Global.bookAction = QueryBook.BookAction.NONE;
     }
 
     private Drawable changeImageColor(int color, Drawable mDrawable){
@@ -772,7 +807,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
     @Override
     public void onPause() {
         super.onPause();
-        Global.bookAction = QueryBook.BookAction.NONE;
+        removeSelectedState();
     }
 
     void gotoReadingViewFile(){
@@ -792,6 +827,7 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
 
         // for toolbar.
         toolbarAction();
+        subToolbar.setVisibility(View.GONE);
 
         mainToolbar.setVisibility(View.GONE);
         otherToolbar.setVisibility(View.VISIBLE);
@@ -847,4 +883,9 @@ public class BookFragment extends Fragment implements BookItemEditInterface, Boo
         }
     }
 
+    @Override
+    public void afterDialogDismissWork() {
+        String[] collections = Global.fullFavorites.split(",");
+        txtFavorites.setText(getString(R.string.popup3_favorites, Integer.toString(collections.length)));
+    }
 }

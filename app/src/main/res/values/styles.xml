@@ -200,4 +200,8 @@
         <item name="android:textSize">@dimen/content_normal_size</item>
     </style>
 
+    <style name="AppSearchView" parent="Widget.AppCompat.SearchView" >
+        <item name="android:textSize">@dimen/sw360_standard_fontsize_16</item>
+    </style>
+
 </resources>

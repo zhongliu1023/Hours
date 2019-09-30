@@ -142,6 +142,8 @@ public class SearchResultFragment extends Fragment implements BookItemInterface,
         Global.showLoading(getContext(),"generate_report");
         Map<String, List<String>> params = new HashMap<String, List<String>>();
         params.put("keyword", Collections.singletonList(keyWords));
+        params.put("page", Collections.singletonList(Integer.toString(0)));
+        params.put("perPage", Collections.singletonList(Integer.toString(Global.perPage)));
 
         Ion.with(getActivity())
                 .load(Url.searchAllBookwithMobile)

@@ -276,7 +276,8 @@ public class MainActivity  extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(bookFragment).commit();
                     activityFragment = bookFragment;
-                    bookFragment.getAllDataFromServer(0);
+                    bookFragment.getAllDataFromServer();
+                    bookFragment.removeSelectedState();
 
                     break;
                 case 2:
@@ -326,6 +327,7 @@ public class MainActivity  extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(homeFragment).commit();
                     activityFragment = homeFragment;
+                    homeFragment.removeSelectedState();
 
                     break;
             }

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:layout_width="match_parent"
-    android:layout_height="@dimen/myshelf_book_item_height"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp"
+    android:layout_height="@dimen/book_item_height"
+    android:padding="@dimen/getneral_padding_8"
     xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <RelativeLayout android:orientation="vertical"
@@ -48,23 +45,21 @@
             android:id="@+id/item_bookName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sw360_standard_fontsize_20"
+            android:textSize="@dimen/sw360_standard_fontsize_16"
             android:text="百年孤独"/>
         <TextView
             android:id="@+id/txtDownState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:textSize="@dimen/sw360_standard_fontsize_18"
-            android:text="已下载"/>
+            android:textSize="@dimen/sw360_standard_fontsize_14"/>
         <TextView
             android:id="@+id/bookAuthor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_bookName"
             android:layout_marginTop="@dimen/getneral_padding_16"
-            android:textSize="@dimen/getneral_padding_16"
-            android:text="马尔克斯"/>
+            android:textSize="@dimen/sw360_standard_fontsize_14"/>
 
     </RelativeLayout>
 </LinearLayout>

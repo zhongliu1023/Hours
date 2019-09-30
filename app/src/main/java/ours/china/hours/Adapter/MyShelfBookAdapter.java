@@ -20,6 +20,11 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
@@ -59,10 +64,16 @@ public class MyShelfBookAdapter extends RecyclerView.Adapter<MyShelfBookAdapter.
             holder.imgDownState.setVisibility(View.VISIBLE);
             holder.imgDownState.setImageResource(R.drawable.download);
             holder.txtDownState.setText("已下载");
-            Glide.with(context)
-                    .load(one.bookImageLocalUrl)
-                    .placeholder(R.drawable.book_image)
-                    .into(holder.bookImage);
+//            Glide.with(context)
+//                    .load(one.bookImageLocalUrl)
+//                    .placeholder(R.drawable.book_image)
+//                    .into(holder.bookImage);
+
+            // in case of dump image.
+            int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
+            FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
+            String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
         } else {
             holder.imgDownState.setVisibility(View.INVISIBLE);
             holder.txtDownState.setText("未下载");

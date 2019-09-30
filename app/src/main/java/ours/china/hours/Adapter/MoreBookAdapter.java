@@ -19,7 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.BookDetailActivity;
+import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
+import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
@@ -31,11 +38,13 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
     private Context context;
     private List<Book> moreBooks;
     private BookItemInterface bookItemInterface;
+    PageLoadInterface pageLoadInterface;
 
-    public MoreBookAdapter(Context context, List<Book> moreBooks, BookItemInterface bookItemInterface) {
+    public MoreBookAdapter(Context context, List<Book> moreBooks, BookItemInterface bookItemInterface, PageLoadInterface pageLoadInterface) {
         this.context = context;
         this.moreBooks = moreBooks;
         this.bookItemInterface = bookItemInterface;
+        this.pageLoadInterface = pageLoadInterface;
     }
 
     @NonNull
@@ -51,28 +60,42 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final Book one = moreBooks.get(position);
 
-        if (one.bookStatus.isAttention.equals("已下载")) {
-            holder.imgDownState.setVisibility(View.VISIBLE);
-            holder.imgDownState.setImageResource(R.drawable.label2_icon);
-        } else {
-            holder.imgDownState.setVisibility(View.INVISIBLE);
-        }
-
-        if (one.bookStatus.isAttention.equals("已阅")) {
-            holder.imgReadState.setVisibility(View.VISIBLE);
-            holder.imgReadState.setImageResource(R.drawable.label1_icon);
-        } else {
-            holder.imgReadState.setVisibility(View.INVISIBLE);
-        }
-
-        Glide.with(context)
-                .load(Url.domainUrl + "/" + one.coverUrl)
-                .placeholder(R.drawable.book_image)
-                .into(holder.bookImage);
-
         holder.bookName.setText(one.bookName);
+        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
+
+            // for downloaded book
+            holder.downloadStateImage.setVisibility(View.VISIBLE);
+            holder.downloadStateImage.setImageResource(R.drawable.download);
+            holder.txtDownState.setText("已下载");
+//            Glide.with(context)
+//                    .load(one.bookImageLocalUrl)
+//                    .placeholder(R.drawable.book_image)
+//                    .into(holder.bookImage);
+
+            // in case of dump image.
+            int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
+            FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
+            String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
+        } else {
+
+            // for undownloaded book
+            holder.downloadStateImage.setVisibility(View.INVISIBLE);
+            holder.txtDownState.setText("来下载");
+            Glide.with(context)
+                    .load(Url.domainUrl + "/" + one.coverUrl)
+                    .placeholder(R.drawable.book_image)
+                    .into(holder.bookImage);
+        }
+
+        if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
+            holder.readStateImage.setVisibility(View.VISIBLE);
+            holder.readStateImage.setImageResource(R.drawable.read);
+        } else {
+            holder.readStateImage.setVisibility(View.INVISIBLE);
+        }
+
         holder.bookAuthor.setText(one.author);
-        holder.txtDownState.setText(one.bookStatus.isAttention);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,6 +103,12 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
                 bookItemInterface.onClickBookItem(one, position);
             }
         });
+
+        if (getItemCount() >= Global.perPage && getItemCount() == position + 1) {
+            if (pageLoadInterface != null) {
+                pageLoadInterface.scrollToLoad(position + 1);
+            }
+        }
 
     }
 
@@ -96,8 +125,8 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView bookImage;
-        ImageView imgDownState;
-        ImageView imgReadState;
+        ImageView downloadStateImage;
+        ImageView readStateImage;
         TextView bookName;
         TextView bookAuthor;
         TextView txtDownState;
@@ -106,8 +135,8 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
             super(itemView);
 
             bookImage = itemView.findViewById(R.id.item_book_image);
-            imgDownState = itemView.findViewById(R.id.imgDownState);
-            imgReadState = itemView.findViewById(R.id.imgReadState);
+            downloadStateImage = itemView.findViewById(R.id.imgDownState);
+            readStateImage = itemView.findViewById(R.id.imgReadState);
             bookName = itemView.findViewById(R.id.item_bookName);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
             txtDownState = itemView.findViewById(R.id.txtDownState);

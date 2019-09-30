@@ -2,7 +2,6 @@ package ours.china.hours.Dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.UserManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,6 +15,8 @@ import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
@@ -31,12 +32,9 @@ import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
-import ours.china.hours.Model.QueryBook;
-import ours.china.hours.Model.User;
 import ours.china.hours.R;
 
 public class BookDetailsDialog extends Dialog {
-
     private final String TAG = "BookDetailsDialog";
 
     Context context;
@@ -100,7 +98,12 @@ public class BookDetailsDialog extends Dialog {
         txtDownloadButton.setVisibility(focusBook.bookLocalUrl.isEmpty() ? View.VISIBLE : View.GONE);
         bookName.setText(focusBook.bookName);
         bookAuthor.setText(focusBook.author);
-        txtDeadlineDate.setText(focusBook.deadline);
+
+        SimpleDateFormat newFormat = new SimpleDateFormat("yyyy-MM-dd ");
+        SimpleDateFormat oldFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String tempDeadline = Global.parseDate(focusBook.deadline, oldFormat, newFormat);
+        txtDeadlineDate.setText(tempDeadline);
+
         txtAverageTime.setText(focusBook.allAverageTime);
         txtSpecifiedTime.setText(focusBook.demandTime);
         bookSummary.setText(focusBook.summary);
@@ -165,6 +168,7 @@ public class BookDetailsDialog extends Dialog {
             public void onImagePath(String path) {
                 if (path.equals("")) {
                     Toast.makeText(context, "下载错误", Toast.LENGTH_SHORT).show();
+                    txtDownloadButton.setEnabled(true);
                     return;
                 }
                 book.bookLocalUrl = path;
@@ -236,14 +240,13 @@ public class BookDetailsDialog extends Dialog {
         JSONObject tempObject = new JSONObject();
         try {
             tempObject.put("req", req);
-            tempObject.put("bookIds", focusBook.bookId);
+            tempObject.put("bookIds", Integer.parseInt(focusBook.bookId));
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         String attentionBookIds = tempObject.toString();
         Log.i(TAG, attentionBookIds);
-
 
         Ion.with(context)
                 .load(Url.update_profile)

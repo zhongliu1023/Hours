@@ -25,13 +25,14 @@
             android:layout_centerVertical="true"
             android:padding="5dp"/>
     </RelativeLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="@dimen/getneral_padding_16"
-        android:background="@color/seperator"/>
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="1dp"-->
+<!--        android:layout_marginBottom="@dimen/getneral_padding_16"-->
+<!--        android:background="@color/seperator"/>-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/flexbox_recyclerview"
+        android:layout_marginTop="@dimen/getneral_padding_16"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

@@ -945,6 +945,7 @@ public class PageImaveView extends View {
     }
 
     public String selectText(float x1, float y1, float xInit, float yInit) {
+
         if (!AppTemp.get().isDouble && getPageText(0) == null) {
             LOG.d("get pag No page text", pageNumber);
             return null;

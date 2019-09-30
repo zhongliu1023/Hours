@@ -240,8 +240,9 @@ public class FaceLoginFragment extends Fragment {
     public void startScanFace(){
 
         if (!checkPermissions(NEEDED_PERMISSIONS)) {
-            ActivityCompat.requestPermissions(getActivity(), NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
+            requestPermissions(NEEDED_PERMISSIONS, ACTION_REQUEST_PERMISSIONS);
         } else {
+            progressBar.setVisibility(View.VISIBLE);
             initEngine();
             initCamera();
         }
@@ -371,7 +372,6 @@ public class FaceLoginFragment extends Fragment {
                             Log.i(TAG, "downloading file => " + downloadCount);
                             downloadCount++;
                             if (downloadCount == totalCount) {
-                                progressBar.setVisibility(View.VISIBLE);
                                 startScanFace();
                                 Global.hideLoading();
 //                                Toast.makeText(getContext(), "所有数据已加载。", Toast.LENGTH_LONG).show();
@@ -384,7 +384,6 @@ public class FaceLoginFragment extends Fragment {
                         public void onError(Error error) {
                             downloadCount++;
                             if (downloadCount == totalCount) {
-                                progressBar.setVisibility(View.VISIBLE);
                                 startScanFace();
                                 Global.hideLoading();
 //                                Toast.makeText(getContext(), "你没有收到所有数据。", Toast.LENGTH_LONG).show();
@@ -760,6 +759,7 @@ public class FaceLoginFragment extends Fragment {
                     name == null ? String.valueOf(facePreviewInfoList.get(i).getTrackId()) : name));
         }
         drawHelper.draw(faceRectView, drawInfoList);
+
     }
 
     @Override
@@ -771,6 +771,7 @@ public class FaceLoginFragment extends Fragment {
                 isAllGranted &= (grantResult == PackageManager.PERMISSION_GRANTED);
             }
             if (isAllGranted) {
+                progressBar.setVisibility(View.VISIBLE);
                 initEngine();
                 initCamera();
                 if (cameraHelper != null) {

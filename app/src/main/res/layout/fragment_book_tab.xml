@@ -114,6 +114,7 @@
         android:layout_height="1dp"
         android:background="@color/seperator"/>
     <RelativeLayout
+        android:id="@+id/subToolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_tab_body_title_height">
         <RelativeLayout

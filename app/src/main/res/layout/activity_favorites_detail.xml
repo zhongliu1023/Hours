@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:id="@+id/footer"
         android:layout_width="match_parent"
@@ -46,8 +47,10 @@
                 <RelativeLayout
                     android:id="@+id/mainToolbars"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:visibility="visible">
                     <RelativeLayout
+                        android:id="@+id/relSearchView"
                         android:layout_toStartOf="@id/imageNews"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -58,8 +61,24 @@
                         <SearchView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:id="@+id/favorSearchView"/>
+                            android:id="@+id/favorSearchView"
+                            app:theme="@style/AppSearchView"/>
                     </RelativeLayout>
+                    <RelativeLayout
+                    android:layout_width="32dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="14dp"
+                    android:layout_marginStart="8dp">
+                    <ImageView
+                        android:id="@+id/imgNewsCircle"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:src="@drawable/news_circle"/>
+                </RelativeLayout>
                     <ImageView
                         android:id="@+id/imageNews"
                         android:layout_width="27dp"
@@ -92,15 +111,15 @@
                         android:layout_alignParentEnd="true"
                         android:layout_marginEnd="16dp"
                         android:layout_centerVertical="true"/>
-                    <TextView
-                        android:id="@+id/txtAddFavorite"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="添加至"
-                        android:textSize="@dimen/content_normal_size"
-                        android:layout_centerVertical="true"
-                        android:layout_marginEnd="16dp"
-                        android:layout_toStartOf="@id/txtDownload"/>
+<!--                    <TextView-->
+<!--                        android:id="@+id/txtAddFavorite"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="添加至"-->
+<!--                        android:textSize="@dimen/content_normal_size"-->
+<!--                        android:layout_centerVertical="true"-->
+<!--                        android:layout_marginEnd="16dp"-->
+<!--                        android:layout_toStartOf="@id/txtDownload"/>-->
                     <TextView
                         android:id="@+id/txtDelete"
                         android:layout_width="wrap_content"
@@ -109,7 +128,7 @@
                         android:textSize="@dimen/content_normal_size"
                         android:layout_marginEnd="@dimen/getneral_padding_16"
                         android:layout_centerVertical="true"
-                        android:layout_toStartOf="@id/txtAddFavorite"/>
+                        android:layout_toStartOf="@id/txtDownload"/>
                 </RelativeLayout>
                 <RelativeLayout
                     android:id="@+id/myBookShelfToolbar"
@@ -136,6 +155,7 @@
                         android:layout_width="30dp"
                         android:layout_height="match_parent"
                         android:src="@drawable/sort_icon"
+                        android:visibility="gone"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="10dp"/>
@@ -174,21 +194,21 @@
                     android:textSize="@dimen/navigation_title_size"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
-            <ImageView
-                android:id="@+id/imgSort"
-                android:layout_width="27dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/sort_icon"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/getneral_padding_8"/>
+<!--            <ImageView-->
+<!--                android:id="@+id/imgSort"-->
+<!--                android:layout_width="27dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:src="@drawable/sort_icon"-->
+<!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_centerVertical="true"-->
+<!--                android:layout_marginEnd="@dimen/getneral_padding_8"/>-->
             <TextView
                 android:id="@+id/txtEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="编辑"
                 android:textSize="@dimen/content_normal_size"
-                android:layout_toStartOf="@+id/imgSort"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/getneral_padding_16"
                 />

@@ -7,6 +7,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -19,9 +20,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,11 +36,14 @@ import ours.china.hours.Adapter.FavoritesAdapter;
 import ours.china.hours.BookLib.foobnix.pdf.info.view.BookmarkPanel;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesKeys;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
+import ours.china.hours.DB.DBController;
 import ours.china.hours.Management.BookManagement;
+import ours.china.hours.Management.NewsManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Favorites;
+import ours.china.hours.Model.NewsItem;
 import ours.china.hours.R;
 import ours.china.hours.Utility.AlertAddFavorites;
 import ours.china.hours.Utility.AlertDelete;
@@ -52,6 +58,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
 
     TextView txtComplete, txtDelete, txtRename, txtDownload;
     RelativeLayout mainToolbar, otherToolbar;
+    RelativeLayout relSearchView;
 
     SearchView favorSearchView;
     FavoritesAdapter adapter;
@@ -63,6 +70,12 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
 
     String optionAddOrRename = "";
     SharedPreferencesManager sessionManager;
+    DBController db = null;
+
+    public ArrayList<NewsItem> mNewsData = new ArrayList<>();
+    public ArrayList<NewsItem> mLocalNewsData;
+
+    ImageView imgNewsCircle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,12 +84,14 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
 
         init();
         event();
+        getAllNews();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (adapter != null){
+            newsReferenceUIWork();
             reloadFavorites();
         }
     }
@@ -89,6 +104,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
 
     public void init() {
 
+        db = new DBController(FavoritesActivity.this);
         // for recycler View
         sessionManager = new SharedPreferencesManager(this);
         recyclerFavorites = findViewById(R.id.recyclerFavorites);
@@ -117,7 +133,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         txtComplete = findViewById(R.id.txtComplete);
         txtDelete = findViewById(R.id.txtDelete);
         txtRename = findViewById(R.id.txtRename);
-        txtDownload = findViewById(R.id.txtDownload);
+//        txtDownload = findViewById(R.id.txtDownload);
 
         imgBack = findViewById(R.id.imgBack);
         favoriteTitle = findViewById(R.id.favoriteTitle);
@@ -127,8 +143,12 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         mainToolbar = findViewById(R.id.mainToolbar);
         otherToolbar = findViewById(R.id.otherToolbar);
 
+        relSearchView = findViewById(R.id.relSearchView);
         favorSearchView = findViewById(R.id.favorSearchView);
         favorSearchView.setQueryHint("搜索书名、作者、出版社");
+
+        // for news
+        imgNewsCircle = findViewById(R.id.imgNewsCircle);
     }
 
     public void event() {
@@ -236,6 +256,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                 alertRename.show();
             }
         });
+
         favorSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -248,7 +269,53 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                 return false;
             }
         });
+
+        relSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                favorSearchView.onActionViewExpanded();
+            }
+        });
     }
+
+    public void newsSaveSessionWork() {
+        if (mNewsData  == null || mNewsData.size() == 0) {
+            imgNewsCircle.setVisibility(View.GONE);
+            NewsManagement.saveFoucsNews(mNewsData, sessionManager);
+            return;
+        }
+
+        ArrayList<NewsItem> tempNewsData = new ArrayList<>();
+
+        if (mLocalNewsData != null && mLocalNewsData.size() != 0) {
+            for (NewsItem serverItem : mNewsData) {
+                for (NewsItem localItem : mLocalNewsData) {
+                    if (serverItem.newsId.equals(localItem.newsId)) {
+                        tempNewsData.add(serverItem);
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        mNewsData.removeAll(tempNewsData);
+
+        NewsManagement.saveFoucsNews(mNewsData, sessionManager);
+    }
+
+
+    public void newsReferenceUIWork() {
+        mNewsData.clear();
+        mNewsData = NewsManagement.getFoucsNews(sessionManager);
+
+        if (mNewsData.size() == 0) {
+            imgNewsCircle.setVisibility(View.GONE);
+        } else {
+            imgNewsCircle.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void reloadFavorites(String keywords){
         searchedFavoritesList.clear();
         for (Favorites favorites : favoritesList){
@@ -284,34 +351,34 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
             // for change color alpha
             txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
             txtRename.setTextColor(getResources().getColor(R.color.alpa_90));
-            txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+//            txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
 
             // for enable action
             txtDelete.setEnabled(true);
             txtRename.setEnabled(true);
-            txtDownload.setEnabled(true);
+//            txtDownload.setEnabled(true);
 
         } else if (numberOfClickedItem() > 1) {
 
             // for change color alpha
             txtDelete.setTextColor(getResources().getColor(R.color.alpa_90));
             txtRename.setTextColor(getResources().getColor(R.color.alpa_40));
-            txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
+//            txtDownload.setTextColor(getResources().getColor(R.color.alpa_90));
 
             // for action process
             txtDelete.setEnabled(true);
             txtRename.setEnabled(false);
-            txtDownload.setEnabled(true);
+//            txtDownload.setEnabled(true);
 
         } else if (numberOfClickedItem() == 0) {
 
             // for change color alpha
             txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
             txtRename.setTextColor(getResources().getColor(R.color.alpa_40));
-            txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+//            txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
 
             // for disable action
-            txtDownload.setEnabled(false);
+//            txtDownload.setEnabled(false);
             txtRename.setEnabled(false);
             txtDelete.setEnabled(false);
         }
@@ -337,7 +404,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                 optionAddOrRename = "";
                 adapter.notifyDataSetChanged();
             }else{
-                Toast.makeText(FavoritesActivity.this, "Already exists!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(FavoritesActivity.this, "已经存在", Toast.LENGTH_SHORT).show();
 
             }
         }
@@ -396,10 +463,10 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         // for change color alpha
         txtDelete.setTextColor(getResources().getColor(R.color.alpa_40));
         txtRename.setTextColor(getResources().getColor(R.color.alpa_40));
-        txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
+//        txtDownload.setTextColor(getResources().getColor(R.color.alpa_40));
 
         // for disable action
-        txtDownload.setEnabled(false);
+//        txtDownload.setEnabled(false);
         txtRename.setEnabled(false);
         txtDelete.setEnabled(false);
 
@@ -434,7 +501,61 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                                 ex.printStackTrace();
                             }
                         } else {
-                            Toast.makeText(FavoritesActivity.this, "正确注册你的脸", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FavoritesActivity.this, "发生错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    public void getAllNews() {
+        mLocalNewsData = db.getAllNews();
+
+//        Global.showLoading(getContext(),"generate_report");
+        Ion.with(FavoritesActivity.this)
+                .load(Url.get_notify)
+                .setTimeout(10000)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        Log.i("HomeFragment", "result => " + result);
+//                        Global.hideLoading();
+
+                        if (error == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").toLowerCase().equals("success")) {
+
+                                    JSONArray dataArray = new JSONArray(resObj.getString("list"));
+                                    mNewsData.clear();
+
+                                    for (int i = 0; i < dataArray.length(); i++) {
+                                        JSONObject tempObject = dataArray.getJSONObject(i);
+
+                                        NewsItem one = new NewsItem();
+                                        one.newsId = tempObject.getString("id");
+                                        one.releaseTime = tempObject.getString("releaseTime");
+                                        one.title = tempObject.getString("title");
+                                        one.content = tempObject.getString("content");
+
+                                        mNewsData.add(one);
+                                    }
+
+                                    newsSaveSessionWork();
+
+                                } else {
+//                                    Toast.makeText(getContext(), "错误", Toast.LENGTH_SHORT).show();
+                                }
+
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+
+                        } else {
+//                            Toast.makeText(getContext(), "发生意外错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

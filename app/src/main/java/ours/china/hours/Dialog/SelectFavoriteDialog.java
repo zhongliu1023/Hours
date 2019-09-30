@@ -11,8 +11,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -22,7 +20,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import ours.china.hours.Activity.FavoritesDetailActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Adapter.SelectFavoriteAdapter;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
@@ -31,13 +28,14 @@ import ours.china.hours.Management.BookManagement;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.Favorites;
-import ours.china.hours.Model.SelectFavorite;
 import ours.china.hours.R;
 
 public class SelectFavoriteDialog extends Dialog {
     private final String TAG = "SelectFavoriteDialog";
 
     private Context context;
+    SelectFavoriteDialogInterface listener;
+
     SharedPreferencesManager sessionManager;
     ArrayList<Book> focusBooks = new ArrayList<>();
 
@@ -57,9 +55,10 @@ public class SelectFavoriteDialog extends Dialog {
 
     int i = 0;
 
-    public SelectFavoriteDialog(Context context) {
+    public SelectFavoriteDialog(Context context, SelectFavoriteDialogInterface listener) {
         super(context);
         this.context = context;
+        this.listener = listener;
 
         setContentView(R.layout.dialog_select_favorite);
         init();
@@ -115,6 +114,7 @@ public class SelectFavoriteDialog extends Dialog {
         txtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                listener.afterDialogDismissWork();
                 dismiss();
             }
         });
@@ -157,20 +157,32 @@ public class SelectFavoriteDialog extends Dialog {
         txtAddFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String tempStr = addFavoriteFolderName.getText().toString();
-                if (tempStr.equals("")) {
+
+                String str = addFavoriteFolderName.getText().toString();
+                if (str.equals("")) {
                     return;
                 }
 
-                Global.fullFavorites = Global.fullFavorites + "," + tempStr;
+                if (!Global.fullFavorites.contains(str)){
+                    Favorites favorites = new Favorites();
+                    favorites.favorite = str;
+                    tempFavorites.add(favorites);
+                    BookManagement.saveFavorites(tempFavorites, sessionManager);
 
-                // add favorite.
-                Favorites favorites = new Favorites();
-                favorites.favorite = tempStr;
-                tempFavorites.add(favorites);
+                    if (Global.fullFavorites.isEmpty()){
+                        Global.fullFavorites = str;
+                    }else{
+                        Global.fullFavorites += ","+str;
+                    }
+                    BookManagement.saveFullFavorites(Global.fullFavorites, sessionManager);
+                    updateFavorites();
 
-                mFavoriteFolderNameCollections.add(tempStr);
-                adapter.notifyDataSetChanged();
+                    mFavoriteFolderNameCollections.add(str);
+                    adapter.notifyDataSetChanged();
+                }else{
+                    Toast.makeText(context, "已经存在", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }
@@ -222,5 +234,39 @@ public class SelectFavoriteDialog extends Dialog {
         }
     }
 
+    void updateFavorites(){
+        Ion.with(context)
+                .load(Url.update_profile)
+                .setTimeout(10000)
+                .setBodyParameter("access_token", Global.access_token)
+                .setBodyParameter("collections", Global.fullFavorites)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Global.hideLoading();
+                        if (e == null) {
+                            JSONObject resObj = null;
+                            try {
+                                resObj = new JSONObject(result.toString());
+
+                                if (resObj.getString("res").equals("success")) {
+
+                                } else {
+                                    Toast.makeText(context, "发生错误", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            Toast.makeText(context, "发生错误", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    public interface SelectFavoriteDialogInterface {
+        public void afterDialogDismissWork();
+    }
 
 }

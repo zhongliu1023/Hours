@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ours.china.hours.Activity.Global;
+import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
+import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
+import ours.china.hours.BookLib.foobnix.ui2.AppDB;
+import ours.china.hours.BookLib.nostra13.universalimageloader.core.ImageLoader;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Interfaces.PageLoadInterface;
@@ -65,10 +70,16 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookFragmentAdapter.BookFragmen
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
-            Glide.with(context)
-                    .load(one.bookImageLocalUrl)
-                    .placeholder(R.drawable.book_image)
-                    .into(holder.bookImage);
+//            Glide.with(context)
+//                    .load(one.bookImageLocalUrl)
+//                    .placeholder(R.drawable.book_image)
+//                    .into(holder.bookImage);
+
+            // in case of dump image.
+            int tempLibraryPosition = Integer.parseInt(one.libraryPosition);
+            FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
+            String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
+            ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
         } else {
 
             // for undownloaded book
