@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,9 @@ public class BookDetailsDialog extends Dialog {
     OnDownloadBookListenner onDownloadBookListner;
     int position = 0;
 
+    LinearLayout mainContent, noNetwork;
+    Button btnTryAgain;
+
     public BookDetailsDialog(Context context,int position, OnDownloadBookListenner listenner) {
         super(context);
         this.context = context;
@@ -66,6 +71,9 @@ public class BookDetailsDialog extends Dialog {
     }
 
     private void initView() {
+        mainContent = findViewById(R.id.mainContent);
+        noNetwork = findViewById(R.id.noNetwork);
+        btnTryAgain = findViewById(R.id.btnTryAgain);
         //
         db = new DBController(context);
         sessionManager = new SharedPreferencesManager(context);

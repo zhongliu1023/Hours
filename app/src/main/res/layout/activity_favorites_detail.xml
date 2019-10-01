@@ -48,7 +48,7 @@
                     android:id="@+id/mainToolbars"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="gone">
+                    android:visibility="visible">
                     <RelativeLayout
                         android:id="@+id/relSearchView"
                         android:layout_toStartOf="@id/imageNews"
@@ -93,7 +93,7 @@
                     android:id="@+id/otherToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="visible">
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/txtComplete"
@@ -102,24 +102,24 @@
                         android:layout_centerVertical="true"
                         android:text="完成"
                         android:textSize="@dimen/content_normal_size" />
-<!--                    <TextView-->
-<!--                        android:id="@+id/txtDownload"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="下载"-->
-<!--                        android:textSize="@dimen/content_normal_size"-->
-<!--                        android:layout_alignParentEnd="true"-->
-<!--                        android:layout_marginEnd="16dp"-->
-<!--                        android:layout_centerVertical="true"/>-->
-<!--                    <TextView-->
-<!--                        android:id="@+id/txtAddFavorite"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="添加至"-->
-<!--                        android:textSize="@dimen/content_normal_size"-->
-<!--                        android:layout_centerVertical="true"-->
-<!--                        android:layout_marginEnd="16dp"-->
-<!--                        android:layout_toStartOf="@id/txtDownload"/>-->
+                    <TextView
+                        android:id="@+id/txtDownload"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="下载"
+                        android:textSize="@dimen/content_normal_size"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_centerVertical="true"/>
+                    <TextView
+                        android:id="@+id/txtAddFavorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="添加至"
+                        android:textSize="@dimen/content_normal_size"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:layout_toStartOf="@id/txtDownload"/>
                     <TextView
                         android:id="@+id/txtDelete"
                         android:layout_width="wrap_content"
@@ -127,7 +127,7 @@
                         android:text="删除"
                         android:textSize="@dimen/content_normal_size"
                         android:layout_marginEnd="@dimen/getneral_padding_16"
-                        android:layout_alignParentEnd="true"
+                        android:layout_toStartOf="@id/txtAddFavorite"
                         android:layout_centerVertical="true"
                         />
                 </RelativeLayout>
@@ -195,21 +195,21 @@
                     android:textSize="@dimen/navigation_title_size"
                     android:layout_centerInParent="true"/>
             </RelativeLayout>
-<!--            <ImageView-->
-<!--                android:id="@+id/imgSort"-->
-<!--                android:layout_width="27dp"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:src="@drawable/sort_icon"-->
-<!--                android:layout_alignParentEnd="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:layout_marginEnd="@dimen/getneral_padding_8"/>-->
+            <ImageView
+                android:id="@+id/imgSort"
+                android:layout_width="27dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/sort_icon"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/getneral_padding_8"/>
             <TextView
                 android:id="@+id/txtEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="编辑"
                 android:textSize="@dimen/content_normal_size"
-                android:layout_alignParentEnd="true"
+                android:layout_toStartOf="@id/imgSort"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/getneral_padding_16"
                 />

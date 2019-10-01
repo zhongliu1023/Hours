@@ -86,7 +86,9 @@ public class PasswordLoginFragment extends Fragment {
     private Button btnFrLogin;
     private TextView tvFrForgot, tvFrRegister;
 
+    User tempCurrentUser = new User();
     User currentUser = new User();
+
     SharedPreferencesManager sessionManager;
 
     private FaceEngine faceEngine;
@@ -220,9 +222,9 @@ public class PasswordLoginFragment extends Fragment {
                                             getActivity().sendBroadcast(intent);
 
                                             // save session data.
-                                            currentUser.mobile = mobile;
-                                            currentUser.password = password;
-                                            UsersManagement.saveCurrentUser(currentUser, sessionManager);
+                                            tempCurrentUser.mobile = mobile;
+                                            tempCurrentUser.password = password;
+//                                            UsersManagement.saveCurrentUser(currentUser, sessionManager);
 
                                             tempMobileNumber = mobile;
                                             getUserInfo();
@@ -271,21 +273,21 @@ public class PasswordLoginFragment extends Fragment {
                             JSONObject resObj = null;
                             try {
                                 resObj = new JSONObject(result.toString());
-                                User user = new UsersManagement().mapFetchProfileResponse(resObj);
-                                user.password = currentUser.password;
-                                featureImageUrl = user.faceImageUrl;
-                                featureFileUrl = user.faceInfoUrl;
-                                featureIDFrontImageUrl = user.idCardFront;
+                                currentUser = new UsersManagement().mapFetchProfileResponse(resObj);
+                                currentUser.password = tempCurrentUser.password;
+                                featureImageUrl = currentUser.faceImageUrl;
+                                featureFileUrl = currentUser.faceInfoUrl;
+                                featureIDFrontImageUrl = currentUser.idCardFront;
 
-                                UsersManagement.saveCurrentUser(user, sessionManager);
+//                                UsersManagement.saveCurrentUser(currentUser, sessionManager);
 
-                                if (user.faceInfoUrl.isEmpty()){
+                                if (currentUser.faceInfoUrl.isEmpty()){
                                     Global.hideLoading();
                                     Intent intent = new Intent(getActivity(), PerfectInforActivity.class);
                                     startActivity(intent);
                                 }else{
                                     deleteAlreadyExistFiles();
-                                    new DownloadFeatureFile(getContext()).execute(user.faceInfoUrl);
+                                    new DownloadFeatureFile(getContext()).execute(currentUser.faceInfoUrl);
                                 }
                             } catch (JSONException ex) {
                                 Global.hideLoading();
@@ -418,6 +420,7 @@ public class PasswordLoginFragment extends Fragment {
                 isIDImage = "no";
                 isImage = "no";
 
+                UsersManagement.saveCurrentUser(currentUser, sessionManager);
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 startActivity(intent);
 

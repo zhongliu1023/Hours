@@ -94,24 +94,6 @@ public class LoginOptionActivity extends AppCompatActivity {
 
     private void setTextSize(){
 
-//        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-//
-//            TabLayout.Tab tab = tabLayout.getTabAt(i);
-//            if (tab != null) {
-//
-//                TextView tabTextView = new TextView(this);
-//                tab.setCustomView(tabTextView);
-//
-//                tabTextView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
-//                tabTextView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-//
-//                tabTextView.setText(tab.getText());
-//
-//                if (i == 0) {
-//                    tabTextView.setTextSize(14);
-//                }
-//            }
-//        }
         tabLayout.addOnTabSelectedListener(new OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

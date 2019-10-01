@@ -2,36 +2,23 @@ package ours.china.hours.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
-import android.media.Image;
-import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.liulishuo.filedownloader.BaseDownloadTask;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ours.china.hours.Activity.Auth.RegisterActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
-import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.sys.ImageExtractor;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
@@ -103,7 +90,6 @@ public class HomeBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder>
             holder.progressBar.setVisibility(View.INVISIBLE);
         }
 
-        holder.downloadStateImage.setVisibility(View.INVISIBLE);
         if (!one.bookLocalUrl.equals("")) {
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
@@ -113,7 +99,8 @@ public class HomeBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder>
             FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
             String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
             ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
-        }else{
+        } else {
+            holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
                     .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
@@ -178,6 +165,7 @@ public class HomeBookAdapter extends RecyclerView.Adapter<BookViewAdapterHolder>
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
     }
+
     public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
         mBookFiles = updatedBookFiles;
         for (int i = 0 ; i < bookList.size(); i ++){

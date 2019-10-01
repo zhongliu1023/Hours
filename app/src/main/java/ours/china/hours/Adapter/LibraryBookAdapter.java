@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +17,9 @@ import com.bumptech.glide.Glide;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
@@ -27,17 +31,20 @@ import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
 
 public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.ViewHolder> {
 
     private Context context;
     private List<Book> bookList;
+    public Map<String, BookFile> mBookFiles;
     private BookItemInterface bookItemInterface;
 
     public LibraryBookAdapter(Context context, List<Book> mLibraryBooks, BookItemInterface bookItemInterface) {
         this.context = context;
         this.bookList = mLibraryBooks;
         this.bookItemInterface = bookItemInterface;
+        this.mBookFiles = new HashMap<String, BookFile>();
     }
 
     @NonNull
@@ -53,7 +60,20 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
-        if (!one.bookImageLocalUrl.equals("") && !one.bookLocalUrl.equals("")) {
+        if (mBookFiles.containsKey(one.bookId)){
+            BookFile bookFile = mBookFiles.get(one.bookId);
+            holder.progressBar.setVisibility(View.VISIBLE);
+            if (bookFile.getIsDownloaded()){
+                holder.progressBar.setVisibility(View.INVISIBLE);
+                holder.downloadStateImage.setVisibility(View.VISIBLE);
+            }else{
+                holder.progressBar.setProgress(bookFile.getProgress());
+            }
+        } else {
+            holder.progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        if (!one.bookLocalUrl.equals("")) {
 
             holder.downloadStateImage.setVisibility(View.VISIBLE);
             holder.downloadStateImage.setImageResource(R.drawable.download);
@@ -67,6 +87,7 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
             FileMeta meta = AppDB.get().getAll().get(tempLibraryPosition);
             String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
             ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
+
         } else {
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
@@ -85,7 +106,11 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bookItemInterface.onClickBookItem(one, position);
+                if (!mBookFiles.containsKey(one.bookId)){
+                    bookItemInterface.onClickBookItem(one, position);
+                }else{
+                    Toast.makeText(context, "下载...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -100,12 +125,25 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
         bookList = updatedBooks;
         notifyDataSetChanged();
     }
+
+    public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
+        mBookFiles = updatedBookFiles;
+        for (int i = 0 ; i < bookList.size(); i ++){
+            Book book = bookList.get(i);
+            if (mBookFiles.containsKey(book.bookId)){
+                notifyItemChanged(i);
+            }
+        }
+    }
+
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView bookImage;
         ImageView downloadStateImage;
         ImageView readStateImage;
         TextView bookName;
+        ProgressBar progressBar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -114,6 +152,7 @@ public class LibraryBookAdapter extends RecyclerView.Adapter<LibraryBookAdapter.
             downloadStateImage = itemView.findViewById(R.id.downState);
             readStateImage = itemView.findViewById(R.id.readState);
             bookName = itemView.findViewById(R.id.item_bookName);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 }

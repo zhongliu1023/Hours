@@ -83,7 +83,7 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
         }else{
             holder.progressBar.setVisibility(View.INVISIBLE);
         }
-        holder.downloadStateImage.setVisibility(View.INVISIBLE);
+
         if (!one.bookLocalUrl.equals("")) {
 
             // for downloaded book
@@ -95,6 +95,7 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
             String url = IMG.toUrl(meta.getPath(), ImageExtractor.COVER_PAGE, ViewGroup.LayoutParams.MATCH_PARENT);
             ImageLoader.getInstance().displayImage(url, holder.bookImage, IMG.displayCacheMemoryDisc, null);
         }else{
+            holder.downloadStateImage.setVisibility(View.INVISIBLE);
             Glide.with(context)
                     .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
@@ -155,6 +156,7 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
     }
+
     public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
         mBookFiles = updatedBookFiles;
         for (int i = 0 ; i < bookList.size(); i ++){
@@ -164,4 +166,5 @@ BookFragmentAdapter extends RecyclerView.Adapter<BookViewAdapterHolder> {
             }
         }
     }
+
 }

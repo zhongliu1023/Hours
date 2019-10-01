@@ -1,6 +1,11 @@
 package ours.china.hours.Fragment.Search;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,6 +36,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +46,7 @@ import ours.china.hours.Activity.Global;
 import ours.china.hours.Adapter.MoreBookAdapter;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
+import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
 import ours.china.hours.Common.Interfaces.PageLoadInterface;
@@ -50,11 +58,20 @@ import ours.china.hours.Management.Url;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
+import ours.china.hours.Services.DownloadingService;
 import ours.china.hours.Utility.ConnectivityHelper;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static ours.china.hours.Constants.ActivitiesCodes.CONNECTED_FILE_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.FINISHED_DOWNLOADING_ACTION;
+import static ours.china.hours.Constants.ActivitiesCodes.PROGRESS_UPDATE_ACTION;
+
 public class MoreSearchFragment extends Fragment implements BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, PageLoadInterface {
     private final String TAG = "MoreSearchFragment";
+
+    private Context mContext;
+    private Activity mActivity;
 
     ArrayList<Book> moreBooks;
     MoreBookAdapter adapter;
@@ -76,7 +93,121 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CONNECTED_FILE_ACTION);
+        filter.addAction(PROGRESS_UPDATE_ACTION);
+        filter.addAction(FINISHED_DOWNLOADING_ACTION);
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String bookID = intent.getStringExtra("bookID");
+                        switch (intent.getAction()) {
+                            case CONNECTED_FILE_ACTION:
+                                connectedFile(bookID);
+                                break;
+                            case PROGRESS_UPDATE_ACTION:
+                                int progress = intent.getIntExtra("progress", -1);
+                                publishProgress(bookID, progress);
+                                break;
+                            case FINISHED_DOWNLOADING_ACTION:
+                                String path = intent.getStringExtra("path");
+                                finishedDownload(bookID, path);
+                                break;
+                        }
+                    }
+                }, filter);
     }
+
+    private void connectedFile(String bookID) {
+        if (!Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = new BookFile(bookID, "");
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+    }
+    private void publishProgress(String bookID, int soFarBytes) {
+        if (Global.mBookFiles.containsKey(bookID)){
+            BookFile bookFile = Global.mBookFiles.get(bookID);
+            bookFile.setProgress(soFarBytes);
+        }else {
+            BookFile bookFile = new BookFile(bookID, "");
+            bookFile.setProgress(soFarBytes);
+            Global.mBookFiles.put(bookID, bookFile);
+        }
+        adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
+    }
+    private void finishedDownload(String bookID, String path) {
+
+        Book focusBook = new Book();
+        int itemPosition = 0;
+        for (int i = 0; i < moreBooks.size(); i++) {
+            Book one = moreBooks.get(i);
+            if (one.bookId.equals(bookID)) {
+                focusBook = one;
+                itemPosition = i;
+                break;
+            }
+        }
+
+        if (Global.mBookFiles.containsKey(bookID)){
+            Global.mBookFiles.remove(bookID);
+        } else {
+            int tempPosition = AppDB.get().getAll().size() - 1;
+            focusBook.bookLocalUrl = path;
+            focusBook.libraryPosition = String.valueOf(tempPosition);
+            adapter.notifyItemChanged(itemPosition);
+            return;
+        }
+
+        int tempPosition = 0;
+        if (AppDB.get().getAll() == null || AppDB.get().getAll().size() == 0) {
+            tempPosition = 0;
+        } else {
+            tempPosition = AppDB.get().getAll().size();
+        }
+
+        focusBook.bookLocalUrl = path;
+        focusBook.libraryPosition = String.valueOf(tempPosition);
+
+        if (db.getBookData(focusBook.bookId) == null){
+            db.insertData(focusBook);
+        }else{
+            db.updateBookDataWithDownloadData(focusBook);
+        }
+        BookManagement.saveFocuseBook(focusBook, sessionManager);
+
+        if (!ExtUtils.isExteralSD(focusBook.bookLocalUrl)) {
+            FileMeta meta = AppDB.get().getOrCreate(focusBook.bookLocalUrl);
+            AppDB.get().updateOrSave(meta);
+            IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
+        }
+
+        Ion.with(mContext)
+                .load(Url.addToMybooks)
+                .setBodyParameter(Global.KEY_token, Global.access_token)
+                .setBodyParameter("bookId", focusBook.bookId)
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception error, JsonObject result) {
+                        if (error == null) {
+                            try {
+                                JSONObject resObject = new JSONObject(result.toString());
+                                if (resObject.getString("res").equals("success")||
+                                        (resObject.getString("res").equals("fail") && resObject.getString("err_msg").equals("已添加"))) {
+
+                                    adapter.reloadBookList(moreBooks);
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                });
+    }
+
 
     @Nullable
     @Override
@@ -259,8 +390,15 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        mContext = context;
+        mActivity = (Activity) context;
+        super.onAttach(context);
+    }
+
+    @Override
     public void onClickBookItem(Book selectedBook, int position) {
-        if (!selectedBook.bookLocalUrl.equals("") && !selectedBook.bookImageLocalUrl.equals("")) {
+        if (!selectedBook.bookLocalUrl.equals("")) {
             BookManagement.saveFocuseBook(selectedBook, sessionManager);
             gotoReadingViewFile();
             return;
@@ -293,7 +431,13 @@ public class MoreSearchFragment extends Fragment implements BookItemInterface, B
 
     @Override
     public void onStartDownload(Book book, int position) {
-
+        if (!Global.mBookFiles.containsKey(book.bookId)){
+            BookFile bookFile = new BookFile(book.bookId, Url.domainUrl + book.bookNameUrl);
+            Global.mBookFiles.put(book.bookId, bookFile);
+            Intent intent = new Intent(mContext, DownloadingService.class);
+            intent.putParcelableArrayListExtra("bookFile", new ArrayList<BookFile>(Arrays.asList(bookFile)));
+            mContext.startService(intent);
+        }
     }
     @Override
     public void onFinishDownload(Book book, Boolean isSuccess, int position) {

@@ -91,30 +91,91 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
 
         Log.i(TAG, "pageNumber => " + pageNumber + "totalPageCount => " + totalPageCount);
         holder.txtPageNumber.setText(context.getString(R.string.note_page, pageNumber, totalPageCount));
-        holder.txtNoteContent.setText(one.text);
-        holder.titleText.setText(one.subTitle);
-        holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
-        if (one.type >= 0){
-            switch (one.type){
-                case 0:
-                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
-                    break;
-                case 1:
-                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
-                    break;
-                case 2:
-                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
-                    break;
-                case 3:
-                    holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
-                    break;
-                case 4:
-                    holder.imgNoteColorIcon.setImageResource(R.drawable.note_note_icon);
-                    break;
-                default:
-                    break;
+
+        if (one.text.equals("")) {
+            holder.txtColorNoteContent.setVisibility(View.VISIBLE);
+            holder.txtColorNoteContent.setText(one.note);
+            holder.txtNoteContent.setVisibility(View.GONE);
+            holder.imgNoteColorIcon.setImageResource(R.drawable.note_note_icon);
+
+            holder.secondSeperator.setVisibility(View.GONE);
+            holder.imgNoteAddOrUpdate.setImageResource(R.drawable.note_modify_icon);
+//            holder.txtNoteAddOrUpdate.setText("修改笔记");
+
+        } else if (one.note.equals("")) {
+            holder.txtColorNoteContent.setVisibility(View.VISIBLE);
+            holder.txtNoteContent.setVisibility(View.GONE);
+
+            holder.txtColorNoteContent.setText(one.text);
+
+            holder.noteLayout.setVisibility(View.VISIBLE);
+            holder.secondSeperator.setVisibility(View.VISIBLE);
+            holder.imgNoteAddOrUpdate.setImageResource(R.drawable.note_note_icon);
+
+            holder.secondSeperator.setVisibility(View.GONE);
+            holder.txtNoteAddOrUpdate.setText("添加笔记");
+
+            holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+            if (one.type >= 0){
+                switch (one.type){
+                    case 0:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
+                        break;
+                    case 1:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+                        break;
+                    case 2:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
+                        break;
+                    case 3:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
+                        break;
+                    case 4:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.note_note_icon);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        } else {
+            holder.txtColorNoteContent.setVisibility(View.VISIBLE);
+            holder.txtColorNoteContent.setText(one.text);
+
+            holder.txtNoteContent.setVisibility(View.VISIBLE);
+            holder.txtNoteContent.setText(one.note);
+
+            holder.noteLayout.setVisibility(View.VISIBLE);
+            holder.secondSeperator.setVisibility(View.VISIBLE);
+            holder.imgNoteAddOrUpdate.setImageResource(R.drawable.note_modify_icon);
+
+            holder.secondSeperator.setVisibility(View.VISIBLE);
+            holder.txtNoteAddOrUpdate.setText("修改笔记");
+
+            holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+            if (one.type >= 0){
+                switch (one.type){
+                    case 0:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
+                        break;
+                    case 1:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
+                        break;
+                    case 2:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
+                        break;
+                    case 3:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
+                        break;
+                    case 4:
+                        holder.imgNoteColorIcon.setImageResource(R.drawable.note_note_icon);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
+
+        holder.titleText.setText(one.subTitle);
         holder.imgNoteMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,6 +189,13 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
                 final ImageView menu_mark_2 = (ImageView) layout.findViewById(R.id.menu_mark_2);
                 final ImageView menu_mark_3 = (ImageView) layout.findViewById(R.id.menu_mark_3);
                 final ImageView menu_mark_4 = (ImageView) layout.findViewById(R.id.menu_mark_4);
+
+                if (one.text.equals("")) {
+                    menu_mark_1.setVisibility(View.GONE);
+                    menu_mark_2.setVisibility(View.GONE);
+                    menu_mark_3.setVisibility(View.GONE);
+                    menu_mark_4.setVisibility(View.GONE);
+                }
 
                 layout.measure(View.MeasureSpec.UNSPECIFIED,
                         View.MeasureSpec.UNSPECIFIED);
@@ -219,89 +287,6 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
                         holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
                     }
                 });
-//                try {
-//                    // Reflection apis to enforce show icon
-//                    Field[] fields = popup.getClass().getDeclaredFields();
-//                    for (Field field : fields) {
-//                        if (field.getName().equals("mPopup")) {
-//                            field.setAccessible(true);
-//                            Object menuPopupHelper = field.get(popup);
-//                            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
-//                            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
-//                            setForceIcons.invoke(menuPopupHelper, true);
-//                            break;
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                MenuInflater inflater = popup.getMenuInflater();
-//                inflater.inflate(R.menu.more_note, popup.getMenu());
-//                popup.show();
-//                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-//                    @Override
-//                    public boolean onMenuItemClick(MenuItem item) {
-//                        switch (item.getItemId())
-//                        {
-//                            case R.id.menu_delete:
-//                                new AlertView.Builder().setContext(context).setTitle(context.getString(R.string.app_name))
-//                                        .setMessage(context.getString(R.string.remove_from_library))
-//                                        .setDestructive(context.getString(R.string.cancel))
-//                                        .setOthers(new String[]{context.getString(R.string.confirm)})
-//                                        .setStyle(AlertView.Style.Alert).setOnItemClickListener(new OnItemClickListener() {
-//                                    @Override
-//                                    public void onItemClick(Object o, int position) {
-//                                        if (position == 1){
-//                                            BookmarksData.get().remove(one);
-//                                            objects.remove(focusPosition);
-//                                            notifyDataSetChanged();
-//                                        }
-//                                    }
-//                                }).build().show();
-//                                break;
-//                            case R.id.menu_copy:
-//                                if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-//                                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-//                                    clipboard.setText(one.text);
-//                                } else {
-//                                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-//                                    android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", one.text);
-//                                    clipboard.setPrimaryClip(clip);
-//                                }
-//                                break;
-//                            case R.id.menu_share:
-//                                final Intent intent = new Intent(Intent.ACTION_SEND);
-//                                intent.setType("text/plain");
-//                                String txt = one.note;
-//                                intent.putExtra(Intent.EXTRA_TEXT, txt);
-//                                context.startActivity(Intent.createChooser(intent,"Share"));
-//                                break;
-//                            case R.id.menu_mark_1:
-//                                one.type = 0;
-//                                BookmarksData.get().update(one);
-//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_yellow_icon);
-//                                break;
-//                            case  R.id.menu_mark_2:
-//                                one.type = 1;
-//                                BookmarksData.get().update(one);
-//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_orange_icon);
-//                                break;
-//                            case R.id.menu_mark_3:
-//                                one.type = 2;
-//                                BookmarksData.get().update(one);
-//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_blue_icon);
-//                                break;
-//                            case R.id.menu_mark_4:
-//                                one.type = 3;
-//                                BookmarksData.get().update(one);
-//                                holder.imgNoteColorIcon.setImageResource(R.drawable.read_pink_icon);
-//                                break;
-//                            default:
-//                                break;
-//                        }
-//                        return false;
-//                    }
-//                });
             }
         });
 
@@ -334,6 +319,7 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
         one.note = str;
 
         BookmarksData.get().update(one);
+        notifyDataSetChanged();
     }
 
     public class NoteViewHolder extends RecyclerView.ViewHolder {
@@ -341,11 +327,13 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
         ImageView imgNoteColorIcon;
         ImageView imgNoteAddOrUpdate;
         ImageView imgNoteMore;
+        TextView txtColorNoteContent;
         TextView txtNoteContent;
         TextView txtNoteAddOrUpdate;
         TextView txtPageNumber;
         TextView titleText;
         TextView subTitleTxt;
+        TextView secondSeperator;
 
         LinearLayout noteLayout;
         public NoteViewHolder(@NonNull View itemView) {
@@ -354,6 +342,7 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
             imgNoteColorIcon = itemView.findViewById(R.id.imgNoteColorIcon);
             imgNoteAddOrUpdate = itemView.findViewById(R.id.imgNoteAddOrUpdate);
             imgNoteMore = itemView.findViewById(R.id.imgNoteMore);
+            txtColorNoteContent = itemView.findViewById(R.id.txtColorNoteContent);
             txtNoteContent = itemView.findViewById(R.id.txtNoteContent);
             txtNoteAddOrUpdate = itemView.findViewById(R.id.txtNoteAddOrUpdate);
             txtPageNumber = itemView.findViewById(R.id.txtPageNumber);
@@ -361,6 +350,7 @@ public class NoteDisplayAdatper extends RecyclerView.Adapter<NoteDisplayAdatper.
             subTitleTxt = itemView.findViewById(R.id.subTitleTxt);
 
             noteLayout = itemView.findViewById(R.id.noteLayout);
+            secondSeperator = itemView.findViewById(R.id.secondSeperator);
         }
     }
 

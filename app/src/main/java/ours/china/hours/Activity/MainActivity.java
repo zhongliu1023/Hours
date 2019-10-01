@@ -328,6 +328,8 @@ public class MainActivity  extends AppCompatActivity {
 
                     fragmentManager.beginTransaction().hide(activityFragment).show(homeFragment).commit();
                     activityFragment = homeFragment;
+                    homeFragment.getAllDataFromLocal();
+//                    homeFragment.getAllDataFromServer(0);
                     homeFragment.removeSelectedState();
 
                     break;

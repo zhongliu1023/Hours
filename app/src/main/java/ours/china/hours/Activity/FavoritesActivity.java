@@ -112,7 +112,7 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
         favoritesList = new ArrayList<Favorites>();
         searchedFavoritesList = new ArrayList<Favorites>();
         favoritesList = BookManagement.getFavorites(sessionManager);
-        searchedFavoritesList = (ArrayList<Favorites>)favoritesList.clone();
+        searchedFavoritesList = (ArrayList<Favorites>) favoritesList.clone();
         adapter = new FavoritesAdapter(favoritesList, FavoritesActivity.this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(FavoritesActivity.this, 2);
         recyclerFavorites.setLayoutManager(gridLayoutManager);
@@ -252,8 +252,9 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                         break;
                     }
                 }
-                alertRename.setEditText(changingName);
+
                 alertRename.show();
+                alertRename.setEditText(changingName);
             }
         });
 
@@ -385,58 +386,71 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
     }
 
     @Override
+    public void onItemClickAction(Favorites one) {
+
+        Intent intent = new Intent(this, FavoritesDetailActivity.class);
+        intent.putExtra("favoriteType", one.favorite);
+        startActivityForResult(intent, 100);
+    }
+
+    @Override
     public void addFavorite(String str) {
-        if (optionAddOrRename.equals("add")) {
-            if (!Global.fullFavorites.contains(str)){
-                Favorites favorites = new Favorites();
-                favorites.favorite = str;
-                favoritesList.add(favorites);
-                BookManagement.saveFavorites(favoritesList, sessionManager);
+        if (str.equals("")) {
+            Toast.makeText(this, "请输入姓名", Toast.LENGTH_SHORT).show();
+        } else {
+            if (optionAddOrRename.equals("add")) {
+                if (!Global.fullFavorites.contains(str)){
+                    Favorites favorites = new Favorites();
+                    favorites.favorite = str;
+                    favoritesList.add(favorites);
+                    BookManagement.saveFavorites(favoritesList, sessionManager);
 
-                if (Global.fullFavorites.isEmpty()){
-                    Global.fullFavorites = str;
-                }else{
-                    Global.fullFavorites += ","+str;
-                }
-                BookManagement.saveFullFavorites(Global.fullFavorites, sessionManager);
-                updateFavorites();
-
-                optionAddOrRename = "";
-                adapter.notifyDataSetChanged();
-            }else{
-                Toast.makeText(FavoritesActivity.this, "已经存在", Toast.LENGTH_SHORT).show();
-
-            }
-        }
-        if (optionAddOrRename.equals("rename")) {
-            for (Favorites one : favoritesList) {
-                if (one.isChecked) {
-
-                    String[] favors = Global.fullFavorites.split(",");
-                    String updatedFavorites = "";
-                    for (String aFavor : favors){
-                        boolean isMatch = false;
-                        if (aFavor.equals(one.favorite)){
-                            isMatch = true;
-                        }
-                        if (updatedFavorites.isEmpty()){
-                            updatedFavorites = aFavor;
-                        }else{
-                            updatedFavorites += "," + (isMatch ? str : aFavor);
-                        }
+                    if (Global.fullFavorites.isEmpty()){
+                        Global.fullFavorites = str;
+                    }else{
+                        Global.fullFavorites += ","+str;
                     }
-                    BookManagement.saveFullFavorites(updatedFavorites, sessionManager);
+                    BookManagement.saveFullFavorites(Global.fullFavorites, sessionManager);
                     updateFavorites();
 
-                    one.favorite = str;
-                    break;
+                    optionAddOrRename = "";
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(FavoritesActivity.this, "已经存在", Toast.LENGTH_SHORT).show();
+
                 }
             }
+            if (optionAddOrRename.equals("rename")) {
+                for (Favorites one : favoritesList) {
+                    if (one.isChecked) {
 
-            BookManagement.saveFavorites(favoritesList, sessionManager);
-            optionAddOrRename = "";
-            adapter.notifyDataSetChanged();
+                        String[] favors = Global.fullFavorites.split(",");
+                        String updatedFavorites = "";
+                        for (String aFavor : favors){
+                            boolean isMatch = false;
+                            if (aFavor.equals(one.favorite)){
+                                isMatch = true;
+                            }
+                            if (updatedFavorites.isEmpty()){
+                                updatedFavorites = aFavor;
+                            }else{
+                                updatedFavorites += "," + (isMatch ? str : aFavor);
+                            }
+                        }
+                        BookManagement.saveFullFavorites(updatedFavorites, sessionManager);
+                        updateFavorites();
+
+                        one.favorite = str;
+                        break;
+                    }
+                }
+
+                BookManagement.saveFavorites(favoritesList, sessionManager);
+                optionAddOrRename = "";
+                adapter.notifyDataSetChanged();
+            }
         }
+
     }
 
 
@@ -559,5 +573,17 @@ public class FavoritesActivity extends AppCompatActivity implements AlertAddFavo
                         }
                     }
                 });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 100) {
+            finish();
+            startActivity(getIntent());
+            reloadFavorites();
+        }
+
     }
 }

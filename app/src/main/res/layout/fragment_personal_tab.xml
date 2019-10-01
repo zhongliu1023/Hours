@@ -45,6 +45,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalFav"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_10"
@@ -91,6 +92,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
@@ -135,6 +137,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalFeedback"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
@@ -180,6 +183,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalProblem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_10"
@@ -226,6 +230,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalStatement"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
@@ -271,6 +276,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalAbout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
@@ -316,6 +322,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalMobile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_10"
@@ -363,6 +370,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalPass"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"
@@ -408,6 +416,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalCheck"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/margin_10"
@@ -454,6 +463,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/linFrPersonalAccount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/white"

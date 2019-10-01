@@ -34,6 +34,7 @@ import com.bigkoo.alertview.OnItemClickListener;
 
 import java.util.ArrayList;
 
+import lecho.lib.hellocharts.model.Line;
 import ours.china.hours.Activity.AttentionActivity;
 import ours.china.hours.Activity.Auth.LoginOptionActivity;
 import ours.china.hours.Activity.FavoritesActivity;
@@ -67,6 +68,8 @@ public class PersonalFragment extends Fragment {
 
     public TextView tvFrPersonalFav,tvFrPersonalInfo,tvFrPersonalFeedback,tvFrPersonalProblem,tvFrPersonalStatement,
             tvFrPersonalAbout,tvFrPersonalMobile,tvFrPersonalPass,tvFrPersonalCheck,tvFrPersonalAccount;
+    public LinearLayout linFrPersonalFav,linFrPersonalInfo,linFrPersonalFeedback,linFrPersonalProblem,linFrPersonalStatement,
+            linFrPersonalAbout,linFrPersonalMobile,linFrPersonalPass,linFrPersonalCheck,linFrPersonalAccount;
     public Button btnFrPersonalOut;
 
     SharedPreferencesManager sessionManager;
@@ -111,68 +114,79 @@ public class PersonalFragment extends Fragment {
         tvFrPersonalCheck = (TextView)view.findViewById(R.id.tvfrPersonalCheck);
         tvFrPersonalAccount = (TextView)view.findViewById(R.id.tvfrPersonalAccount);
         btnFrPersonalOut = (Button)view.findViewById(R.id.btnfrPersonalOut);
+
+        linFrPersonalFav = (LinearLayout)view.findViewById(R.id.linFrPersonalFav);
+        linFrPersonalInfo = (LinearLayout)view.findViewById(R.id.linFrPersonalInfo);
+        linFrPersonalFeedback = (LinearLayout)view.findViewById(R.id.linFrPersonalFeedback);
+        linFrPersonalProblem = (LinearLayout)view.findViewById(R.id.linFrPersonalProblem);
+        linFrPersonalStatement = (LinearLayout)view.findViewById(R.id.linFrPersonalStatement);
+        linFrPersonalAbout = (LinearLayout)view.findViewById(R.id.linFrPersonalAbout);
+        linFrPersonalMobile = (LinearLayout)view.findViewById(R.id.linFrPersonalMobile);
+        linFrPersonalPass = (LinearLayout)view.findViewById(R.id.linFrPersonalPass);
+        linFrPersonalCheck = (LinearLayout)view.findViewById(R.id.linFrPersonalCheck);
+        linFrPersonalAccount = (LinearLayout)view.findViewById(R.id.linFrPersonalAccount);
     }
 
 
     private void gotoActivity(){
 
-        tvFrPersonalFav.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalFav.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentFav = new Intent(getContext(), AttentionActivity.class);
                 startActivity(intentFav);
             }
         });
 
-        tvFrPersonalInfo.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalInfo.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentInfo = new Intent(getContext(), UpdateinforActivity.class);
                 startActivity(intentInfo);
             }
         });
 
-        tvFrPersonalFeedback.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalFeedback.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentFeed = new Intent(getContext(), FeedbackActivity.class);
                 startActivity(intentFeed);
             }
         });
 
-        tvFrPersonalProblem.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalProblem.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentProblem = new Intent(getContext(), ProblemActivity.class);
                 startActivity(intentProblem);
             }
         });
 
-        tvFrPersonalStatement.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalStatement.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentStatement = new Intent(getContext(), StatementActivity.class);
                 startActivity(intentStatement);
             }
         });
 
-        tvFrPersonalAbout.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalAbout.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentAbout = new Intent(getContext(), AboutActivity.class);
                 startActivity(intentAbout);
             }
         });
 
-        tvFrPersonalMobile.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalMobile.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentMobile = new Intent(getContext(), UpdatemobileActivity.class);
                 startActivity(intentMobile);
             }
         });
 
-        tvFrPersonalPass.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalPass.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intentPass = new Intent(getContext(), UpdatePasswordActivity.class);
                 startActivity(intentPass);
             }
         });
 
-        tvFrPersonalCheck.setOnClickListener(new View.OnClickListener() {
+        linFrPersonalCheck.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
 
 

@@ -2,6 +2,7 @@ package ours.china.hours.Fragment.HomeTab;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,10 +12,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.UserManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +27,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,7 +43,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,31 +52,24 @@ import java.util.List;
 import java.util.Map;
 
 import ours.china.hours.Activity.AttentionActivity;
-import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.Global;
 import ours.china.hours.Activity.NewsActivity;
 import ours.china.hours.Activity.SearchActivity;
 import ours.china.hours.Adapter.HomeBookAdapter;
-import ours.china.hours.BookLib.artifex.mupdf.fitz.Text;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
-import ours.china.hours.BookLib.foobnix.pdf.info.BookmarksData;
 import ours.china.hours.BookLib.foobnix.pdf.info.ExtUtils;
 import ours.china.hours.BookLib.foobnix.pdf.info.IMG;
 import ours.china.hours.BookLib.foobnix.ui2.AppDB;
 import ours.china.hours.BookLib.foobnix.ui2.fragment.UIFragment;
 import ours.china.hours.Common.Interfaces.BookItemEditInterface;
 import ours.china.hours.Common.Interfaces.BookItemInterface;
-import ours.china.hours.Common.Interfaces.ImageListener;
 import ours.china.hours.Common.Interfaces.PageLoadInterface;
 import ours.china.hours.Common.Sharedpreferences.SharedPreferencesManager;
 import ours.china.hours.DB.DBController;
 import ours.china.hours.Dialog.BookDetailsDialog;
 import ours.china.hours.Management.BookManagement;
-import ours.china.hours.Management.DownloadFile;
-import ours.china.hours.Management.DownloadImage;
 import ours.china.hours.Management.NewsManagement;
 import ours.china.hours.Management.Url;
-import ours.china.hours.Management.UsersManagement;
 import ours.china.hours.Model.Book;
 import ours.china.hours.Model.NewsItem;
 import ours.china.hours.Model.QueryBook;
@@ -100,6 +88,9 @@ import static ours.china.hours.Constants.ActivitiesCodes.PROGRESS_UPDATE_ACTION;
  */
 
 public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterface, BookDetailsDialog.OnDownloadBookListenner, BookItemEditInterface, PageLoadInterface {
+
+    private Context mContext;
+    private Activity mActivity;
 
     private String tempPopupWindow2String = "默认";
 
@@ -145,7 +136,6 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     boolean isLoading = false;
     int first = 0;
 
-
     public HomeFragment() {
         Log.v("Hello", "This is DB controller part.");
     }
@@ -157,12 +147,11 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         isFirstLoading = true;
         getAllDataFromLocal();
 
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(CONNECTED_FILE_ACTION);
         filter.addAction(PROGRESS_UPDATE_ACTION);
         filter.addAction(FINISHED_DOWNLOADING_ACTION);
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
@@ -183,6 +172,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     }
                 }, filter);
     }
+
     private void connectedFile(String bookID) {
         if (!Global.mBookFiles.containsKey(bookID)){
             BookFile bookFile = new BookFile(bookID, "");
@@ -202,18 +192,26 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         adapter.reloadbookwithDownloadStatus(Global.mBookFiles);
     }
     private void finishedDownload(String bookID, String path) {
-        if (Global.mBookFiles.containsKey(bookID)){
-            Global.mBookFiles.remove(bookID);
-        }else{
-            return;
-        }
 
         Book focusBook = new Book();
-        for (Book one : mBookList) {
+        int itemPosition = 0;
+        for (int i = 0; i < mBookList.size(); i++) {
+            Book one = mBookList.get(i);
             if (one.bookId.equals(bookID)) {
                 focusBook = one;
+                itemPosition = i;
                 break;
             }
+        }
+
+        if (Global.mBookFiles.containsKey(bookID)){
+            Global.mBookFiles.remove(bookID);
+        } else {
+            int tempPosition = AppDB.get().getAll().size() - 1;
+            focusBook.bookLocalUrl = path;
+            focusBook.libraryPosition = String.valueOf(tempPosition);
+            adapter.notifyItemChanged(itemPosition);
+            return;
         }
 
         int tempPosition = 0;
@@ -222,8 +220,10 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         } else {
             tempPosition = AppDB.get().getAll().size();
         }
+
         focusBook.bookLocalUrl = path;
         focusBook.libraryPosition = String.valueOf(tempPosition);
+
         if (db.getBookData(focusBook.bookId) == null){
             db.insertData(focusBook);
         }else{
@@ -237,7 +237,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             IMG.loadCoverPageWithEffect(meta.getPath(), IMG.getImageSize());
         }
 
-        Ion.with(getContext())
+        Ion.with(mContext)
                 .load(Url.addToMybooks)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
                 .setBodyParameter("bookId", focusBook.bookId)
@@ -260,6 +260,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                     }
                 });
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_home_tab, container, false);
@@ -276,7 +277,12 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         return rootView;
     }
 
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+        mActivity = (Activity) context;
+    }
 
     public void init(View view) {
         // for toolbar
@@ -288,7 +294,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         // for selected booklists
         selectedBookLists = new ArrayList<Book>();
         db = new DBController(getActivity());
-        sessionManager = new SharedPreferencesManager(getActivity());
+        sessionManager = new SharedPreferencesManager(mContext);
 
         // recyclerViewWork.
         RecyclerView recyclerBooksView = view.findViewById(R.id.recycler_books);
@@ -342,7 +348,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     }
 
     void fetchBooksStatistics(){
-        Ion.with(getActivity())
+        Ion.with(mContext)
                 .load(Url.booksStatistics)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
@@ -380,7 +386,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
 
     public void getAllDataFromServer(final int currentPage) {
 
-        if (ConnectivityHelper.isConnectedToNetwork(getContext())) {
+        if (ConnectivityHelper.isConnectedToNetwork(mContext)) {
             if (currentPage == 0) {
                 mBookList = new ArrayList<>();
             }
@@ -400,7 +406,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 params.put("category", Collections.singletonList(category.toString()));
             }
 
-            Ion.with(getActivity())
+            Ion.with(mContext)
                     .load(Url.query_books)
                     .setTimeout(10000)
                     .setBodyParameter(Global.KEY_token, Global.access_token)
@@ -453,7 +459,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     public void getAllNews() {
         mLocalNewsData = db.getAllNews();
 
-        Ion.with(getContext())
+        Ion.with(mContext)
                 .load(Url.get_notify)
                 .setTimeout(10000)
                 .setBodyParameter(Global.KEY_token, Global.access_token)
@@ -487,6 +493,7 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                                     }
 
                                     newsSaveSessionWork();
+                                    newsReferenceUIWork();
 
                                 } else {
 //                                    Toast.makeText(getContext(), "错误", Toast.LENGTH_SHORT).show();
@@ -979,8 +986,8 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         searchLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                getActivity().startActivity(intent);
+                Intent intent = new Intent(mContext, SearchActivity.class);
+                mContext.startActivity(intent);
             }
         });
 
@@ -1032,9 +1039,9 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
                 }
 
 
-                Intent intent = new Intent(getContext(), DownloadingService.class);
+                Intent intent = new Intent(mContext, DownloadingService.class);
                 intent.putParcelableArrayListExtra("bookFile", bookFiles);
-                getContext().startService(intent);
+                mContext.startService(intent);
             }
         });
 
@@ -1104,18 +1111,18 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
             }
             BookManagement.saveFocuseBook(selectedBook, sessionManager);
 
-            if (EasyPermissions.hasPermissions(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                bookDetailsDialog = new BookDetailsDialog(getActivity(),position, HomeFragment.this);
+            if (EasyPermissions.hasPermissions(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                bookDetailsDialog = new BookDetailsDialog(mActivity,position, HomeFragment.this);
                 bookDetailsDialog.show();
 
                 // set needed frame of dialog. Without this code, all the component of the dialog's layout don't have original size.
-                Window rootWindow = getActivity().getWindow();
+                Window rootWindow = mActivity.getWindow();
                 Rect displayRect = new Rect();
                 rootWindow.getDecorView().getWindowVisibleDisplayFrame(displayRect);
                 bookDetailsDialog.getWindow().setLayout(displayRect.width(), displayRect.height());
                 bookDetailsDialog.setCanceledOnTouchOutside(false);
             }else{
-                EasyPermissions.requestPermissions(getActivity(), getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                EasyPermissions.requestPermissions(mContext, getString(R.string.write_file), 300, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
         }
 
@@ -1152,11 +1159,12 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
         if (!Global.mBookFiles.containsKey(book.bookId)){
             BookFile bookFile = new BookFile(book.bookId, Url.domainUrl + book.bookNameUrl);
             Global.mBookFiles.put(book.bookId, bookFile);
-            Intent intent = new Intent(getContext(), DownloadingService.class);
+            Intent intent = new Intent(mContext, DownloadingService.class);
             intent.putParcelableArrayListExtra("bookFile", new ArrayList<BookFile>(Arrays.asList(bookFile)));
-            getContext().startService(intent);
+            mContext.startService(intent);
         }
     }
+
     @Override
     public void onLongClickBookItem(Book selectedBook) {
         Global.bookAction = QueryBook.BookAction.SELECTTION;

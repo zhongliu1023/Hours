@@ -36,174 +36,226 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/seperator"/>
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/getneral_padding_16">
-        <ImageView
-            android:id="@+id/bookCoverImg"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:scaleType="fitXY"
-            android:src="@drawable/book_image"/>
-        <RelativeLayout
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/mainContent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/getneral_padding_16">
-
-            <TextView
-                android:id="@+id/bookName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="百年孤独"
-                android:textSize="@dimen/navigation_title_size"/>
-
-            <ImageView
-                android:id="@+id/starImage"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/collect_icon"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="@dimen/getneral_padding_4"
-                android:layout_marginEnd="@dimen/getneral_padding_4"/>
-
-            <TextView
-                android:id="@+id/bookAuthor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/bookName"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="3dp"
-                android:text="黄新龙"
-                android:textSize="@dimen/sw360_standard_fontsize_14"/>
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@id/anyRel"
-                android:layout_marginTop="@dimen/getneral_padding_8"
-                android:layout_marginBottom="@dimen/getneral_padding_4"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="阅读截止日期"
-                    android:textSize="@dimen/sw360_standard_fontsize_12"/>
-                <TextView
-                    android:id="@+id/txtDeadlineDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2019-12-10"
-                    android:layout_marginStart="@dimen/getneral_padding_8"
-                    android:textSize="@dimen/sw360_standard_fontsize_12"
-                    android:textColor="@color/pink"/>
-            </LinearLayout>
+                android:padding="@dimen/getneral_padding_16">
+                <ImageView
+                    android:id="@+id/bookCoverImg"
+                    android:layout_width="100dp"
+                    android:layout_height="150dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/book_image"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/getneral_padding_16">
 
-            <RelativeLayout
-                android:id="@+id/anyRel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-                <TextView
-                    android:id="@+id/txtDownloadButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/white"
-                    android:text="下载"
-                    android:layout_marginStart="@dimen/getneral_padding_8"
-                    android:textSize="@dimen/sw360_standard_fontsize_14"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:paddingRight="@dimen/getneral_padding_12"
-                    android:paddingLeft="@dimen/getneral_padding_12"
-                    android:paddingTop="@dimen/getneral_padding_8"
-                    android:paddingBottom="@dimen/getneral_padding_8"
-                    android:background="@drawable/download_button_back"/>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_toStartOf="@id/txtDownloadButton">
-
-                    <LinearLayout
+                    <TextView
+                        android:id="@+id/bookName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="百年孤独"
+                        android:textSize="@dimen/navigation_title_size"/>
+
+                    <ImageView
+                        android:id="@+id/starImage"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/collect_icon"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="@dimen/getneral_padding_4"
+                        android:layout_marginEnd="@dimen/getneral_padding_4"/>
+
+                    <TextView
+                        android:id="@+id/bookAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/bookName"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="3dp"
+                        android:text="黄新龙"
+                        android:textSize="@dimen/sw360_standard_fontsize_14"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@id/anyRel"
+                        android:layout_marginTop="@dimen/getneral_padding_8"
                         android:layout_marginBottom="@dimen/getneral_padding_4"
                         android:orientation="horizontal">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="平均读完用时"
-                            android:textSize="@dimen/sw360_standard_fontsize_10"/>
+                            android:text="阅读截止日期"
+                            android:textSize="@dimen/sw360_standard_fontsize_12"/>
                         <TextView
-                            android:id="@+id/txtAverageTime"
+                            android:id="@+id/txtDeadlineDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="22"
+                            android:text="2019-12-10"
                             android:layout_marginStart="@dimen/getneral_padding_8"
-                            android:layout_marginEnd="@dimen/getneral_padding_4"
-                            android:textColor="@color/pink"
-                            android:textSize="@dimen/sw360_standard_fontsize_10"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:text="小时"
-                            android:textSize="@dimen/sw360_standard_fontsize_10" />
+                            android:textSize="@dimen/sw360_standard_fontsize_12"
+                            android:textColor="@color/pink"/>
                     </LinearLayout>
-                    <LinearLayout
+
+                    <RelativeLayout
+                        android:id="@+id/anyRel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_alignParentBottom="true">
                         <TextView
+                            android:id="@+id/txtDownloadButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="要求最短用时"
-                            android:textSize="@dimen/sw360_standard_fontsize_10"/>
-                        <TextView
-                            android:id="@+id/txtSpecifiedTime"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="55"
+                            android:textColor="@color/white"
+                            android:text="下载"
                             android:layout_marginStart="@dimen/getneral_padding_8"
-                            android:layout_marginEnd="@dimen/getneral_padding_4"
-                            android:textColor="@color/pink"
-                            android:textSize="@dimen/sw360_standard_fontsize_10"/>
-                        <TextView
+                            android:textSize="@dimen/sw360_standard_fontsize_14"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:paddingRight="@dimen/getneral_padding_12"
+                            android:paddingLeft="@dimen/getneral_padding_12"
+                            android:paddingTop="@dimen/getneral_padding_8"
+                            android:paddingBottom="@dimen/getneral_padding_8"
+                            android:background="@drawable/download_button_back"/>
+                        <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="小时"
-                            android:textSize="@dimen/sw360_standard_fontsize_10"/>
-                    </LinearLayout>
-                </LinearLayout>
+                            android:orientation="vertical"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/txtDownloadButton">
 
-            </RelativeLayout>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/getneral_padding_4"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="平均读完用时"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10"/>
+                                <TextView
+                                    android:id="@+id/txtAverageTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="22"
+                                    android:layout_marginStart="@dimen/getneral_padding_8"
+                                    android:layout_marginEnd="@dimen/getneral_padding_4"
+                                    android:textColor="@color/pink"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10"/>
 
-        </RelativeLayout>
-    </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/seperator"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="@dimen/getneral_padding_16">
-        <TextView
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:text="小时"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10" />
+                            </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="要求最短用时"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10"/>
+                                <TextView
+                                    android:id="@+id/txtSpecifiedTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="55"
+                                    android:layout_marginStart="@dimen/getneral_padding_8"
+                                    android:layout_marginEnd="@dimen/getneral_padding_4"
+                                    android:textColor="@color/pink"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10"/>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="小时"
+                                    android:textSize="@dimen/sw360_standard_fontsize_10"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                </RelativeLayout>
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/seperator"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/getneral_padding_16">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="简介"
+                    android:layout_marginBottom="@dimen/getneral_padding_16"
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/bookSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget."
+                    android:textSize="@dimen/sw360_standard_fontsize_18" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/noNetwork"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="简介"
-            android:layout_marginBottom="@dimen/getneral_padding_16"
-            android:textSize="20sp"/>
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_centerInParent="true">
 
-        <TextView
-            android:id="@+id/bookSummary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean euismod bibendum laoreet. Proin gravida dolor sit amet lacus accumsan et viverra justo commodo. Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nam fermentum, nulla luctus pharetra vulputate, felis tellus mollis orci, sed rhoncus pronin sapien nunc accuan eget."
-            android:textSize="@dimen/sw360_standard_fontsize_18" />
-    </LinearLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/network_no_icon"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/rect_seperator"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_70"
+                android:layout_marginBottom="30dp"
+                android:paddingStart="@dimen/padding_20"
+                android:paddingEnd="@dimen/padding_20"
+                android:maxLines="2"
+                android:textAlignment="center"
+                android:textSize="16dp"
+                android:text="网路不给力， 加载失败"/>
+
+            <Button
+                android:id="@+id/btnTryAgain"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rect_try_again"
+                android:text="点击重试"
+                android:textSize="@dimen/sw360_standard_fontsize_16"
+                android:textColor="@color/white"
+                android:paddingStart="@dimen/getneral_padding_16"
+                android:paddingEnd="@dimen/getneral_padding_16"/>
+        </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

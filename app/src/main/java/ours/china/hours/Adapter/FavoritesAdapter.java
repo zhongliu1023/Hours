@@ -122,9 +122,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
             public void onClick(View view) {
 
                 if (Global.editStateOfFavorite.equals("no")) {
-                    Intent intent = new Intent(context, FavoritesDetailActivity.class);
-                    intent.putExtra("favoriteType", one.favorite);
-                    context.startActivity(intent);
+
+                    listener.onItemClickAction(one);
 
                 } else if (Global.editStateOfFavorite.equals("yes")) {
 
@@ -180,5 +179,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
     public interface addActionListener {
         public void enableComponentAction();
+        public void onItemClickAction(Favorites one);
     }
 }

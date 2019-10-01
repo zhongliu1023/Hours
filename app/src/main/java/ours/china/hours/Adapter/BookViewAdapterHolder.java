@@ -7,11 +7,11 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.liulishuo.filedownloader.BaseDownloadTask;
 
 import ours.china.hours.R;
 
 public class BookViewAdapterHolder  extends RecyclerView.ViewHolder {
+
     ImageView bookImage;
     ImageView downloadStateImage;
     ImageView readStateImage;
@@ -35,16 +35,17 @@ public class BookViewAdapterHolder  extends RecyclerView.ViewHolder {
             progressBar.setProgress(sofar);
         }
     }
-    public void updateCompleted(final BaseDownloadTask task) {
-        progressBar.setIndeterminate(false);
-        progressBar.setMax(task.getSmallFileTotalBytes());
-        progressBar.setProgress(task.getSmallFileSoFarBytes());
-        progressBar.setVisibility(View.GONE);
-    }
-    public void updateConnected(String etag, String filename) {
-        progressBar.setVisibility(View.VISIBLE);
-    }
-    public void updatePending(BaseDownloadTask task) {
-        progressBar.setVisibility(View.VISIBLE);
-    }
+//
+//    public void updateCompleted(final BaseDownloadTask task) {
+//        progressBar.setIndeterminate(false);
+//        progressBar.setMax(task.getSmallFileTotalBytes());
+//        progressBar.setProgress(task.getSmallFileSoFarBytes());
+//        progressBar.setVisibility(View.GONE);
+//    }
+//    public void updateConnected(String etag, String filename) {
+//        progressBar.setVisibility(View.VISIBLE);
+//    }
+//    public void updatePending(BaseDownloadTask task) {
+//        progressBar.setVisibility(View.VISIBLE);
+//    }
 }

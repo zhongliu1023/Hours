@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ours.china.hours.Activity.Global;
 import ours.china.hours.BookLib.foobnix.dao2.FileMeta;
@@ -27,11 +30,13 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.FavoriteDetailBook;
 import ours.china.hours.Model.QueryBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
 
 public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapterHolder> {
 
     public List<Book> bookList;
     public List<Book> selectedbookList;
+    public Map<String, BookFile> mBookFiles;
     public Context context;
 
     public addActionListener listener;
@@ -41,6 +46,7 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
         this.context = context;
         this.listener = (addActionListener) context;
         this.selectedbookList = new ArrayList<Book>();
+        this.mBookFiles = new HashMap<String, BookFile>();
     }
 
     @NonNull
@@ -56,7 +62,21 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
         final Book one = bookList.get(position);
 
         holder.bookName.setText(one.bookName);
-        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
+
+        if (mBookFiles.containsKey(one.bookId)){
+            BookFile bookFile = mBookFiles.get(one.bookId);
+            holder.progressBar.setVisibility(View.VISIBLE);
+            if (bookFile.getIsDownloaded()){
+                holder.progressBar.setVisibility(View.INVISIBLE);
+                holder.downloadStateImage.setVisibility(View.VISIBLE);
+            }else{
+                holder.progressBar.setProgress(bookFile.getProgress());
+            }
+        }else{
+            holder.progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        if (!one.bookLocalUrl.equals("")) {
 
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
@@ -94,12 +114,19 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
                 holder.bookImage.setBackground(context.getResources().getDrawable(R.drawable.rect_book_yellow_stroke));
             }
         }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onClickBookItem(one, position);
+                if (!mBookFiles.containsKey(one.bookId)){
+                    listener.onClickBookItem(one, position);
+                }else{
+                    Toast.makeText(context, "下载...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+
     }
 
     @Override
@@ -115,6 +142,16 @@ public class FavoritesDetailsAdatper extends RecyclerView.Adapter<BookViewAdapte
     public void reloadBookListWithSelection(ArrayList<Book> updatedBookList){
         selectedbookList = updatedBookList;
         notifyDataSetChanged();
+    }
+
+    public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
+        mBookFiles = updatedBookFiles;
+        for (int i = 0 ; i < bookList.size(); i ++){
+            Book book = bookList.get(i);
+            if (mBookFiles.containsKey(book.bookId)){
+                notifyItemChanged(i);
+            }
+        }
     }
 
     public interface addActionListener {

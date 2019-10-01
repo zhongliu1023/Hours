@@ -60,6 +60,7 @@ public class BookManagement {
 
     public static ArrayList<Favorites> getFavorites(SharedPreferencesManager sharedPreferencesManager){
         ArrayList<Favorites> favorites = new ArrayList<Favorites>(){};
+        ArrayList<Favorites> returnFavorites = new ArrayList<Favorites>();
         String userInfoStr = sharedPreferencesManager.getPreferenceValueString(SharedPreferencesKeys.FAVORITES);
         if (!userInfoStr.equals("")) {
             Gson gson = new Gson();
@@ -67,7 +68,15 @@ public class BookManagement {
             }.getType();
             favorites = gson.fromJson(userInfoStr, type);
         }
-        return favorites;
+
+        for (Favorites one : favorites) {
+            if (one.favorite.equals("")) {
+                continue;
+            } else {
+                returnFavorites.add(one);
+            }
+        }
+        return returnFavorites;
     }
 
     public static void saveFavorites(ArrayList<Favorites> favorites, SharedPreferencesManager sharedPreferencesManager){

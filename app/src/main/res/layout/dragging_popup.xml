@@ -91,6 +91,7 @@
                 android:id="@+id/popupErase"
                 android:layout_width="wrap_content"
                 android:padding="@dimen/getneral_padding_8"
+                android:visibility="gone"
                 android:layout_height="match_parent">
                 <ImageView
                     android:layout_width="wrap_content"

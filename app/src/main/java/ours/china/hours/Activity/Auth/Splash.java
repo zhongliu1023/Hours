@@ -269,7 +269,7 @@ public class Splash extends AppCompatActivity {
                         } else {
                             Global.hideLoading();
                             gotoLoginView();
-                            Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Splash.this, "网路不给力， 加载失败", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -314,7 +314,7 @@ public class Splash extends AppCompatActivity {
                         } else {
                             Global.hideLoading();
                             gotoLoginView();
-                            Toast.makeText(Splash.this, "发生意外错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Splash.this, "网路不给力， 加载失败", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

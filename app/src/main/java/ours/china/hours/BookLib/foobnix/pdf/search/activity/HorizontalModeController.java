@@ -636,7 +636,10 @@ public abstract class HorizontalModeController extends DocumentController {
                             }
                             if (selectedWords == null || !selectedWords.contains(textWordWithType)) {
                                 PageImageState.get().addNotes(pageNumber, word, type);
+                            } else {
+
                             }
+
                         }
                     });
 
@@ -737,6 +740,21 @@ public abstract class HorizontalModeController extends DocumentController {
             }
 
         }.execute();
+    }
+
+    public boolean judgeToUpdate(TextWord word, Integer pageNumber) {
+        ArrayList<TextWord> myTextWordList = new ArrayList<>();
+
+        List<TextWordWithType> selectedWords = PageImageState.get().getSelectedNotes(pageNumber);
+        for (TextWordWithType one : selectedWords) {
+            myTextWordList.add(one.textWord);
+        }
+
+        if (myTextWordList.contains(word)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

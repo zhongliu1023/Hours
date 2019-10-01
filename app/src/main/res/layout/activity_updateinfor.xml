@@ -87,6 +87,7 @@
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="7"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:gravity="end|center_vertical"
                         android:textSize="@dimen/content_normal_size"
@@ -127,6 +128,7 @@
                         android:id="@+id/tvUpdateInfoIdentify"
                         android:layout_width="0dp"
                         android:layout_weight="7"
+                        android:textColor="@color/black"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:background="@android:color/transparent"
@@ -170,6 +172,7 @@
                         android:layout_weight="7"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:textSize="@dimen/content_normal_size"
                         android:hint="@string/information_face_veri_hint"/>
@@ -208,15 +211,16 @@
                         android:textColor="@android:color/black"
                         android:textSize="@dimen/content_normal_size"
                         android:text="@string/school"/>
-                    <EditText
-                        android:id="@+id/edUpdateInfoSchool"
+                    <TextView
+                        android:id="@+id/txtUpdateInfoSchool"
                         android:layout_width="0dp"
                         android:layout_weight="7"
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:textSize="@dimen/content_normal_size"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
-                        android:hint="@string/school_hint"/>
+                        android:text="@string/school_hint"/>
                 </LinearLayout>
                 <TextView
                     android:layout_width="match_parent"
@@ -257,6 +261,7 @@
                         android:gravity="right|center_vertical"
                         android:drawableRight="@drawable/ic_right"
                         android:textSize="@dimen/content_normal_size"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:hint="@string/information_class_hint"/>
                 </LinearLayout>
@@ -298,6 +303,7 @@
                         android:layout_height="match_parent"
                         android:gravity="right|center_vertical"
                         android:textSize="@dimen/content_normal_size"
+                        android:textColor="@color/black"
                         android:background="@android:color/transparent"
                         android:hint="@string/information_name_hint"/>
                 </LinearLayout>

@@ -114,7 +114,6 @@ public class SelectFavoriteDialog extends Dialog {
         txtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.afterDialogDismissWork();
                 dismiss();
             }
         });
@@ -129,11 +128,11 @@ public class SelectFavoriteDialog extends Dialog {
                     for (String favoriteFolderName : favoriteFloderNameArrayList) {
                         for (Favorites favorites : tempFavorites) {
                             if (favorites.favorite.equals(favoriteFolderName)) {
-                                if (favorites.bookList.contains(one)) {
-                                    continue;
-                                } else {
+//                                if (favorites.bookList.contains(one)) {
+//                                    continue;
+//                                } else {
                                     favorites.bookList.add(one);
-                                }
+//                                }
                             }
                         }
                     }
@@ -192,7 +191,7 @@ public class SelectFavoriteDialog extends Dialog {
             Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT).show();
             dismiss();
             BookManagement.saveFavorites(tempFavorites, sessionManager);
-
+            listener.afterDialogDismissWork();
             Global.hideLoading();
             return;
         } else {

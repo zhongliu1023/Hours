@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -59,6 +60,10 @@ public class AlertAddFavorites extends Dialog {
             public void onClick(View view) {
                 String tempString = edtStr.getText().toString();
                 listener.addFavorite(tempString);
+
+                if (tempString.equals("")) {
+                    return;
+                }
 
                 edtStr.setText("");
                 dismiss();

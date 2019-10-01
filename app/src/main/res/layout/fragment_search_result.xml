@@ -1,59 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:paddingStart="@dimen/getneral_padding_16"
-        android:paddingEnd="@dimen/getneral_padding_16"
-        android:layout_height="@dimen/home_tab_body_title_height">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="图书馆搜索结果"
-            android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:layout_centerVertical="true"/>
-        <TextView
-            android:id="@+id/txtMoreSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="查看更多"
-            android:textColor="@color/pink"
-            android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:padding="5dp"/>
-    </RelativeLayout>
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
     <LinearLayout
+        android:id="@+id/mainContent"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/getneral_padding_8">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/library_search_result"
+        android:layout_height="match_parent">
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/seperator"/>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/getneral_padding_8">
+            android:paddingStart="@dimen/getneral_padding_16"
+            android:paddingEnd="@dimen/getneral_padding_16"
+            android:layout_height="@dimen/home_tab_body_title_height">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="图书馆搜索结果"
+                android:textSize="@dimen/sw360_standard_fontsize_16"
+                android:layout_centerVertical="true"/>
+            <TextView
+                android:id="@+id/txtMoreSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="查看更多"
+                android:textColor="@color/pink"
+                android:textSize="@dimen/sw360_standard_fontsize_16"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:padding="5dp"/>
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/getneral_padding_8">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/library_search_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
         <TextView
-            android:id="@+id/my_bookshelf_search_result_title"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/seperator"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/getneral_padding_8">
+            <TextView
+                android:id="@+id/my_bookshelf_search_result_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sw360_standard_fontsize_16"
+                android:text="我的书架搜索结果"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/my_bookshelf_search_result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/my_bookshelf_search_result_title"
+                android:layout_marginTop="6dp" />
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/noSearchBooks"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:layout_centerInParent="true">
+
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sw360_standard_fontsize_16"
-            android:text="我的书架搜索结果"/>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/my_bookshelf_search_result"
-            android:layout_below="@id/my_bookshelf_search_result_title"
-            android:layout_marginTop="@dimen/getneral_padding_8"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </RelativeLayout>
-</LinearLayout>
+            android:src="@drawable/search_no_icon"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/rect_seperator"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_70"
+            android:layout_marginBottom="30dp"
+            android:paddingStart="@dimen/padding_20"
+            android:paddingEnd="@dimen/padding_20"
+            android:maxLines="2"
+            android:textAlignment="center"
+            android:textSize="18dp"
+            android:text="没有搜索到您找的书籍换个词试时吧"/>
+    </LinearLayout>
+</RelativeLayout>

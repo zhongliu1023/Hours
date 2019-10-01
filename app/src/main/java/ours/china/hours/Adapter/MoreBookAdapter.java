@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,9 @@ import com.bumptech.glide.Glide;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ours.china.hours.Activity.BookDetailActivity;
 import ours.china.hours.Activity.Global;
@@ -32,11 +35,13 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.MoreBook;
 import ours.china.hours.Model.MyShelfBook;
 import ours.china.hours.R;
+import ours.china.hours.Services.BookFile;
 
 public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHolder> {
 
     private Context context;
     private List<Book> moreBooks;
+    public Map<String, BookFile> mBookFiles;
     private BookItemInterface bookItemInterface;
     PageLoadInterface pageLoadInterface;
 
@@ -45,6 +50,8 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         this.moreBooks = moreBooks;
         this.bookItemInterface = bookItemInterface;
         this.pageLoadInterface = pageLoadInterface;
+
+        this.mBookFiles = new HashMap<String, BookFile>();
     }
 
     @NonNull
@@ -61,7 +68,7 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         final Book one = moreBooks.get(position);
 
         holder.bookName.setText(one.bookName);
-        if (!one.bookLocalUrl.equals("") && !one.bookImageLocalUrl.equals("")) {
+        if (!one.bookLocalUrl.equals("")) {
 
             // for downloaded book
             holder.downloadStateImage.setVisibility(View.VISIBLE);
@@ -81,12 +88,27 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
 
             // for undownloaded book
             holder.downloadStateImage.setVisibility(View.INVISIBLE);
-            holder.txtDownState.setText("来下载");
+            holder.txtDownState.setText("未下载");
             Glide.with(context)
                     .load(Url.domainUrl + "/" + one.coverUrl)
                     .placeholder(R.drawable.book_image)
                     .into(holder.bookImage);
         }
+
+        if (mBookFiles.containsKey(one.bookId)){
+            BookFile bookFile = mBookFiles.get(one.bookId);
+            holder.progressBar.setVisibility(View.VISIBLE);
+            if (bookFile.getIsDownloaded()){
+                holder.progressBar.setVisibility(View.INVISIBLE);
+                holder.downloadStateImage.setVisibility(View.VISIBLE);
+            }else{
+                holder.progressBar.setProgress(bookFile.getProgress());
+                holder.txtDownState.setText("下载中");
+            }
+        }else{
+            holder.progressBar.setVisibility(View.INVISIBLE);
+        }
+
 
         if (one.bookStatus != null && one.bookStatus.isRead.equals("1")) {
             holder.readStateImage.setVisibility(View.VISIBLE);
@@ -122,6 +144,16 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         notifyDataSetChanged();
     }
 
+    public void reloadbookwithDownloadStatus(Map<String, BookFile> updatedBookFiles){
+        mBookFiles = updatedBookFiles;
+        for (int i = 0 ; i < moreBooks.size(); i ++){
+            Book book = moreBooks.get(i);
+            if (mBookFiles.containsKey(book.bookId)){
+                notifyItemChanged(i);
+            }
+        }
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView bookImage;
@@ -130,6 +162,7 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
         TextView bookName;
         TextView bookAuthor;
         TextView txtDownState;
+        ProgressBar progressBar;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -140,6 +173,7 @@ public class MoreBookAdapter extends RecyclerView.Adapter<MoreBookAdapter.ViewHo
             bookName = itemView.findViewById(R.id.item_bookName);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
             txtDownState = itemView.findViewById(R.id.txtDownState);
+            progressBar = itemView.findViewById(R.id.progressbar);
 
         }
     }

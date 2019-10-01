@@ -504,48 +504,48 @@ public class PageImaveView extends View {
 
                 }
 
-                if (event.getPointerCount() == 2) {
-                    isIgronerClick = true;
-
-                    LOG.d("TEST", "action ACTION_MOVE 2");
-                    if (cx == 0) {
-                        cx = centerX(event);
-                        cy = centerY(event);
-                    }
-                    final float nDistance = discance(event);
-
-                    if (distance == 0) {
-                        distance = nDistance;
-                    }
-
-                    final float scale = nDistance / distance;
-                    distance = nDistance;
-                    final float centerX = centerX(event);
-                    final float centerY = centerY(event);
-
-                    final float values[] = new float[9];
-                    imageMatrix().getValues(values);
-
-                    if (AppState.get().isZoomInOutWithLock || !AppTemp.get().isLocked) {
-                        LOG.d("postScale", scale, values[Matrix.MSCALE_X]);
-                        if (values[Matrix.MSCALE_X] > 0.3f || scale > 1) {
-                            imageMatrix().postScale(scale, scale, centerX, centerY);
-                            EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_HIDE));
-                        }
-                    }
-                    final float dx = centerX - cx;
-                    final float dy = centerY - cy;
-                    if (AppState.get().isZoomInOutWithLock || !AppTemp.get().isLocked) {
-                        imageMatrix().postTranslate(dx, dy);
-                        EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_HIDE));
-                    }
-                    cx = centerX(event);
-                    cy = centerY(event);
-
-                    PageImageState.get().isAutoFit = false;
-                    invalidateAndMsg();
-
-                }
+//                if (event.getPointerCount() == 2) {
+//                    isIgronerClick = true;
+//
+//                    LOG.d("TEST", "action ACTION_MOVE 2");
+//                    if (cx == 0) {
+//                        cx = centerX(event);
+//                        cy = centerY(event);
+//                    }
+//                    final float nDistance = discance(event);
+//
+//                    if (distance == 0) {
+//                        distance = nDistance;
+//                    }
+//
+//                    final float scale = nDistance / distance;
+//                    distance = nDistance;
+//                    final float centerX = centerX(event);
+//                    final float centerY = centerY(event);
+//
+//                    final float values[] = new float[9];
+//                    imageMatrix().getValues(values);
+//
+//                    if (AppState.get().isZoomInOutWithLock || !AppTemp.get().isLocked) {
+//                        LOG.d("postScale", scale, values[Matrix.MSCALE_X]);
+//                        if (values[Matrix.MSCALE_X] > 0.3f || scale > 1) {
+//                            imageMatrix().postScale(scale, scale, centerX, centerY);
+//                            EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_HIDE));
+//                        }
+//                    }
+//                    final float dx = centerX - cx;
+//                    final float dy = centerY - cy;
+//                    if (AppState.get().isZoomInOutWithLock || !AppTemp.get().isLocked) {
+//                        imageMatrix().postTranslate(dx, dy);
+//                        EventBus.getDefault().post(new MessagePageXY(MessagePageXY.TYPE_HIDE));
+//                    }
+//                    cx = centerX(event);
+//                    cy = centerY(event);
+//
+//                    PageImageState.get().isAutoFit = false;
+//                    invalidateAndMsg();
+//
+//                }
             } else if (action == MotionEvent.ACTION_POINTER_UP) {
                 LOG.d("TEST", "action ACTION_POINTER_UP");
                 // isDoubleTouch = true;
@@ -829,7 +829,7 @@ public class PageImaveView extends View {
         }
 
         if (colorPickValue == ColorCollection.erase) {
-            paintWrods.setColor(Color.BLUE);
+            paintWrods.setColor(Color.TRANSPARENT);
             paintWrods.setAlpha(60);
             invalidate();
         }

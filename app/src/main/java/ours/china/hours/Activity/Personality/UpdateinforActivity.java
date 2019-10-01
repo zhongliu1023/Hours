@@ -47,8 +47,8 @@ import ours.china.hours.R;
 public class UpdateinforActivity extends AppCompatActivity {
 
     private ImageView imgUpdateInfoBack;
-    private TextView tvUpdateInfoComplete, tvUpdateInfoIdentify, tvUpdateInfoFace, tvUpdateInfoClass;
-    private EditText edUpdateInfoName, edUpdateInfoStudId, edUpdateInfoSchool;
+    private TextView tvUpdateInfoComplete, tvUpdateInfoIdentify, tvUpdateInfoFace, tvUpdateInfoClass, tvUpdateInfoSchool;
+    private EditText edUpdateInfoName, edUpdateInfoStudId;
     private BottomSheetDialog bottomSheetDialog;
     public ImageButton btnUpdateInfoUp, btnUpdateInfoDown;
     public Button btnDone;
@@ -89,7 +89,7 @@ public class UpdateinforActivity extends AppCompatActivity {
         tvUpdateInfoIdentify = (TextView)findViewById(R.id.tvUpdateInfoIdentify);
         tvUpdateInfoFace = (TextView)findViewById(R.id.tvUpdateInfoFace);
         tvUpdateInfoClass = (TextView)findViewById(R.id.tvUpdateInfoClass);
-        edUpdateInfoSchool = (EditText)findViewById(R.id.edUpdateInfoSchool);
+        tvUpdateInfoSchool = (TextView)findViewById(R.id.txtUpdateInfoSchool);
         edUpdateInfoName = (EditText) findViewById(R.id.edUpdateName);
         edUpdateInfoStudId = (EditText)findViewById(R.id.edUpdateInfoStudid);
         tvUpdateInfoComplete = (TextView)findViewById(R.id.tvUpdateInfoComplete);
@@ -98,9 +98,9 @@ public class UpdateinforActivity extends AppCompatActivity {
         edUpdateInfoName.setText(currentUser.name);
         edUpdateInfoStudId.setText(currentUser.studId);
         tvUpdateInfoClass.setText(currentUser.className);
-        edUpdateInfoSchool.setText(currentUser.school);
+        tvUpdateInfoSchool.setText(currentUser.school);
 
-        edUpdateInfoSchool.addTextChangedListener(textWatcher);
+//        tvUpdateInfoSchool.addTextChangedListener(textWatcher);
         edUpdateInfoName.addTextChangedListener(textWatcher);
         edUpdateInfoStudId.addTextChangedListener(textWatcher);
     }
@@ -229,8 +229,6 @@ public class UpdateinforActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void upAnddownPicker(){
 
         btnUpdateInfoUp.setOnClickListener(new View.OnClickListener() {
@@ -240,11 +238,10 @@ public class UpdateinforActivity extends AppCompatActivity {
         });
     }
 
-
     private void collectData(){
 
         strName = edUpdateInfoName.getText().toString();
-        strSchool = edUpdateInfoSchool.getText().toString();
+        strSchool = tvUpdateInfoSchool.getText().toString();
         strClass = tvUpdateInfoClass.getText().toString();
         strStudId = edUpdateInfoStudId.getText().toString();
     }
@@ -280,12 +277,6 @@ public class UpdateinforActivity extends AppCompatActivity {
         if (strName.equals("")){
             Global.alert(UpdateinforActivity.this, getResources().getString(R.string.perfect_info), getResources().getString(R.string.information_name), getResources().getString(R.string.confirm));
             edUpdateInfoName.requestFocus();
-            return;
-        }
-
-        if (strSchool.equals("")){
-            Global.alert(UpdateinforActivity.this, getResources().getString(R.string.perfect_info), getResources().getString(R.string.school), getResources().getString(R.string.confirm));
-            edUpdateInfoSchool.requestFocus();
             return;
         }
 

@@ -36,6 +36,7 @@ public class PerfectInforActivity extends AppCompatActivity{
 
     private EditText edPerfectName, edPerfectStudId;
     private TextView tvPerfectIdentify, tvPerfectFace, tvPerfectClass, edPerfectSchool;
+    private LinearLayout linPerfectidentify, linPerfectface, linPerfectClass;
     private Button btnPerfectSubmit, btnPerfectDone;
     private ImageButton btnDown, btnUp;
     private ImageView imgPerfectBack;
@@ -90,6 +91,10 @@ public class PerfectInforActivity extends AppCompatActivity{
         btnDown = (ImageButton)findViewById(R.id.btnPerfectDown);
         btnUp = (ImageButton)findViewById(R.id.btnPerfectUp);
         imgPerfectBack = (ImageView)findViewById(R.id.imgPerfectBack);
+
+        linPerfectidentify = findViewById(R.id.linPerfectidentify);
+        linPerfectface = findViewById(R.id.linPerfectface);
+        linPerfectClass = findViewById(R.id.linPerfectClass);
     }
 
 
@@ -117,7 +122,7 @@ public class PerfectInforActivity extends AppCompatActivity{
 
     private void gotoIdentify(){
 
-        tvPerfectIdentify.setOnClickListener(new View.OnClickListener() {
+        linPerfectidentify.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 Intent intent = new Intent(PerfectInforActivity.this, IdentifyActivity.class);
                 startActivity(intent);
@@ -126,7 +131,7 @@ public class PerfectInforActivity extends AppCompatActivity{
     }
 
     public void goFaceRegister() {
-        tvPerfectFace.setOnClickListener(new View.OnClickListener() {
+        linPerfectface.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(PerfectInforActivity.this, FaceRegisterActivity.class);
@@ -306,7 +311,7 @@ public class PerfectInforActivity extends AppCompatActivity{
 
 
     private void showBottomSheetDialog() {
-        tvPerfectClass.setOnClickListener(new View.OnClickListener() {
+        linPerfectClass.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 openDlg();
             }
