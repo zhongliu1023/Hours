@@ -388,7 +388,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     SearchContentDialog searchContentDialog;
     TranslateDialog translateDialog;
     NoteDialog noteDialog;
-    int selectedNoteType = 2;
+    int selectedNoteType = 4;
     Bundle savedInstanceState;
     @Override
     protected void onNewIntent(final Intent intent) {
@@ -1023,7 +1023,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     }
 
     Boolean isFirst;
-    Boolean isPopupWindowDisplay;
+    Boolean isPopupWindowDisplay = false;
     AppBookmark globalBookMark = null;
     public void showPopupWindow() {
         // primary action
@@ -3329,28 +3329,30 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
             if (clickUtils.isClickRight(x, y) && AppState.get().tapZoneRight != AppState.TAP_DO_NOTHING) {
                 if (AppState.get().tapZoneRight == AppState.TAP_NEXT_PAGE) {
                     nextPage();
-                } else {
-                    prevPage();
                 }
+//                else {
+//                    prevPage();
+//                }
             } else if (clickUtils.isClickLeft(x, y) && AppState.get().tapZoneLeft != AppState.TAP_DO_NOTHING) {
                 if (AppState.get().tapZoneLeft == AppState.TAP_PREV_PAGE) {
                     prevPage();
-                } else {
-                    nextPage();
                 }
-            } else if (clickUtils.isClickTop(x, y) && AppState.get().tapZoneTop != AppState.TAP_DO_NOTHING) {
-                if (AppState.get().tapZoneTop == AppState.TAP_PREV_PAGE) {
-                    prevPage();
-                } else {
-                    nextPage();
-                }
-
-            } else if (clickUtils.isClickBottom(x, y) && AppState.get().tapZoneBottom != AppState.TAP_DO_NOTHING) {
-                if (AppState.get().tapZoneBottom == AppState.TAP_NEXT_PAGE) {
-                    nextPage();
-                } else {
-                    prevPage();
-                }
+//                else {
+//                    nextPage();
+//                }
+//            } else if (clickUtils.isClickTop(x, y) && AppState.get().tapZoneTop != AppState.TAP_DO_NOTHING) {
+//                if (AppState.get().tapZoneTop == AppState.TAP_PREV_PAGE) {
+//                    prevPage();
+//                } else {
+//                    nextPage();
+//                }
+//
+//            } else if (clickUtils.isClickBottom(x, y) && AppState.get().tapZoneBottom != AppState.TAP_DO_NOTHING) {
+//                if (AppState.get().tapZoneBottom == AppState.TAP_NEXT_PAGE) {
+//                    nextPage();
+//                } else {
+//                    prevPage();
+//                }
 
             } else {
                 LOG.d("Click-center!", x, y);

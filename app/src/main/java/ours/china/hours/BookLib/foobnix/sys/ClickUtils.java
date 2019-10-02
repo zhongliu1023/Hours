@@ -21,7 +21,6 @@ public class ClickUtils {
         border_top = Dips.screenHeight() / 100 * AppState.get().tapzoneSize;
     }
 
-
     public void initMusician() {
         WIDHT_X = Dips.screenWidth();
         HEIGHT_Y = Dips.screenHeight();
@@ -45,11 +44,11 @@ public class ClickUtils {
     }
 
     public boolean isClickLeft(float x, float y) {
-        return x < border_side;
+        return x < border_side && !isClickTop(x, y) && !isClickBottom(x, y);
     }
 
     public boolean isClickRight(float x, float y) {
-        return x > (WIDHT_X - border_side);
+        return x > (WIDHT_X - border_side) && !isClickTop(x, y) && !isClickBottom(x, y);
     }
 
 }

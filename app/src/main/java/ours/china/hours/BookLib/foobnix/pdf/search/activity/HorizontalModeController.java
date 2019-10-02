@@ -636,10 +636,7 @@ public abstract class HorizontalModeController extends DocumentController {
                             }
                             if (selectedWords == null || !selectedWords.contains(textWordWithType)) {
                                 PageImageState.get().addNotes(pageNumber, word, type);
-                            } else {
-
                             }
-
                         }
                     });
 

@@ -614,7 +614,7 @@ public class AppState {
     public int rotateViewPager = 0;
 
     @IgnoreHashCode
-    public int tapzoneSize = Dips.isXLargeScreen() ? 15 : 25;
+    public int tapzoneSize = Dips.isXLargeScreen() ? 45 : 45;
 
 
     public transient int allocatedMemorySize = (int) MemoryUtils.RECOMENDED_MEMORY_SIZE;
