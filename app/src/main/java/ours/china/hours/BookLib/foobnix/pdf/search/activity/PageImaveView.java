@@ -753,6 +753,9 @@ public class PageImaveView extends View {
                             paintWrods.setColor(getResources().getColor(R.color.pink));
                             paintWrods.setAlpha(60);
                             break;
+                        case 4:
+                            paintWrods.setColor(getResources().getColor(R.color.transparent));
+                            paintWrods.setAlpha(60);
                         default:
                             break;
                     }
@@ -829,7 +832,7 @@ public class PageImaveView extends View {
         }
 
         if (colorPickValue == ColorCollection.erase) {
-            paintWrods.setColor(Color.TRANSPARENT);
+            paintWrods.setColor(Color.BLUE);
             paintWrods.setAlpha(60);
             invalidate();
         }

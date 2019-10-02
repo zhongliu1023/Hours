@@ -1209,7 +1209,10 @@ public class HomeFragment extends UIFragment<FileMeta> implements BookItemInterf
     @Override
     public void scrollToLoad(int position) {
         if (Global.bookAction == QueryBook.BookAction.NONE) {
-
+            if (position < totalCount) {
+                Global.showLoading(getContext(), "generate_report");
+                getAllDataFromServer(position / Global.perPage);
+            }
         }
     }
 }

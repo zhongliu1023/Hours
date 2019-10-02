@@ -47,6 +47,7 @@ public class BookmarksData {
             LOG.e(e);
         }
     }
+
     public void update(AppBookmark bookmark) {
         LOG.d("BookmarksData", "remove", bookmark.t, bookmark.file);
 
@@ -56,7 +57,7 @@ public class BookmarksData {
                 obj.put("" + bookmark.t, Objects.toJSONObject(bookmark));
                 IO.writeObjAsync(AppProfile.syncBookmarks, obj);
             }
-            IO.writeObjAsync(bookmark.file, obj);
+            // IO.writeObjAsync(bookmark.file, obj);
         } catch (Exception e) {
             LOG.e(e);
         }
@@ -69,8 +70,9 @@ public class BookmarksData {
             JSONObject obj = IO.readJsonObject(AppProfile.syncBookmarks);
             if (obj.has("" + bookmark.t)) {
                 obj.remove("" + bookmark.t);
+                IO.writeObjAsync(AppProfile.syncBookmarks, obj);
             }
-            IO.writeObjAsync(bookmark.file, obj);
+//            IO.writeObjAsync(bookmark.file, obj);
         } catch (Exception e) {
             LOG.e(e);
         }

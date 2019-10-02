@@ -18,7 +18,7 @@
     <string name="permission_denied">没有权限!</string>
     <string name="active_success">active success</string>
     <string name="already_activated">already activated</string>
-    <string name="active_failed">active failed,code is %d</string>
+    <string name="active_failed">人脸检测引擎活动失败</string>
 
     <!-- for face image upload -->
     <string name="read_file">This app needs access to your file storage so that it can read photos.</string>

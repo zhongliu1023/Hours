@@ -225,6 +225,7 @@ import ours.china.hours.Model.Book;
 import ours.china.hours.Model.BookStatus;
 import ours.china.hours.R;
 import ours.china.hours.Utility.ConnectivityHelper;
+import ours.china.hours.Utility.MyPopupWindowHelper;
 
 public class HorizontalBookReadingActivity extends AppCompatActivity implements
         ViewTreeObserver.OnGlobalLayoutListener,
@@ -387,7 +388,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     SearchContentDialog searchContentDialog;
     TranslateDialog translateDialog;
     NoteDialog noteDialog;
-    int selectedNoteType = 0;
+    int selectedNoteType = 2;
     Bundle savedInstanceState;
     @Override
     protected void onNewIntent(final Intent intent) {
@@ -1022,6 +1023,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
     }
 
     Boolean isFirst;
+    Boolean isPopupWindowDisplay;
     AppBookmark globalBookMark = null;
     public void showPopupWindow() {
         // primary action
@@ -1087,13 +1089,24 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         popupErase.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                selectedNoteType = 4;
+//                colorPickValue = tempColorPickValue;
+//
+//                globalBookMark.text = "";
+//                myNoteWork("");
+//                EventBus.getDefault().post(new MsgChangePaintWordsColor(ColorCollection.erase));
+
                 selectedNoteType = 4;
-                colorPickValue = tempColorPickValue;
                 popupErase.setVisibility(View.GONE);
 
-                globalBookMark.text = "";
+                tempColorPickValue = colorPickValue;
+                colorPickValue = ColorCollection.erase;
+
+                globalBookMark.text = selectedString;
+
+//                dc.clearSelectedText();
                 myNoteWork("");
-//                EventBus.getDefault().post(new MsgChangePaintWordsColor(ColorCollection.erase));
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
             }
         });
 
@@ -1108,8 +1121,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 colorPickValue = ColorCollection.yellow;
 
                 globalBookMark.text = selectedString;
+
+//                dc.clearSelectedText();
                 myNoteWork("");
-//                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
             }
         });
 
@@ -1124,8 +1139,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 colorPickValue = ColorCollection.orange;
 
                 globalBookMark.text = selectedString;
+
+//                dc.clearSelectedText();
                 myNoteWork("");
-//                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
 
             }
         });
@@ -1141,8 +1158,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 colorPickValue = ColorCollection.blue;
 
                 globalBookMark.text = selectedString;
+
+//                dc.clearSelectedText();
                 myNoteWork("");
-//                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
 
             }
         });
@@ -1158,8 +1177,10 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 colorPickValue = ColorCollection.pink;
 
                 globalBookMark.text = selectedString;
+
+//                dc.clearSelectedText();
                 myNoteWork("");
-//                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
+                EventBus.getDefault().post(new MsgChangePaintWordsColor(colorPickValue));
 
             }
         });
@@ -1275,6 +1296,7 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         noteWork(selectedText);
 
         popupWindowHelper = new PopupWindowHelper(popView);
+        isPopupWindowDisplay = true;
 
         if (anchorX.getY() < anchorY.getY()){
             popupWindowHelper.showAsPopUp(anchorX);
@@ -1296,8 +1318,29 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         globalBookMark.isF = false;
         globalBookMark.type = selectedNoteType;
 
-        TempHolder.isSeaching = false;
-        dc.clearSelectedText();
+//        TempHolder.isSeaching = false;
+
+//        TempHolder.isSeaching = true;
+//        dc.doSearchInPage(globalBookMark.text, globalBookMark.getPage(Integer.parseInt(maxPage))-1, globalBookMark.type, new ResultResponse<Integer>() {
+//            @Override
+//            public boolean onResultRecive(final Integer pageNumber) {
+//                return false;
+//            }
+//        });
+
+        if (isFirst) {
+            isFirst = false;
+            BookmarksData.get().add(globalBookMark);
+        } else if (selectedNoteType == 4 && !isFirst){
+            isFirst = true;
+            BookmarksData.get().remove(globalBookMark);
+        } else if (!isFirst){
+            BookmarksData.get().update(globalBookMark);
+        }
+
+    }
+
+    public void dismissPopupWindowAction() {
         TempHolder.isSeaching = true;
         dc.doSearchInPage(globalBookMark.text, globalBookMark.getPage(Integer.parseInt(maxPage))-1, globalBookMark.type, new ResultResponse<Integer>() {
             @Override
@@ -1305,17 +1348,6 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 return false;
             }
         });
-
-        if (isFirst) {
-            isFirst = false;
-            BookmarksData.get().add(globalBookMark);
-
-        } else if (selectedNoteType == 4 && !isFirst){
-            BookmarksData.get().remove(globalBookMark);
-        } else if (!isFirst){
-            BookmarksData.get().update(globalBookMark);
-        }
-
     }
 
 //    public void addOrUpdateNoteWok(String strNote) {
@@ -3283,6 +3315,15 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
                 return;
             }
 
+            if (isPopupWindowDisplay) {
+                isPopupWindowDisplay = false;
+
+                if (selectedNoteType != 4) {
+                    dismissPopupWindowAction();
+                    selectedNoteType = 4;
+                }
+            }
+
             int x = (int) ev.getX();
             int y = (int) ev.getY();
             if (clickUtils.isClickRight(x, y) && AppState.get().tapZoneRight != AppState.TAP_DO_NOTHING) {
@@ -3824,4 +3865,5 @@ public class HorizontalBookReadingActivity extends AppCompatActivity implements
         onDestoryActivity();
         onCreateActivity();
     }
+
 }

@@ -53,12 +53,13 @@
                     android:id="@+id/tab_home"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:srcCompat="@drawable/tab_home" />
+                    app:srcCompat="@drawable/library_icon" />
                 <TextView
                     android:id="@+id/txtHome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="图书馆"
+                    android:textColor="@color/pink"
                     android:layout_marginTop="@dimen/main_text_margin_top"
                     android:textSize="@dimen/main_text_font" />
             </LinearLayout>
@@ -74,13 +75,14 @@
                     android:id="@+id/tab_book"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:srcCompat="@drawable/tab_book" />
+                    app:srcCompat="@drawable/bookshelf2_icon" />
 
                 <TextView
                     android:id="@+id/txtBook"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="书架"
+                    android:textColor="@color/alpa_90"
                     android:layout_marginTop="@dimen/main_text_margin_top"
                     android:textSize="@dimen/main_text_font" />
 
@@ -99,13 +101,14 @@
                     android:id="@+id/tab_history"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:srcCompat="@drawable/tab_history" />
+                    app:srcCompat="@drawable/state2_icon" />
 
                 <TextView
                     android:id="@+id/txtHistory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="状态"
+                    android:textColor="@color/alpa_90"
                     android:layout_marginTop="@dimen/main_text_margin_top"
                     android:textSize="@dimen/main_text_font" />
             </LinearLayout>
@@ -122,13 +125,14 @@
                     android:id="@+id/tab_profile"
                     android:layout_width="@dimen/tab_image_size"
                     android:layout_height="@dimen/tab_image_size"
-                    app:srcCompat="@drawable/tab_profile" />
+                    app:srcCompat="@drawable/me2_icon" />
 
                 <TextView
                     android:id="@+id/txtProfile"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="个人"
+                    android:textColor="@color/alpa_90"
                     android:layout_marginTop="@dimen/main_text_margin_top"
                     android:textSize="@dimen/main_text_font" />
             </LinearLayout>

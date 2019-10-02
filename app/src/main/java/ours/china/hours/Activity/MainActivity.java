@@ -127,6 +127,7 @@ public class MainActivity  extends AppCompatActivity {
             ExtUtils.init(this);
             IMG.init(this);
         }
+
         private void init(){
             imgHomeTab = (ImageView) findViewById(R.id.tab_home);
             imgBookTab = (ImageView) findViewById(R.id.tab_book);
@@ -158,7 +159,7 @@ public class MainActivity  extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        changedTabIcons(0);
+//        changedTabIcons(0);
         super.onResume();
     }
 
